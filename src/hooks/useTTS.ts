@@ -148,24 +148,13 @@ export function useAutoPlay() {
         await new Promise(r => setTimeout(r, 500));
         if (!isActive) return;
 
-        // 3. 如果开启了自动读例句，并且有例句，则读例句
+        // 3. 如果开启了自动读例句，并且有例句，则读英文例句
         if (settings.readExample && currentWord.example) {
           await speak(currentWord.example, settings.accent, settings.speechRate || 1.0);
           if (!isActive) return;
-          await new Promise(r => setTimeout(r, 500));
-          if (!isActive) return;
         }
 
-        // 4. 读中文释义（借鉴百词斩）
-        // 提取纯中文意思，去掉 "n." "v." 等词性
-        const cleanDef = currentWord.definition.replace(/^[a-z]+\.\s*/i, '').trim();
-        if (cleanDef) {
-          await speakChinese(cleanDef, settings.speechRate || 1.0);
-        }
-
-        if (!isActive) return;
-
-        // 5. 等待用户设置的间隔后切换下一个
+        // 4. 等待用户设置的间隔后切换下一个
         setTimeout(() => {
           if (isActive) {
             nextWord();
