@@ -63,4 +63,22 @@ export const storage = {
   resetProgress(): void {
     localStorage.removeItem(STORAGE_KEYS.PROGRESS);
   },
+
+  getMasteredWords(): Record<number, { word: string; definition: string }> {
+    try {
+      const data = localStorage.getItem('vocab_mastered');
+      if (data) return JSON.parse(data);
+    } catch (e) {
+      console.error('Failed to load mastered words:', e);
+    }
+    return {};
+  },
+
+  saveMasteredWords(words: Record<number, { word: string; definition: string }>): void {
+    try {
+      localStorage.setItem('vocab_mastered', JSON.stringify(words));
+    } catch (e) {
+      console.error('Failed to save mastered words:', e);
+    }
+  },
 };

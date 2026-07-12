@@ -22,6 +22,9 @@ interface AppState {
   // Settings
   settings: Settings;
 
+  // Mastered
+  masteredWords: Record<number, { word: string; definition: string }>;
+
   // Actions
   initialize: () => Promise<void>;
   loadCurrentWord: () => Promise<void>;
@@ -32,6 +35,8 @@ interface AppState {
   quitLearning: () => void;
   updateSettings: (newSettings: Partial<Settings>) => void;
   resetProgress: () => void;
+  markMastered: () => void;
+  unmarkMastered: (index: number) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -46,6 +51,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   isPlaying: false,
   isLearningMode: false,
   settings: storage.getSettings(),
+  masteredWords: storage.getMasteredWords(),
 
   // Initialize from storage
   initialize: async () => {
@@ -55,6 +61,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       currentIndex: progress.currentIndex,
       completedRounds: progress.completedRounds,
       settings: storage.getSettings(),
+      masteredWords: storage.getMasteredWords(),
       isLoading: true,
     });
 
@@ -82,17 +89,22 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Next word
   nextWord: () => {
-    const { currentIndex, currentRound, totalWords } = get();
-    let newIndex = currentIndex + 1;
+    const { currentIndex, currentRound, totalWords, masteredWords } = get();
+    let newIndex = currentIndex;
     let newRound = currentRound;
     let newCompletedRounds = get().completedRounds;
-
-    // Check if we've reached the end
-    if (newIndex >= totalWords) {
-      newIndex = 0;
-      newCompletedRounds += 1;
-      newRound += 1;
-    }
+    
+    // Prevent infinite loop if all words are mastered
+    let attempts = 0;
+    do {
+      newIndex += 1;
+      if (newIndex >= totalWords) {
+        newIndex = 0;
+        newCompletedRounds += 1;
+        newRound += 1;
+      }
+      attempts++;
+    } while (masteredWords[newIndex] !== undefined && attempts < totalWords);
 
     set({
       currentIndex: newIndex,
@@ -113,16 +125,21 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Previous word
   prevWord: () => {
-    const { currentIndex, currentRound, totalWords, completedRounds } = get();
-    let newIndex = currentIndex - 1;
+    const { currentIndex, currentRound, totalWords, completedRounds, masteredWords } = get();
+    let newIndex = currentIndex;
     let newRound = currentRound;
     let newCompletedRounds = completedRounds;
 
-    if (newIndex < 0) {
-      newIndex = totalWords - 1;
-      newRound = Math.max(1, currentRound - 1);
-      newCompletedRounds = Math.max(0, completedRounds - 1);
-    }
+    let attempts = 0;
+    do {
+      newIndex -= 1;
+      if (newIndex < 0) {
+        newIndex = totalWords - 1;
+        newRound = Math.max(1, currentRound - 1);
+        newCompletedRounds = Math.max(0, completedRounds - 1);
+      }
+      attempts++;
+    } while (masteredWords[newIndex] !== undefined && attempts < totalWords);
 
     set({
       currentIndex: newIndex,
@@ -175,5 +192,30 @@ export const useAppStore = create<AppState>((set, get) => ({
       completedRounds: 0,
     });
     get().loadCurrentWord();
+  },
+
+  // Mark current word as mastered
+  markMastered: () => {
+    const { currentWord, currentIndex, masteredWords } = get();
+    if (!currentWord) return;
+
+    const cleanDef = currentWord.definition.replace(/^[a-z]+\.\s*/i, '').trim();
+    const newMastered = { ...masteredWords, [currentIndex]: { word: currentWord.word, definition: cleanDef } };
+    
+    set({ masteredWords: newMastered });
+    storage.saveMasteredWords(newMastered);
+    
+    // Automatically jump to next word after mastering
+    get().nextWord();
+  },
+
+  // Unmark word as mastered (restore)
+  unmarkMastered: (index: number) => {
+    const { masteredWords } = get();
+    const newMastered = { ...masteredWords };
+    delete newMastered[index];
+    
+    set({ masteredWords: newMastered });
+    storage.saveMasteredWords(newMastered);
   },
 }));

@@ -8,8 +8,11 @@ import { SettingsModal } from './components/SettingsModal';
 import { Home } from './components/Home';
 import { Button } from '@/components/ui/button';
 
+import { MasteredList } from './components/MasteredList';
+
 function App() {
   const [showSettings, setShowSettings] = useState(false);
+  const [showMastered, setShowMastered] = useState(false);
   const { speak } = useTTS();
 
   const {
@@ -136,16 +139,30 @@ function App() {
           </div>
         </div>
 
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setShowSettings(true)}
-          aria-label="设置"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h10M4 18h7" />
-          </svg>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowMastered(true)}
+            aria-label="已掌握单词"
+            className="text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10 border-emerald-500/30"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </Button>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowSettings(true)}
+            aria-label="设置"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h10M4 18h7" />
+            </svg>
+          </Button>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -164,14 +181,14 @@ function App() {
       {/* Bottom Control */}
       <footer className="safe-bottom pb-8 pt-4 px-6 bg-background/80 backdrop-blur-lg z-40 border-t border-white/5">
         <div className="max-w-[480px] mx-auto flex flex-col items-center">
-          {/* Status */}
-          <div className="h-14 flex items-center justify-center mb-1">
+          {/* Status & Master Button */}
+          <div className="h-14 flex items-center justify-center gap-3 mb-1 w-full px-4">
             <button
               onClick={() => {
                 import('./hooks/useTTS').then(({ unlockAudio }) => unlockAudio());
                 togglePlay();
               }}
-              className={`flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold text-sm transition-all shadow-lg active:scale-95 ${
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-bold text-sm transition-all shadow-lg active:scale-95 ${
                 isPlaying 
                   ? 'bg-primary/20 text-primary border-2 border-primary/40 hover:bg-primary/30' 
                   : 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-primary/30'
@@ -180,14 +197,25 @@ function App() {
               {isPlaying ? (
                 <>
                   <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse-subtle"></span>
-                  暂停自动朗读
+                  暂停朗读
                 </>
               ) : (
                 <>
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                  开始自动朗读
+                  自动朗读
                 </>
               )}
+            </button>
+
+            <button
+              onClick={() => useAppStore.getState().markMastered()}
+              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-bold text-sm bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 hover:bg-emerald-500/20 active:scale-95 transition-all shadow-sm"
+              title="掌握此单词后，将不再循环出现"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+              已掌握
             </button>
           </div>
 
@@ -210,6 +238,12 @@ function App() {
         currentIndex={currentIndex}
         totalWords={totalWords}
         currentRound={currentRound}
+      />
+
+      {/* Mastered List Modal */}
+      <MasteredList
+        isOpen={showMastered}
+        onClose={() => setShowMastered(false)}
       />
     </div>
   );
