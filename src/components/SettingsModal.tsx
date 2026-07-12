@@ -72,7 +72,7 @@ export function SettingsModal({
           {/* 朗读间隔 */}
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              朗读间隔
+              单词切换间隔 (秒)
             </label>
             <div className="grid grid-cols-5 gap-2">
               {speedOptions.map((speed) => (
@@ -83,7 +83,27 @@ export function SettingsModal({
                   onClick={() => onUpdateSettings({ speed })}
                   className="font-medium"
                 >
-                  {speed}秒
+                  {speed}s
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          {/* 发音语速 */}
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              发音语速
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {[0.75, 1.0, 1.25, 1.5].map((rate) => (
+                <Button
+                  key={rate}
+                  variant={(settings.speechRate || 1.0) === rate ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => onUpdateSettings({ speechRate: rate })}
+                  className="font-medium"
+                >
+                  {rate}x
                 </Button>
               ))}
             </div>
@@ -110,6 +130,29 @@ export function SettingsModal({
               >
                 <span className="text-lg">🇬🇧</span>
                 <span className="font-medium">英式发音</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* 自动朗读例句 */}
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              自动朗读例句
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant={!settings.readExample ? 'default' : 'outline'}
+                onClick={() => onUpdateSettings({ readExample: false })}
+                className="font-medium"
+              >
+                关闭
+              </Button>
+              <Button
+                variant={settings.readExample ? 'default' : 'outline'}
+                onClick={() => onUpdateSettings({ readExample: true })}
+                className="font-medium"
+              >
+                开启
               </Button>
             </div>
           </div>

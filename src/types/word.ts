@@ -24,6 +24,8 @@ export interface ProgressData {
 
 export interface Settings {
   speed: number;
+  speechRate?: number;
+  readExample?: boolean;
   accent: 'us' | 'uk';
   autoPlay: boolean;
 }

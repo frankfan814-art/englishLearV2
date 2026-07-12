@@ -18,12 +18,13 @@ export function useTTS() {
   const cancelledRef = useRef(false);
 
   // 播放真实人声（网易有道API）
-  const speakRealAudio = useCallback((word: string, accent: 'us' | 'uk'): Promise<boolean> => {
+  const speakRealAudio = useCallback((word: string, accent: 'us' | 'uk', rate: number = 1.0): Promise<boolean> => {
     return new Promise((resolve) => {
       if (cancelledRef.current) return resolve(false);
       
       const type = accent === 'us' ? 2 : 1;
       audioInstance.src = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=${type}`;
+      audioInstance.playbackRate = rate;
       
       audioInstance.onended = () => resolve(true);
       audioInstance.onerror = () => resolve(false); // 失败时走 fallback
@@ -39,7 +40,7 @@ export function useTTS() {
   }, []);
 
   // 播放 TTS (可以用于单词的 fallback 或者中文释义)
-  const speakTTS = useCallback(async (text: string, lang: string): Promise<boolean> => {
+  const speakTTS = useCallback(async (text: string, lang: string, rate: number = 1.0): Promise<boolean> => {
     if (cancelledRef.current) return false;
     window.speechSynthesis?.cancel();
 
@@ -47,7 +48,7 @@ export function useTTS() {
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
-    utterance.rate = 1.0;
+    utterance.rate = rate;
     utterance.pitch = 1.0;
 
     const voices = window.speechSynthesis.getVoices();
@@ -82,20 +83,20 @@ export function useTTS() {
     });
   }, []);
 
-  const speak = useCallback(async (word: string, accent: 'us' | 'uk'): Promise<boolean> => {
+  const speak = useCallback(async (word: string, accent: 'us' | 'uk', rate: number = 1.0): Promise<boolean> => {
     // 优先使用真实人声
-    const success = await speakRealAudio(word, accent);
+    const success = await speakRealAudio(word, accent, rate);
     if (!success && !cancelledRef.current) {
       // 失败则降级使用 TTS
       const targetLang = accent === 'us' ? 'en-US' : 'en-GB';
-      return await speakTTS(word, targetLang);
+      return await speakTTS(word, targetLang, rate);
     }
     return success;
   }, [speakRealAudio, speakTTS]);
 
   // 读中文释义（借鉴百词斩）
-  const speakChinese = useCallback(async (text: string): Promise<boolean> => {
-    return await speakTTS(text, 'zh-CN');
+  const speakChinese = useCallback(async (text: string, rate: number = 1.0): Promise<boolean> => {
+    return await speakTTS(text, 'zh-CN', rate);
   }, [speakTTS]);
 
   const stop = useCallback(() => {
@@ -134,7 +135,7 @@ export function useAutoPlay() {
 
     const playCurrentWord = async () => {
       // 1. 读单词（真实人声优先）
-      const success = await speak(currentWord.word, settings.accent);
+      const success = await speak(currentWord.word, settings.accent, settings.speechRate || 1.0);
 
       if (isActive) {
         if (!success) {
@@ -147,16 +148,24 @@ export function useAutoPlay() {
         await new Promise(r => setTimeout(r, 500));
         if (!isActive) return;
 
-        // 3. 读中文释义（借鉴百词斩）
+        // 3. 如果开启了自动读例句，并且有例句，则读例句
+        if (settings.readExample && currentWord.example) {
+          await speak(currentWord.example, settings.accent, settings.speechRate || 1.0);
+          if (!isActive) return;
+          await new Promise(r => setTimeout(r, 500));
+          if (!isActive) return;
+        }
+
+        // 4. 读中文释义（借鉴百词斩）
         // 提取纯中文意思，去掉 "n." "v." 等词性
         const cleanDef = currentWord.definition.replace(/^[a-z]+\.\s*/i, '').trim();
         if (cleanDef) {
-          await speakChinese(cleanDef);
+          await speakChinese(cleanDef, settings.speechRate || 1.0);
         }
 
         if (!isActive) return;
 
-        // 4. 等待用户设置的间隔后切换下一个
+        // 5. 等待用户设置的间隔后切换下一个
         setTimeout(() => {
           if (isActive) {
             nextWord();
