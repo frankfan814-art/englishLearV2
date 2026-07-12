@@ -77,6 +77,17 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // 切入后台时自动暂停
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        useAppStore.setState({ isPlaying: false });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
   if (!isLearningMode) {
     return (
       <div className="app-container min-h-screen text-foreground flex flex-col overflow-hidden app-bg">
