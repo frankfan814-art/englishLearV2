@@ -1,0 +1,1946 @@
+{
+  "shardIndex": 17,
+  "totalShards": 17,
+  "words": [
+    {
+      "id": 16001,
+      "word": "cohesiveness",
+      "phonetic": "",
+      "pos": "",
+      "definition": "[建] 粘结性",
+      "tag": "",
+      "example": "We see human civilizations begin throughout both North and South America with different levels of complexity, technology and cohesiveness.",
+      "exampleTranslation": "我们看到北美洲和南美洲的人类文明在复杂性、技术力和凝聚力上以不同的水平展开。"
+    },
+    {
+      "id": 16002,
+      "word": "zillion",
+      "phonetic": "'ziljәn",
+      "pos": "",
+      "definition": "n. 无限大的数字",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16003,
+      "word": "Eskimo",
+      "phonetic": "'eskimәu",
+      "pos": "",
+      "definition": "n. 爱斯基摩人",
+      "tag": "",
+      "example": "Surely, Whitman was the first poet to try to get his arms around the continent so as to hold the lumberjack and the secretary and the Eskimo in one loving cosmic embrace.",
+      "exampleTranslation": "惠特曼竭诚向伐木工人、文秘人员乃至爱斯基摩人敞开博爱的广阔胸怀，无疑成为率先张开双臂拥抱美洲大陆的诗人。"
+    },
+    {
+      "id": 16004,
+      "word": "haggard",
+      "phonetic": "'hægәd",
+      "pos": "",
+      "definition": "n. 野鹰\\na. 憔悴的, 形容枯槁的, 野性的",
+      "tag": "gre",
+      "example": "Sam looked tired and haggard.",
+      "exampleTranslation": "萨姆看起来疲惫而憔悴。"
+    },
+    {
+      "id": 16005,
+      "word": "mush",
+      "phonetic": "mʌʃ",
+      "pos": "",
+      "definition": "n. 浓粥, 感伤的话, 软块\\nvi. 带狗撬在雪上前进\\ninterj. 走, 前进",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16006,
+      "word": "petrochemical",
+      "phonetic": ".petrәu'kemikәl",
+      "pos": "",
+      "definition": "a. 石化的, 石化制品的, 岩石化学的\\nn. 石化产品",
+      "tag": "",
+      "example": "Some petrochemical projects, which provide raw materials to make plastics and fertilizers, also are under pressure.",
+      "exampleTranslation": "一些为制造塑料和化肥提供原材料的石化项目也面临着资金压力。"
+    },
+    {
+      "id": 16007,
+      "word": "mil",
+      "phonetic": "mil",
+      "pos": "",
+      "definition": "n. 千分之一英寸\\n[计] 毫英寸; 密耳; 军队域名",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16008,
+      "word": "willpower",
+      "phonetic": "'wilpauә",
+      "pos": "",
+      "definition": "n. 毅力, 意志力",
+      "tag": "",
+      "example": "It took all his willpower to remain calm.",
+      "exampleTranslation": "他竭尽全力才保持了镇定。"
+    },
+    {
+      "id": 16009,
+      "word": "venomous",
+      "phonetic": "'venәmәs",
+      "pos": "",
+      "definition": "a. 有毒的, 恶毒的, 分泌毒液的, 有毒腺的\\n[医] 毒的, 有毒的",
+      "tag": "toefl",
+      "example": "Lisa shot him a venomous glance.",
+      "exampleTranslation": "莉萨恶狠狠地瞪了他一眼。"
+    },
+    {
+      "id": 16010,
+      "word": "magma",
+      "phonetic": "'mægmә",
+      "pos": "",
+      "definition": "n. 岩浆, 糊剂, 乳浆剂\\n[化] 晶浆",
+      "tag": "toefl",
+      "example": "The volcano threw new showers of magma and ash into the air.",
+      "exampleTranslation": "这座火山向空气中喷发了新的岩浆和火山灰。"
+    },
+    {
+      "id": 16011,
+      "word": "showbiz",
+      "phonetic": ".ʃәubiz",
+      "pos": "",
+      "definition": "n. 娱乐界；娱乐性行业",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16012,
+      "word": "flavored",
+      "phonetic": "ˈfleɪvəd",
+      "pos": "",
+      "definition": "v. 给…调味( flavor的过去式和过去分词 ); 给…增添风趣",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16013,
+      "word": "gestation",
+      "phonetic": "dʒes'teiʃәn",
+      "pos": "",
+      "definition": "n. 妊娠, 妊娠期, 孕育, 酝酿\\n[医] 妊娠, [受]孕",
+      "tag": "",
+      "example": "The gestation period of a horse is about 11 months.",
+      "exampleTranslation": "马的妊娠期为11个月左右。"
+    },
+    {
+      "id": 16014,
+      "word": "carpeted",
+      "phonetic": "",
+      "pos": "",
+      "definition": "vt. 在…上铺地毯（carpet的过去式与过去分词形式）",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16015,
+      "word": "clunky",
+      "phonetic": "ˈklʌŋki",
+      "pos": "",
+      "definition": "a. 粗笨的；笨重的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16016,
+      "word": "unmoved",
+      "phonetic": ".ʌn'mu:vd",
+      "pos": "",
+      "definition": "a. 没有动过的, 不动摇的, 坚决的, 冷静的",
+      "tag": "gre",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16017,
+      "word": "drugged",
+      "phonetic": "drʌgd",
+      "pos": "",
+      "definition": "vt. （在食物或饮料中）投放麻醉药, 下麻醉药（drug的过去式与过去分词形式）",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16018,
+      "word": "inalienable",
+      "phonetic": "in'eiljәnәbl",
+      "pos": "",
+      "definition": "a. 不能让与的, 不能转售的, 不能夺取的, 不可分割的",
+      "tag": "gre",
+      "example": "inalienable human rights",
+      "exampleTranslation": "不可剥夺的人权"
+    },
+    {
+      "id": 16019,
+      "word": "burr",
+      "phonetic": "bә:",
+      "pos": "",
+      "definition": "n. 毛边, 钻孔器, 芒刺\\nv. 发音含混地说话",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16020,
+      "word": "exporting",
+      "phonetic": "",
+      "pos": "",
+      "definition": "a. 输出的；出口的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16021,
+      "word": "stupor",
+      "phonetic": "'stju:pә",
+      "pos": "",
+      "definition": "n. 无感觉, 人事不省, 麻木\\n[医] 木僵, 昏呆",
+      "tag": "gre",
+      "example": "We found him lying at the bottom of the stairs in a drunken stupor .",
+      "exampleTranslation": "我们发现他躺在楼梯口，醉得不省人事。"
+    },
+    {
+      "id": 16022,
+      "word": "shortened",
+      "phonetic": "ˈʃɔ:tnd",
+      "pos": "",
+      "definition": "v. 弄短, 缩短( shorten的过去式和过去分词 )",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16023,
+      "word": "gullible",
+      "phonetic": "'gʌlibl",
+      "pos": "",
+      "definition": "a. 易受骗的\\n[法] 易受骗的, 轻信的",
+      "tag": "gre",
+      "example": "Plastic replicas of the Greek pottery are sold to gullible tourists.",
+      "exampleTranslation": "仿古希腊陶器的塑料复制品被卖给易受骗的游客。"
+    },
+    {
+      "id": 16024,
+      "word": "ungrateful",
+      "phonetic": ".ʌn'greitful",
+      "pos": "",
+      "definition": "a. 忘恩负义的, 使人不愉快的, 徒劳的, 讨厌的",
+      "tag": "",
+      "example": "Don’t be so ungrateful!",
+      "exampleTranslation": "不要如此忘恩负义！"
+    },
+    {
+      "id": 16025,
+      "word": "deflection",
+      "phonetic": "di'flekʃәn",
+      "pos": "",
+      "definition": "n. 歪斜, 偏, 偏向\\n[医] 偏向, 偏离, 偏转(光), 偏转, 波(心电图)",
+      "tag": "cet6",
+      "example": "the deflection of the missile away from its target",
+      "exampleTranslation": "使导弹偏离目标"
+    },
+    {
+      "id": 16026,
+      "word": "nomenclature",
+      "phonetic": "'nәumәnkleitʃә",
+      "pos": "",
+      "definition": "n. 命名法, 专门语, 术语\\n[化] 命名法; 命名原则",
+      "tag": "",
+      "example": "zoological nomenclature",
+      "exampleTranslation": "动物命名法"
+    },
+    {
+      "id": 16027,
+      "word": "apathetic",
+      "phonetic": ".æpә'θetik",
+      "pos": "",
+      "definition": "a. 缺乏感情的, 无动于衷的, 缺乏兴趣的\\n[医] 无情[感]的, 淡漠的",
+      "tag": "toefl",
+      "example": "She felt too apathetic even to move.",
+      "exampleTranslation": "她毫无兴趣，甚至连动都不想动。"
+    },
+    {
+      "id": 16028,
+      "word": "unspoiled",
+      "phonetic": "ʌn'spɔild",
+      "pos": "",
+      "definition": "a. 未损坏的；未宠坏的",
+      "tag": "toefl gre",
+      "example": "unspoiled countryside",
+      "exampleTranslation": "未遭到破坏的乡村"
+    },
+    {
+      "id": 16029,
+      "word": "issuance",
+      "phonetic": "'iʃjuәns",
+      "pos": "",
+      "definition": "n. 发行, 发布\\n[经] 发行, 发给",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16030,
+      "word": "overhanging",
+      "phonetic": "əʊvə'hæŋɪŋ",
+      "pos": "",
+      "definition": "v. 伸出, 悬挂于…之上( overhang的现在分词 )",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16031,
+      "word": "interplanetary",
+      "phonetic": ".intә'plænitәri",
+      "pos": "",
+      "definition": "a. 行星间的, 太阳系内的",
+      "tag": "",
+      "example": "interplanetary space missions",
+      "exampleTranslation": "星际太空飞行任务"
+    },
+    {
+      "id": 16032,
+      "word": "gurgle",
+      "phonetic": "gә:gl",
+      "pos": "",
+      "definition": "n. 汩汩声\\nvi. 汩汩地流, 作汩汩声",
+      "tag": "",
+      "example": "a gurgle of laughter",
+      "exampleTranslation": "一阵咯咯的笑声"
+    },
+    {
+      "id": 16033,
+      "word": "chalet",
+      "phonetic": "'ʃælei",
+      "pos": "",
+      "definition": "n. 瑞士山中的牧人小屋",
+      "tag": "",
+      "example": "...Swiss ski chalets.",
+      "exampleTranslation": "…瑞士滑雪小木屋。"
+    },
+    {
+      "id": 16034,
+      "word": "marinated",
+      "phonetic": "",
+      "pos": "",
+      "definition": "vt. 把…浸泡于腌泡汁中（marinate的过去式与过去分词形式）",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16035,
+      "word": "overstep",
+      "phonetic": ".әuvә'step",
+      "pos": "",
+      "definition": "vt. 踏过, 逾越, 超出...的限度\\n[法] 违犯, 逾越",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16036,
+      "word": "sulfate",
+      "phonetic": "'sʌlfeit",
+      "pos": "",
+      "definition": "n. 硫酸盐, 硫酸脂\\n[化] 硫酸盐; 硫酸盐或酯、根",
+      "tag": "",
+      "example": "The major components of PM are sulfate, nitrates, ammonia, sodium chloride, carbon, mineral dust and water.",
+      "exampleTranslation": "它的主要组成成分是硫酸盐、硝酸盐、氨、氯化钠、碳、矿物粉尘和水。"
+    },
+    {
+      "id": 16037,
+      "word": "incineration",
+      "phonetic": "in.sinә'reiʃәn",
+      "pos": "",
+      "definition": "n. 烧成灰, 焚化, 灰化\\n[医] 焚化, 灰化, 火葬",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16038,
+      "word": "malnourished",
+      "phonetic": "mæl'næriʃt",
+      "pos": "",
+      "definition": "a. 营养失调的, 营养不良的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16039,
+      "word": "pulsate",
+      "phonetic": "'pʌlseit",
+      "pos": "",
+      "definition": "vi. 搏动, 悸动, 震动\\n[医] 搏动",
+      "tag": "toefl gre",
+      "example": "I could see the veins in his neck pulsating.",
+      "exampleTranslation": "我看到他颈部的血管在跳动。"
+    },
+    {
+      "id": 16040,
+      "word": "disrepair",
+      "phonetic": ".disri'pєә",
+      "pos": "",
+      "definition": "n. 失修, 破损\\n[化] 失修",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16041,
+      "word": "Aristotelian",
+      "phonetic": ".æristɒ'ti:ljәn",
+      "pos": "",
+      "definition": "a. 亚里士多德的, 亚里士多德哲学的\\nn. 亚里士多德学派的人",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16042,
+      "word": "dermatology",
+      "phonetic": ".dә:mә'tɒlәdʒi",
+      "pos": "",
+      "definition": "n. 皮肤医学, 皮肤病学\\n[医] 皮肤病学",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16043,
+      "word": "hairless",
+      "phonetic": "'hєәlis",
+      "pos": "",
+      "definition": "a. 无毛的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16044,
+      "word": "cortisol",
+      "phonetic": "'kɔ:tisɔl",
+      "pos": "",
+      "definition": "n. 皮质醇, 氢化可的松\\n[化] 皮质醇; 皮质甾醇; 氢化可的松",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16045,
+      "word": "cashew",
+      "phonetic": "'kæʃu:",
+      "pos": "",
+      "definition": "n. 腰果树, 腰果\\n[化] ┐如树; 腰果树",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16046,
+      "word": "ophthalmologist",
+      "phonetic": ".ɒfθæl'mɒlәdʒist",
+      "pos": "",
+      "definition": "n. 眼科医师\\n[医] 眼科学家",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16047,
+      "word": "pelican",
+      "phonetic": "'pelikәn",
+      "pos": "",
+      "definition": "n. 鹈鹕鸟, 伽蓝鸟",
+      "tag": "",
+      "example": "When they get a tern or pelican to drop a fish, they plunge down and grab it off the surface of the water, which may have been how this bird got oiled.",
+      "exampleTranslation": "当军舰鸟发现一只燕鸥或者鹈鹕准备冲入水中捕鱼时就猛冲下去，在捕鱼的鸟离开海面时抓住它们，这可能就是这种鸟为何解决到石油的原因。"
+    },
+    {
+      "id": 16048,
+      "word": "prodigal",
+      "phonetic": "'prɒdigl",
+      "pos": "",
+      "definition": "n. 浪费者\\na. 浪费的, 挥霍的, 丰富的",
+      "tag": "toefl gre",
+      "example": "a prodigal lifestyle",
+      "exampleTranslation": "奢侈的生活方式"
+    },
+    {
+      "id": 16049,
+      "word": "bailiff",
+      "phonetic": "'beilif",
+      "pos": "",
+      "definition": "n. 法警, 郡副司法长官, 乡长\\n[法] 执达员, 法警, 法庭监守官",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16050,
+      "word": "whit",
+      "phonetic": "hwit",
+      "pos": "",
+      "definition": "n. 些微, 一点点",
+      "tag": "toefl gre",
+      "example": "Sara had not changed a whit.",
+      "exampleTranslation": "萨拉一点也没变。"
+    },
+    {
+      "id": 16051,
+      "word": "kingpin",
+      "phonetic": "'kiŋpin",
+      "pos": "",
+      "definition": "n. 中心立轴, (非正式)中心人物, 首脑, 关键人物, (非正式)主要成分",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16052,
+      "word": "umber",
+      "phonetic": "'ʌmbә",
+      "pos": "",
+      "definition": "n. 棕土, 棕土色\\na. 棕色的, 棕土色的\\nvt. 涂红棕色于",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16053,
+      "word": "authenticate",
+      "phonetic": "ɒ:'θentikeit",
+      "pos": "",
+      "definition": "vt. 证明可信, 证实为真, 使具法律效力\\n[法] 认证, 鉴定, 证明",
+      "tag": "toefl",
+      "example": "The painting has been authenticated by experts.",
+      "exampleTranslation": "这幅画专家鉴定为真迹。"
+    },
+    {
+      "id": 16054,
+      "word": "dissension",
+      "phonetic": "di'senʃәn",
+      "pos": "",
+      "definition": "n. 意见不合, 纠纷, 争吵\\n[法] 异议, 纷争",
+      "tag": "toefl",
+      "example": "The Labour Party was torn by internal dissensions .",
+      "exampleTranslation": "工党因内部纷争产生分裂。"
+    },
+    {
+      "id": 16055,
+      "word": "alkaline",
+      "phonetic": "'ælkәlain",
+      "pos": "",
+      "definition": "a. 碱的, 碱性的\\n[化] 碱的; 强碱的",
+      "tag": "",
+      "example": "Some soils are actually too alkaline for certain plant life.",
+      "exampleTranslation": "有些土壤的碱性，实际上对某些植物的生长是过高的。"
+    },
+    {
+      "id": 16056,
+      "word": "stitching",
+      "phonetic": "'stitʃiŋ",
+      "pos": "",
+      "definition": "[机] 缀缝熔接, 柄, 货; 库存的, 现有的; 买进, 装柄, 储藏",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16057,
+      "word": "monotony",
+      "phonetic": "mә'nɒtәni",
+      "pos": "",
+      "definition": "n. 单调, 缺乏变化",
+      "tag": "gre",
+      "example": "A night on the town may help to break the monotony of the week.",
+      "exampleTranslation": "去城里待一晚也许有助改变一周工作生活的单调。"
+    },
+    {
+      "id": 16058,
+      "word": "keyhole",
+      "phonetic": "'ki:hәul",
+      "pos": "",
+      "definition": "n. 键孔, 栓孔, 锁眼\\na. 显示内情的",
+      "tag": "",
+      "example": "I peeped through the keyhole and watched them.",
+      "exampleTranslation": "我从钥匙孔偷看他们。"
+    },
+    {
+      "id": 16059,
+      "word": "reformation",
+      "phonetic": ".refә'meiʃәn",
+      "pos": "",
+      "definition": "n. 改革, 改正, 重新形成, 重新组成",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16060,
+      "word": "roomful",
+      "phonetic": "'ru:mful",
+      "pos": "",
+      "definition": "n. 满房间, 满场的人",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16061,
+      "word": "personage",
+      "phonetic": "'pә:snidʒ",
+      "pos": "",
+      "definition": "n. 重要人士, 显要, 名士, 人物, 角色",
+      "tag": "gre",
+      "example": "a royal personage",
+      "exampleTranslation": "王室要人"
+    },
+    {
+      "id": 16062,
+      "word": "irresponsibility",
+      "phonetic": "'iri,spɔnsә'bilәti",
+      "pos": "",
+      "definition": "n. 无责任, 不承担责任的行为\\n[法] 不负责任, 无责任, 不承担责任",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16063,
+      "word": "archivist",
+      "phonetic": "'ɑ:kivist",
+      "pos": "",
+      "definition": "n. 案卷保管员\\n[法] 档案保管人",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16064,
+      "word": "ashen",
+      "phonetic": "'æʃәn",
+      "pos": "",
+      "definition": "a. 由灰烬构成的, 灰色的, 苍白的\\n[机] 灰的, 似灰的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16065,
+      "word": "vita",
+      "phonetic": "'vaitә; 'wi:tɑ:",
+      "pos": "",
+      "definition": "n. 个人简历\\n[医] 生活, 生存, 生命",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16066,
+      "word": "triceps",
+      "phonetic": "'traiseps",
+      "pos": "",
+      "definition": "n. 三头肌\\n[医] 三头肌; 三头的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16067,
+      "word": "letdown",
+      "phonetic": "'letdaun",
+      "pos": "",
+      "definition": "n. 减低, 减退, 松弛, 失望\\n[化] 调漆",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16068,
+      "word": "mitigating",
+      "phonetic": "ˈmɪtɪgeɪtɪŋ",
+      "pos": "",
+      "definition": "v. 减轻, 缓和( mitigate的现在分词 )",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16069,
+      "word": "ruckus",
+      "phonetic": "'rʌkәs",
+      "pos": "",
+      "definition": "n. 喧闹, 骚动",
+      "tag": "",
+      "example": "This caused such a ruckus all over Japan that they had to change their mind.",
+      "exampleTranslation": "这在日本上下引起了不小的骚动，他们不得不因此改变主意。"
+    },
+    {
+      "id": 16070,
+      "word": "playfulness",
+      "phonetic": "",
+      "pos": "",
+      "definition": "n. 活泼快乐, 戏谑; 童心",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16071,
+      "word": "genocidal",
+      "phonetic": ".dʒenә'saidәl",
+      "pos": "",
+      "definition": "a. 种族灭绝的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16072,
+      "word": "lubricate",
+      "phonetic": "'lu:brikeit",
+      "pos": "",
+      "definition": "vt. 使润滑, 涂油\\nvi. 润滑",
+      "tag": "cet4 cet6 ky ielts gre",
+      "example": "Lubricate all moving parts with grease.",
+      "exampleTranslation": "给所有活动部件加润滑油。"
+    },
+    {
+      "id": 16073,
+      "word": "doubter",
+      "phonetic": "'dautә",
+      "pos": "",
+      "definition": "n. 抱怀疑态度的人；不信宗教的人；怀疑论者",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16074,
+      "word": "disorganize",
+      "phonetic": "dis'ɒ:gәnaiz",
+      "pos": "",
+      "definition": "vt. 破坏组织, 使混乱, 瓦解",
+      "tag": "toefl",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16075,
+      "word": "retelling",
+      "phonetic": "ri:ˈtelɪŋ",
+      "pos": "",
+      "definition": "v. （以不同的方式或语言）复述, 重述( retell的现在分词 )",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16076,
+      "word": "cremation",
+      "phonetic": "kri'meiʃәn",
+      "pos": "",
+      "definition": "n. 烧, 火葬\\n[医] 火葬",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16077,
+      "word": "carotid",
+      "phonetic": "kә'rɒtid",
+      "pos": "",
+      "definition": "n. 颈动脉\\na. 颈动脉的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16078,
+      "word": "disagreeable",
+      "phonetic": ".disә'griәbl",
+      "pos": "",
+      "definition": "a. 令人不快的, 厌恶的, 不合意的",
+      "tag": "toefl gre",
+      "example": "a disagreeable job",
+      "exampleTranslation": "不称心的工作"
+    },
+    {
+      "id": 16079,
+      "word": "afire",
+      "phonetic": "ә'faiә",
+      "pos": "",
+      "definition": "a. 燃烧的, 炽烈的\\nadv. 燃烧着",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16080,
+      "word": "squalor",
+      "phonetic": "'skwɒlә",
+      "pos": "",
+      "definition": "n. 肮脏, 贫穷, 不干净",
+      "tag": "gre",
+      "example": "We lived in squalor for a year and a half.",
+      "exampleTranslation": "我们在肮脏的环境里住了一年半。"
+    },
+    {
+      "id": 16081,
+      "word": "arroyo",
+      "phonetic": "ә'rɒiәu",
+      "pos": "",
+      "definition": "n. 干涸沟壑, 旱谷, 小河",
+      "tag": "gre",
+      "example": "He checked the sandy areas of the arroyo for any tracks.",
+      "exampleTranslation": "他检查了旱谷沙地的所有痕迹。"
+    },
+    {
+      "id": 16082,
+      "word": "mitzvah",
+      "phonetic": "mits'vɑ:",
+      "pos": "",
+      "definition": "n. 戒律, 善行",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16083,
+      "word": "israelite",
+      "phonetic": "'izriәlait",
+      "pos": "",
+      "definition": "a. 以色列人的；犹太人的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16084,
+      "word": "yon",
+      "phonetic": "jɔn",
+      "pos": "",
+      "definition": "a. 那边的, 远处的\\nadv. 在那边, 在远处\\nn. 那边, 那边/远处的东西, 远处",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16085,
+      "word": "sorrowful",
+      "phonetic": "'sɒrәuful",
+      "pos": "",
+      "definition": "a. 悲伤的",
+      "tag": "cet6",
+      "example": "a sorrowful expression",
+      "exampleTranslation": "悲伤的表情"
+    },
+    {
+      "id": 16086,
+      "word": "clarion",
+      "phonetic": "'klæriәn",
+      "pos": "",
+      "definition": "n. 尖音号角\\na. 清澈响亮的",
+      "tag": "gre",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16087,
+      "word": "donated",
+      "phonetic": "dəuˈneitid",
+      "pos": "",
+      "definition": "v. （尤指向慈善机构）捐赠( donate的过去式和过去分词 ); 献（血）; 捐（血）; 捐献（器官）",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16088,
+      "word": "hickory",
+      "phonetic": "'hikәri",
+      "pos": "",
+      "definition": "n. 山核桃树, 山核桃木\\n[医] 毡毛山核桃",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16089,
+      "word": "bathhouse",
+      "phonetic": "'bæθhaus",
+      "pos": "",
+      "definition": "n. 公共浴室, 澡堂, 更衣室",
+      "tag": "",
+      "example": "For personal hygiene, Wang and her family go to a public bathhouse in the neighborhood.",
+      "exampleTranslation": "至于个人卫生问题，王秀丽一家去附近的公共澡堂洗澡。"
+    },
+    {
+      "id": 16090,
+      "word": "bereavement",
+      "phonetic": "bi'ri:vmәnt",
+      "pos": "",
+      "definition": "n. 丧亲, 丧友",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16091,
+      "word": "domesticity",
+      "phonetic": ".dәumes'tisiti",
+      "pos": "",
+      "definition": "n. 专心于家务, 恋家, 家庭生活",
+      "tag": "",
+      "example": "a scene of happy domesticity",
+      "exampleTranslation": "一个幸福家庭生活的场景"
+    },
+    {
+      "id": 16092,
+      "word": "racquet",
+      "phonetic": "'rækit",
+      "pos": "",
+      "definition": "n. 球拍, 网拍式墙球",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16093,
+      "word": "sportscaster",
+      "phonetic": "'spɒ:tskɑ:stә",
+      "pos": "",
+      "definition": "n. 体育节目广播员",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16094,
+      "word": "pinball",
+      "phonetic": "'pinbɒ:l",
+      "pos": "",
+      "definition": "n. 钉球戏, 弹球戏",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16095,
+      "word": "earthbound",
+      "phonetic": "'\\\\\\\\:θbajnd",
+      "pos": "",
+      "definition": "a. 只在地球上的, 只在地面的, 只在陆地的, 世俗的, 平凡的, 缺乏想象力的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16096,
+      "word": "convulse",
+      "phonetic": "kәn'vʌls",
+      "pos": "",
+      "definition": "vt. 使震动, 使震撼, 使抽搐",
+      "tag": "gre",
+      "example": "He sat down, his shoulders convulsing with sobs.",
+      "exampleTranslation": "他坐下来，因抽泣肩膀剧烈抖动。"
+    },
+    {
+      "id": 16097,
+      "word": "esthetic",
+      "phonetic": "es'θetik",
+      "pos": "",
+      "definition": "a. 审美的\\n[医] 感觉的",
+      "tag": "cet6",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16098,
+      "word": "wildness",
+      "phonetic": "'waildnis",
+      "pos": "",
+      "definition": "n. 野生, 野蛮, 粗暴",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16099,
+      "word": "clobber",
+      "phonetic": "'klɒbә",
+      "pos": "",
+      "definition": "n. 衣服, (鞋匠用来掩饰皮革缝的)软膏\\nvt. 痛打, 击倒, 拉垮",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16100,
+      "word": "paternalistic",
+      "phonetic": "pә.tә:nә'listik",
+      "pos": "",
+      "definition": "a. 家长式作风的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16101,
+      "word": "starling",
+      "phonetic": "'stɑ:liŋ",
+      "pos": "",
+      "definition": "n. 欧椋鸟, 桥墩尖端",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16102,
+      "word": "cornea",
+      "phonetic": "'kɒ:niә",
+      "pos": "",
+      "definition": "n. 角膜\\n[医] 角膜",
+      "tag": "",
+      "example": "Infection of the cornea (keratitis).",
+      "exampleTranslation": "角膜感染（角膜炎）。"
+    },
+    {
+      "id": 16103,
+      "word": "unbeknownst",
+      "phonetic": "'ʌnbi'nәunst",
+      "pos": "",
+      "definition": "[方]=unbeknown",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16104,
+      "word": "wormhole",
+      "phonetic": "'wә:mhәul",
+      "pos": "",
+      "definition": "n. 蛀孔, 蛀洞",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16105,
+      "word": "auspicious",
+      "phonetic": "ɒ:'spiʃәs",
+      "pos": "",
+      "definition": "a. 吉兆的, 幸运的",
+      "tag": "toefl gre",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16106,
+      "word": "discredited",
+      "phonetic": "",
+      "pos": "",
+      "definition": "a. 不足信的；不名誉的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16107,
+      "word": "unambiguously",
+      "phonetic": "ˌʌnæm'bɪɡjʊəslɪ",
+      "pos": "",
+      "definition": "adv. 明白地, 不含糊地",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16108,
+      "word": "underpainting",
+      "phonetic": "'ʌndә,peintiŋ",
+      "pos": "",
+      "definition": "n. [画]底层色,画底色",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16109,
+      "word": "unstructured",
+      "phonetic": ".ʌn'strʌktʃәd",
+      "pos": "",
+      "definition": "a. 无特定结构的, 非系统组成的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16110,
+      "word": "stratospheric",
+      "phonetic": ".strætәu'sferik",
+      "pos": "",
+      "definition": "a. 同温层的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16111,
+      "word": "slowness",
+      "phonetic": "'slәunis",
+      "pos": "",
+      "definition": "n. 缓慢, 迟钝",
+      "tag": "",
+      "example": "Hard working often counterbalances slowness at learning.",
+      "exampleTranslation": "勤奋往往能弥补智力的迟钝。"
+    },
+    {
+      "id": 16112,
+      "word": "adhesion",
+      "phonetic": "әd'hi:ʒәn",
+      "pos": "",
+      "definition": "n. 附着, 粘着, 支持, 追随\\n[化] 粘合; 粘附; 附着; 粘合力; 粘附力; 附着力",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16113,
+      "word": "SOS",
+      "phonetic": "esәj'es",
+      "pos": "",
+      "definition": "紧急呼救信号\\n[计] 独立操作系统",
+      "tag": "",
+      "example": "The ferry did not even have time to send out an SOS.",
+      "exampleTranslation": "这艘渡船甚至没有时间发出紧急呼救信号。"
+    },
+    {
+      "id": 16114,
+      "word": "southerner",
+      "phonetic": "'sʌðәnә",
+      "pos": "",
+      "definition": "n. 南方人",
+      "tag": "",
+      "example": "Bob Wilson is a southerner, from Texas.",
+      "exampleTranslation": "鲍勃•威尔逊是个南方人，来自得克萨斯州。"
+    },
+    {
+      "id": 16115,
+      "word": "scrupulously",
+      "phonetic": "",
+      "pos": "",
+      "definition": "adv. 严谨, 一丝不苟, 用心, 准确, 多顾虑, 小心翼翼, 审慎, 诚实, 真心实意",
+      "tag": "toefl",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16116,
+      "word": "formaldehyde",
+      "phonetic": "fɒ:'mældihaid",
+      "pos": "",
+      "definition": "n. 甲醛\\n[化] 甲醛",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16117,
+      "word": "crossed",
+      "phonetic": "krɒst",
+      "pos": "",
+      "definition": "a. 十字的, 划掉的, 交叉的\\n[计] 交叉的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16118,
+      "word": "contraband",
+      "phonetic": "'kɒntrәbænd",
+      "pos": "",
+      "definition": "n. 违禁品, 走私\\na. 禁运的, 非法买卖的",
+      "tag": "gre",
+      "example": "a cargo of contraband",
+      "exampleTranslation": "一批走私货"
+    },
+    {
+      "id": 16119,
+      "word": "slob",
+      "phonetic": "slɒb",
+      "pos": "",
+      "definition": "n. 泥, 软泥, 粗俗平庸的人",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16120,
+      "word": "truss",
+      "phonetic": "trʌs",
+      "pos": "",
+      "definition": "vt. 捆绑\\nn. 捆, 束",
+      "tag": "gre",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16121,
+      "word": "bisect",
+      "phonetic": "bai'sekt",
+      "pos": "",
+      "definition": "v. 分成两部份, 对分",
+      "tag": "",
+      "example": "A long cobbled street bisects the town from east to west.",
+      "exampleTranslation": "一条长长的鹅卵石街道从东向西把小镇一分为二。"
+    },
+    {
+      "id": 16122,
+      "word": "sweetened",
+      "phonetic": "",
+      "pos": "",
+      "definition": "a. 变甜的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16123,
+      "word": "wordless",
+      "phonetic": "'wә:dlis",
+      "pos": "",
+      "definition": "a. 沉默的, 无言的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16124,
+      "word": "fictive",
+      "phonetic": "'fiktiv",
+      "pos": "",
+      "definition": "a. 虚构的, 虚伪的, 想象上的",
+      "tag": "",
+      "example": "the fictive world of James Bond",
+      "exampleTranslation": "詹姆斯•邦德的虚构世界"
+    },
+    {
+      "id": 16125,
+      "word": "turnpike",
+      "phonetic": "",
+      "pos": "",
+      "definition": "n. 收税栅, 收税路, 收税高速公路, 公路, 大道",
+      "tag": "toefl",
+      "example": "the New Jersey Turnpike",
+      "exampleTranslation": "新泽西付费高速公路"
+    },
+    {
+      "id": 16126,
+      "word": "inversely",
+      "phonetic": "",
+      "pos": "",
+      "definition": "adv. 相反地\\n[机] 反的, 反对",
+      "tag": "cet6",
+      "example": "We regard health as inversely related to social class.",
+      "exampleTranslation": "我们认为健康状况与社会地位成相反关系。"
+    },
+    {
+      "id": 16127,
+      "word": "psych",
+      "phonetic": "saik",
+      "pos": "",
+      "definition": "vt. 精神分析治疗, 使作好心理准备",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16128,
+      "word": "preteen",
+      "phonetic": "'pri:'ti:n",
+      "pos": "",
+      "definition": "a. 青春期前的\\nn. 青春期前的孩子",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16129,
+      "word": "angina",
+      "phonetic": "æn'dʒainә",
+      "pos": "",
+      "definition": "n. 咽痛, 绞痛\\n[医] 咽峡炎, 咽痛, 绞痛",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16130,
+      "word": "unknowable",
+      "phonetic": ".ʌn'nәuәbl",
+      "pos": "",
+      "definition": "a. 不能知道的, 不可知的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16131,
+      "word": "hazel",
+      "phonetic": "'heizl",
+      "pos": "",
+      "definition": "n. 榛子, 榛树, 淡褐色\\na. 榛树的, 淡褐色的",
+      "tag": "toefl",
+      "example": "People with brown or hazel eyes were perceived to be more trustworthy than people with other eye colours.",
+      "exampleTranslation": "拥有棕色或淡褐色眼睛的人比其它颜色眼睛的人更让人感到可靠。"
+    },
+    {
+      "id": 16132,
+      "word": "volition",
+      "phonetic": "vәu'liʃәn",
+      "pos": "",
+      "definition": "n. 行使意志, 意志力, 决定",
+      "tag": "gre",
+      "example": "All talk about consciousness, volition, and aiming at ends is empty.",
+      "exampleTranslation": "任何有关意识、意志和最终目的的讨论是没有意义的。"
+    },
+    {
+      "id": 16133,
+      "word": "nebulous",
+      "phonetic": "'nebjulәs",
+      "pos": "",
+      "definition": "a. 星云的, 星云状的, 朦胧的",
+      "tag": "gre",
+      "example": "‘Normality’ is a rather nebulous concept.",
+      "exampleTranslation": "“常态”是个非常含糊的概念。"
+    },
+    {
+      "id": 16134,
+      "word": "peter",
+      "phonetic": "'pi:tә",
+      "pos": "",
+      "definition": "vi. 逐渐消失, 逐渐减少",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16135,
+      "word": "wintertime",
+      "phonetic": "'wintәtaim",
+      "pos": "",
+      "definition": "n. 冬季, 冬天",
+      "tag": "",
+      "example": "This photo of the towers was taken during wintertime.",
+      "exampleTranslation": "这些钙华塔的照片是在冬季拍摄的。"
+    },
+    {
+      "id": 16136,
+      "word": "modulation",
+      "phonetic": ".mɒdju'leiʃәn",
+      "pos": "",
+      "definition": "n. 调制, 调节, 语调\\n[计] 调制",
+      "tag": "",
+      "example": "Yawning seems to be involved in the modulation of arousal process across the whole life span.",
+      "exampleTranslation": "打呵欠似乎与调整觉醒行为的过程有关，并伴随人的一生。"
+    },
+    {
+      "id": 16137,
+      "word": "misstate",
+      "phonetic": ".mis'steit",
+      "pos": "",
+      "definition": "vt. 说错, 作虚伪叙述",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16138,
+      "word": "kinky",
+      "phonetic": "'kiŋki",
+      "pos": "",
+      "definition": "a. 弯曲的, 古怪的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16139,
+      "word": "egret",
+      "phonetic": "'i:gret",
+      "pos": "",
+      "definition": "n. 白鹭",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16140,
+      "word": "deadbeat",
+      "phonetic": "'ded'bi:t",
+      "pos": "",
+      "definition": "n. 赖债不还的人, 游手好闲的人, 落魄者\\na. 直进式的, 非周期的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16141,
+      "word": "demure",
+      "phonetic": "di'mjuә",
+      "pos": "",
+      "definition": "a. 装成端庄的, 假正经的, 娴静的",
+      "tag": "gre",
+      "example": "Old photos of Maggie show her young and demure.",
+      "exampleTranslation": "老照片上的玛吉显得年轻而又端庄娴静。"
+    },
+    {
+      "id": 16142,
+      "word": "constructed",
+      "phonetic": "kənˈstrʌktid",
+      "pos": "",
+      "definition": "v. 修建( construct的过去式和过去分词 ); 构成; 组成; （按照数学规则）编制",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16143,
+      "word": "stoned",
+      "phonetic": "stәund",
+      "pos": "",
+      "definition": "a. 有核的, 除去核的, 醉酒的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16144,
+      "word": "perturbation",
+      "phonetic": ",pә:tә:'beiʃәn",
+      "pos": "",
+      "definition": "n. 不安, 扰乱, 紊乱, 烦扰\\n[化] 摄动; 微扰",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16145,
+      "word": "neuroscientist",
+      "phonetic": "'njʊərəʊsaɪəntɪst",
+      "pos": "",
+      "definition": "[医]神经科学家：神经科学各分支的专家",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16146,
+      "word": "wastebasket",
+      "phonetic": "'weist.bæskit",
+      "pos": "",
+      "definition": "n. 废纸篓\\n[计] 废纸篓",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16147,
+      "word": "complicating",
+      "phonetic": "ˈkɔmplɪˌkeɪtɪŋ",
+      "pos": "",
+      "definition": "v. 使复杂化( complicate的现在分词 )",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16148,
+      "word": "gulag",
+      "phonetic": "^u:'lɑ:^",
+      "pos": "",
+      "definition": "[俄]古拉格(集中营)",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16149,
+      "word": "diffraction",
+      "phonetic": "di'frækʃәn",
+      "pos": "",
+      "definition": "n. 衍射\\n[化] 衍射",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16150,
+      "word": "waistline",
+      "phonetic": "'weistlain",
+      "pos": "",
+      "definition": "n. 腰围\\n[医] 腰围",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16151,
+      "word": "hydration",
+      "phonetic": "hai'dreiʃәn",
+      "pos": "",
+      "definition": "n. 水合\\n[化] 水合",
+      "tag": "",
+      "example": "The team believes one of the most important factors is hydration - the way skin collects and retains moisture.",
+      "exampleTranslation": "科研人员称，其中最重要的因素是水合，指皮肤吸收水分、保持湿度的过程。"
+    },
+    {
+      "id": 16152,
+      "word": "unsigned",
+      "phonetic": "ʌn'saind",
+      "pos": "",
+      "definition": "[计] 无符号的, 未签名的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16153,
+      "word": "filled",
+      "phonetic": "fild",
+      "pos": "",
+      "definition": "a. 加满的；装满的；满的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16154,
+      "word": "almanac",
+      "phonetic": "'ɒ:lmәnæk",
+      "pos": "",
+      "definition": "n. 年历, 历书\\n[化] 年鉴",
+      "tag": "",
+      "example": "a football almanac",
+      "exampleTranslation": "足球年鉴"
+    },
+    {
+      "id": 16155,
+      "word": "thrower",
+      "phonetic": "'θrәuә",
+      "pos": "",
+      "definition": "n. 投掷者, 发射器, 喷射器, 制陶坯的工人\\n[化] 抛油环; 甩水圈",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16156,
+      "word": "hater",
+      "phonetic": "'heitә(r)",
+      "pos": "",
+      "definition": "n. 怀恨者",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16157,
+      "word": "arraignment",
+      "phonetic": "ә'reinmәnt",
+      "pos": "",
+      "definition": "n. 提讯, 传讯, 责难\\n[法] 提审, 讯问, 审问",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16158,
+      "word": "placenta",
+      "phonetic": "plә'sentә",
+      "pos": "",
+      "definition": "n. 胎盘, 胎座\\n[化] 胎盘",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16159,
+      "word": "pomp",
+      "phonetic": "pɒmp",
+      "pos": "",
+      "definition": "n. 壮丽, 盛观, 夸耀",
+      "tag": "",
+      "example": "The Queen’s birthday was celebrated with great pomp and ceremony .",
+      "exampleTranslation": "女王生日庆典场面非常盛大。"
+    },
+    {
+      "id": 16160,
+      "word": "displease",
+      "phonetic": "dis'pli:z",
+      "pos": "",
+      "definition": "v. 使不愉快, 使(人)生气",
+      "tag": "cet4 cet6",
+      "example": "If there are aspects of your life that displease you make you feel regret, this is an opportunity to change direction.",
+      "exampleTranslation": "如果你生活中那些使你不愉快的方面让你觉得懊悔，那么这正是你改变方向的时机。"
+    },
+    {
+      "id": 16161,
+      "word": "reintroduction",
+      "phonetic": ".ri:intrә-'dʌkʃәn",
+      "pos": "",
+      "definition": "n. 再介绍；再引入",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16162,
+      "word": "diabolical",
+      "phonetic": "daiә'bɒlikl",
+      "pos": "",
+      "definition": "a. 恶魔的",
+      "tag": "gre",
+      "example": "diabolical abuse",
+      "exampleTranslation": "残酷的虐待"
+    },
+    {
+      "id": 16163,
+      "word": "vicarious",
+      "phonetic": "vai'kєәriәs",
+      "pos": "",
+      "definition": "a. 代理的, 代用的, 替代的\\n[医] 替代的, 错位的",
+      "tag": "gre",
+      "example": "Scientists have taken their first, vicarious journey to the center of the moon, thanks to a fresh look at 30-year-old moonquake data from the Apollo era.",
+      "exampleTranslation": "科学家们由于重新审视了从阿波罗时代就开始已有30年历史的月震数据，才能使他们取得了第一次到月亮中心的替代旅行。"
+    },
+    {
+      "id": 16164,
+      "word": "frieze",
+      "phonetic": "fri:z",
+      "pos": "",
+      "definition": "n. 饰带, 带状物, 起绒粗呢\\nvt. 使起绒毛",
+      "tag": "gre",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16165,
+      "word": "fluoride",
+      "phonetic": "'flu(:)әraid",
+      "pos": "",
+      "definition": "n. 氟化物\\n[化] 氟化物",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16166,
+      "word": "misnomer",
+      "phonetic": "mis'nәumә",
+      "pos": "",
+      "definition": "n. 取名不当\\n[法] 叫错姓名, 用词不当, 使用不适名称",
+      "tag": "gre",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16167,
+      "word": "unencumbered",
+      "phonetic": "'ʌnin'kʌmbәd",
+      "pos": "",
+      "definition": "a. 没有阻碍的, 不受妨碍的, 没有负担的, 没有家累的, 没有子女的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16168,
+      "word": "jovial",
+      "phonetic": "'dʒәuviәl",
+      "pos": "",
+      "definition": "a. 快活的, 高兴的, 愉快的\\n[计] 国际算法语言的朱尔斯文本",
+      "tag": "toefl gre",
+      "example": "He addressed me in a jovial manner.",
+      "exampleTranslation": "他友好地跟我说话。"
+    },
+    {
+      "id": 16169,
+      "word": "deserter",
+      "phonetic": "'dezәtә",
+      "pos": "",
+      "definition": "n. 背弃者, 脱党者, 逃亡者\\n[法] 逃犯, 逃亡者, 逃兵",
+      "tag": "gre",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16170,
+      "word": "possessive",
+      "phonetic": "pә'zesiv",
+      "pos": "",
+      "definition": "n. 所有格\\na. 所有的, 占有的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16171,
+      "word": "unlit",
+      "phonetic": "'ʌn'lit",
+      "pos": "",
+      "definition": "a. 未点燃的, 无灯光的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16172,
+      "word": "jeer",
+      "phonetic": "dʒiә",
+      "pos": "",
+      "definition": "n. 嘲笑, 讥讽, 戏弄\\nv. 嘲弄, 揶揄, 戏弄",
+      "tag": "toefl ielts gre",
+      "example": "‘You know I’m right!’ she jeered.",
+      "exampleTranslation": "“你知道我是对的！”她嘲笑道。"
+    },
+    {
+      "id": 16173,
+      "word": "dispensation",
+      "phonetic": ".dispen'seiʃәn",
+      "pos": "",
+      "definition": "n. 分配, 施与, (义务的)免除\\n[法] 特免权, 豁免, 执行",
+      "tag": "",
+      "example": "They were promised dispensation from military service.",
+      "exampleTranslation": "他们被许诺将被特免不用服兵役。"
+    },
+    {
+      "id": 16174,
+      "word": "inshore",
+      "phonetic": "'in'ʃɒ:",
+      "pos": "",
+      "definition": "a. 近海岸的, 向陆的\\nadv. 近海岸, 向陆地",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16175,
+      "word": "progenitor",
+      "phonetic": "prәu'dʒenitә",
+      "pos": "",
+      "definition": "n. 祖先, 先辈, 原本\\n[医] 祖先, 祖代",
+      "tag": "toefl gre",
+      "example": "He was also a progenitor of seven presidents of Nicaragua.",
+      "exampleTranslation": "他也是尼加拉瓜七位总统的祖先。"
+    },
+    {
+      "id": 16176,
+      "word": "surging",
+      "phonetic": "'sә:dʒiŋ",
+      "pos": "",
+      "definition": "v. 浪涌；冲击（surge的ing形式）",
+      "tag": "toefl",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16177,
+      "word": "lectern",
+      "phonetic": "'lektә:n",
+      "pos": "",
+      "definition": "n. 诵经台",
+      "tag": "gre",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16178,
+      "word": "throaty",
+      "phonetic": "'θrәuti",
+      "pos": "",
+      "definition": "a. 喉音的, 嘶哑的",
+      "tag": "",
+      "example": "Her mouth was making croaking, throaty sounds like the toneless cry when we make love.",
+      "exampleTranslation": "当我们做爱时，她的嘴发出蛙叫声，嘶哑的声音像低沉的呼喊。"
+    },
+    {
+      "id": 16179,
+      "word": "cathartic",
+      "phonetic": "kә'θɑ:tik",
+      "pos": "",
+      "definition": "n. 泻药, 通便药\\na. 通便的, 导泻的",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16180,
+      "word": "beget",
+      "phonetic": "bi'get",
+      "pos": "",
+      "definition": "vt. 为某人之生父, 招致, 产生, 引起",
+      "tag": "toefl gre",
+      "example": "Hunger begets crime.",
+      "exampleTranslation": "饥饿滋生犯罪。"
+    },
+    {
+      "id": 16181,
+      "word": "silliness",
+      "phonetic": "'silinis",
+      "pos": "",
+      "definition": "n. 愚蠢, 糊涂",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16182,
+      "word": "shenanigans",
+      "phonetic": "ʃɪˈnænɪgənz",
+      "pos": "",
+      "definition": "n. （尤指可笑、有趣的）恶作剧, 诡计, 鬼把戏",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16183,
+      "word": "archeologist",
+      "phonetic": ",ɑ:ki'ɔlәdʒist",
+      "pos": "",
+      "definition": "n. 考古学家",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16184,
+      "word": "subtype",
+      "phonetic": "'sʌbtaip",
+      "pos": "",
+      "definition": "[计] 图表类型",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16185,
+      "word": "consort",
+      "phonetic": "'kɒnsɒ:t",
+      "pos": "",
+      "definition": "n. 配偶, 夫妻\\nvi. 陪伴, 结交, 符合\\nvt. 使结合",
+      "tag": "toefl gre",
+      "example": "The public has accepted Camilla, Prince Charles’s former mistress, as his consort.",
+      "exampleTranslation": "公众接受了作为前任情妇的卡米拉成为查尔斯王子的新配偶。"
+    },
+    {
+      "id": 16186,
+      "word": "enchilada",
+      "phonetic": ",entʃi'lɑ:dә",
+      "pos": "",
+      "definition": "n. 以辣椒调味之一种墨西哥菜",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16187,
+      "word": "salutary",
+      "phonetic": "'sæljutәri",
+      "pos": "",
+      "definition": "a. 有益的, 有用的, 有益健康的\\n[医] 适于健康的",
+      "tag": "toefl gre",
+      "example": "One can only hope that the result will be an equally salutary debate.",
+      "exampleTranslation": "我们只能希望这本书引发是一场同样有益的争论。"
+    },
+    {
+      "id": 16188,
+      "word": "bioterrorism",
+      "phonetic": "ˌbaɪəʊ'terəˌrɪzəm",
+      "pos": "",
+      "definition": "n. 生物恐怖活动",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16189,
+      "word": "hobo",
+      "phonetic": "'hәubәu",
+      "pos": "",
+      "definition": "n. 无业游民, 流浪汉, 流动人口\\nvi. 过流浪生涯",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16190,
+      "word": "heuristic",
+      "phonetic": "hju'ristik",
+      "pos": "",
+      "definition": "a. 启发式的, 探索的\\nn. 启发式教育法",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16191,
+      "word": "coldness",
+      "phonetic": "'kәuldnis",
+      "pos": "",
+      "definition": "n. 寒冷, 冷, 冷淡",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16192,
+      "word": "pol",
+      "phonetic": "pɔl",
+      "pos": "",
+      "definition": "abbr. 油料（Petroleum, Oil and Lubricants）；北极星导弹（Polaris）",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16193,
+      "word": "posturing",
+      "phonetic": "ˈpɒstʃərɪŋ",
+      "pos": "",
+      "definition": "v. 做出某种姿势( posture的现在分词 )",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    },
+    {
+      "id": 16194,
+      "word": "beagle",
+      "phonetic": "'bi:gl",
+      "pos": "",
+      "definition": "n. 长耳短腿小猎犬, 间谍, 密探\\n[法] 侦探, 间谍, 执行官",
+      "tag": "",
+      "example": null,
+      "exampleTranslation": null
+    }
+  ]
+}
