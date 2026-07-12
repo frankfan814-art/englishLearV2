@@ -39,7 +39,13 @@ function App() {
 
   const handleSpeak = () => {
     if (currentWord) {
-      speak(currentWord.word, settings.accent);
+      speak(currentWord.word, settings.accent, settings.speechRate || 1.0);
+    }
+  };
+
+  const handleSpeakExample = () => {
+    if (currentWord && currentWord.example) {
+      speak(currentWord.example, settings.accent, settings.speechRate || 1.0);
     }
   };
 
@@ -137,6 +143,7 @@ function App() {
           word={currentWord}
           isLoading={isLoading}
           onSpeak={handleSpeak}
+          onSpeakExample={handleSpeakExample}
           accent={settings.accent}
           onNext={nextWord}
           onPrev={prevWord}
@@ -147,17 +154,24 @@ function App() {
       <footer className="safe-bottom pb-8 pt-4 px-6 bg-background/80 backdrop-blur-lg z-40 border-t border-white/5">
         <div className="max-w-[480px] mx-auto flex flex-col items-center">
           {/* Status */}
-          <div className="h-10 flex items-center justify-center mb-2">
+          <div 
+            className="h-10 flex items-center justify-center mb-2 cursor-pointer"
+            onClick={() => {
+              import('./hooks/useTTS').then(({ unlockAudio }) => unlockAudio());
+              togglePlay();
+            }}
+            title={isPlaying ? "点击暂停" : "点击播放"}
+          >
             {isPlaying ? (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary border border-primary/30">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors">
                 <span className="w-2 h-2 rounded-full bg-primary animate-pulse-subtle"></span>
                 <span className="text-xs font-semibold tracking-wide">
                   自动播放中
                 </span>
               </div>
             ) : (
-              <span className="text-xs font-medium text-muted-foreground tracking-wide">
-                滑动或使用方向键切换 · 空格键播放
+              <span className="text-xs font-medium text-muted-foreground tracking-wide hover:text-foreground transition-colors">
+                滑动或使用方向键切换 · 点击或空格键播放
               </span>
             )}
           </div>

@@ -7,6 +7,7 @@ interface Props {
   word: Word | null;
   isLoading: boolean;
   onSpeak: () => void;
+  onSpeakExample?: () => void;
   accent: 'us' | 'uk';
   onNext: () => void;
   onPrev: () => void;
@@ -21,7 +22,7 @@ function parseDefinition(def: string) {
   return { pos: '', definition: def };
 }
 
-export function WordCard({ word, isLoading, onSpeak, accent, onNext, onPrev }: Props) {
+export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, onNext, onPrev }: Props) {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
@@ -160,12 +161,25 @@ export function WordCard({ word, isLoading, onSpeak, accent, onNext, onPrev }: P
 
         {/* Example Section */}
         {word.example && (
-          <div className="mt-auto pt-6 border-t border-white/5 text-center w-full">
-            <p className="text-sm text-muted-foreground italic leading-relaxed mb-2">
+          <div className="mt-auto pt-6 border-t border-white/5 text-center w-full relative">
+            {onSpeakExample && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onSpeakExample}
+                className="absolute right-0 top-5 hover:bg-primary/10 hover:text-primary rounded-full w-8 h-8 opacity-60 hover:opacity-100 transition-all"
+                aria-label="朗读例句"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                </svg>
+              </Button>
+            )}
+            <p className="text-sm text-muted-foreground italic leading-relaxed mb-2 px-8">
               "{word.example}"
             </p>
             {word.exampleTranslation && (
-              <p className="text-xs text-muted-foreground/70">
+              <p className="text-xs text-muted-foreground/70 px-8">
                 {word.exampleTranslation}
               </p>
             )}
