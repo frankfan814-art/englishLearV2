@@ -31,7 +31,10 @@ export function ControlBar({ isPlaying, onPrev, onNext, onTogglePlay }: Props) {
       {/* 播放/暂停 */}
       <Button
         size="icon-xl"
-        onClick={onTogglePlay}
+        onClick={() => {
+          import('../hooks/useTTS').then(({ unlockAudio }) => unlockAudio());
+          onTogglePlay();
+        }}
         className="shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-shadow"
         aria-label={isPlaying ? '暂停' : '播放'}
       >

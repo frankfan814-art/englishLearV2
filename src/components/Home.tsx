@@ -59,7 +59,12 @@ export function Home() {
         <Button 
           size="lg" 
           className="w-full h-14 rounded-xl text-lg font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-transform"
-          onClick={startLearning}
+          onClick={() => {
+            import('../hooks/useTTS').then(({ unlockAudio }) => {
+              unlockAudio();
+            });
+            startLearning();
+          }}
         >
           开始学习
           <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

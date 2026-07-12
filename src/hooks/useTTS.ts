@@ -1,73 +1,78 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useAppStore } from '../store/useAppStore';
 
+// 创建单例的 Audio 对象，便于在移动端解锁后复用
+const audioInstance = new Audio();
+
+export function unlockAudio() {
+  audioInstance.play().catch(() => {});
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance('');
+    u.volume = 0;
+    window.speechSynthesis.speak(u);
+  }
+}
+
 // Simple TTS hook that works on web and can be extended for Capacitor
 export function useTTS() {
-  // 用 ref 追踪是否已取消，防止 stop() 后 speak() 仍然发音
   const cancelledRef = useRef(false);
 
-  const speak = useCallback(async (word: string, accent: 'us' | 'uk'): Promise<boolean> => {
-    // 如果已经被取消，直接返回
-    if (cancelledRef.current) return false;
+  // 播放真实人声（网易有道API）
+  const speakRealAudio = useCallback((word: string, accent: 'us' | 'uk'): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (cancelledRef.current) return resolve(false);
+      
+      const type = accent === 'us' ? 2 : 1;
+      audioInstance.src = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=${type}`;
+      
+      audioInstance.onended = () => resolve(true);
+      audioInstance.onerror = () => resolve(false); // 失败时走 fallback
+      
+      const playPromise = audioInstance.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((e) => {
+          console.error('Audio play error:', e);
+          resolve(false);
+        });
+      }
+    });
+  }, []);
 
-    // Stop any ongoing speech first
+  // 播放 TTS (可以用于单词的 fallback 或者中文释义)
+  const speakTTS = useCallback(async (text: string, lang: string): Promise<boolean> => {
+    if (cancelledRef.current) return false;
     window.speechSynthesis?.cancel();
 
-    // Try to use Capacitor TTS plugin if available
-    try {
-      const { TextToSpeech } = await import('@capacitor-community/text-to-speech');
-      if (cancelledRef.current) return false;
-      await TextToSpeech.speak({
-        text: word,
-        lang: accent === 'us' ? 'en-US' : 'en-GB',
-        rate: 1.0,
-        pitch: 1.0,
-      });
-      return true;
-    } catch {
-      // Capacitor not available, use Web Speech API
-    }
+    if (!('speechSynthesis' in window)) return false;
 
-    // Fallback to Web Speech API
-    if (!('speechSynthesis' in window)) {
-      return false;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = accent === 'us' ? 'en-US' : 'en-GB';
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
 
-    // 等待语音列表加载（某些浏览器需要）
     const voices = window.speechSynthesis.getVoices();
     if (voices.length === 0) {
       await new Promise<void>((r) => {
         window.speechSynthesis.onvoiceschanged = () => r();
-        // 设置超时以防不触发
         setTimeout(() => r(), 100);
       });
     }
 
-    // 异步等待后再次检查是否已取消
     if (cancelledRef.current) return false;
 
-    // 尝试选择合适的语音
-    const targetLang = accent === 'us' ? 'en-US' : 'en-GB';
     const allVoices = window.speechSynthesis.getVoices();
-    const targetVoice = allVoices.find(v => v.lang === targetLang) ||
-                        allVoices.find(v => v.lang.startsWith('en')) ||
+    const targetVoice = allVoices.find(v => v.lang === lang) || 
+                        allVoices.find(v => v.lang.startsWith(lang.split('-')[0])) || 
                         null;
     if (targetVoice) {
       utterance.voice = targetVoice;
     }
 
     return new Promise<boolean>((resolve) => {
-      // 在 speak 前最后检查一次
       if (cancelledRef.current) {
         resolve(false);
         return;
       }
-
       utterance.onend = () => resolve(true);
       utterance.onerror = (e) => {
         console.error('TTS Error:', e);
@@ -77,26 +82,37 @@ export function useTTS() {
     });
   }, []);
 
+  const speak = useCallback(async (word: string, accent: 'us' | 'uk'): Promise<boolean> => {
+    // 优先使用真实人声
+    const success = await speakRealAudio(word, accent);
+    if (!success && !cancelledRef.current) {
+      // 失败则降级使用 TTS
+      const targetLang = accent === 'us' ? 'en-US' : 'en-GB';
+      return await speakTTS(word, targetLang);
+    }
+    return success;
+  }, [speakRealAudio, speakTTS]);
+
+  // 读中文释义（借鉴百词斩）
+  const speakChinese = useCallback(async (text: string): Promise<boolean> => {
+    return await speakTTS(text, 'zh-CN');
+  }, [speakTTS]);
+
   const stop = useCallback(() => {
-    // 标记为已取消，阻止进行中的 speak 继续发音
     cancelledRef.current = true;
-    // 同步立即取消 Web Speech API（优先保证快速停止）
+    audioInstance.pause();
     window.speechSynthesis?.cancel();
-    // 异步尝试停止 Capacitor TTS
-    import('@capacitor-community/text-to-speech')
-      .then(({ TextToSpeech }) => TextToSpeech.stop())
-      .catch(() => {});
   }, []);
 
   const resetCancel = useCallback(() => {
     cancelledRef.current = false;
   }, []);
 
-  return { speak, stop, resetCancel };
+  return { speak, speakChinese, stop, resetCancel };
 }
 
 export function useAutoPlay() {
-  const { speak, stop, resetCancel } = useTTS();
+  const { speak, speakChinese, stop, resetCancel } = useTTS();
 
   const {
     isPlaying,
@@ -109,17 +125,15 @@ export function useAutoPlay() {
   useEffect(() => {
     let isActive = true;
 
-    // 未播放、无单词、或正在加载时不发音
     if (!isPlaying || !currentWord || isLoading) {
       stop();
       return;
     }
 
-    // 重置取消标记，允许本次播放
     resetCancel();
 
     const playCurrentWord = async () => {
-      // Speak the current word and wait for it to finish
+      // 1. 读单词（真实人声优先）
       const success = await speak(currentWord.word, settings.accent);
 
       if (isActive) {
@@ -129,7 +143,20 @@ export function useAutoPlay() {
           return;
         }
 
-        // Add configurable pause before moving to the next word
+        // 2. 稍微停顿
+        await new Promise(r => setTimeout(r, 500));
+        if (!isActive) return;
+
+        // 3. 读中文释义（借鉴百词斩）
+        // 提取纯中文意思，去掉 "n." "v." 等词性
+        const cleanDef = currentWord.definition.replace(/^[a-z]+\.\s*/i, '').trim();
+        if (cleanDef) {
+          await speakChinese(cleanDef);
+        }
+
+        if (!isActive) return;
+
+        // 4. 等待用户设置的间隔后切换下一个
         setTimeout(() => {
           if (isActive) {
             nextWord();
@@ -144,10 +171,7 @@ export function useAutoPlay() {
       isActive = false;
       stop();
     };
-    // 注意：不依赖 currentIndex。
-    // currentIndex 变化时 currentWord 还是旧值，会导致先读旧词再读新词。
-    // 只依赖 currentWord，它在 loadCurrentWord 完成后才更新，此时一定是正确的新词。
-  }, [isPlaying, isLoading, settings.accent, settings.speed, currentWord, speak, nextWord, stop, resetCancel]);
+  }, [isPlaying, isLoading, settings.accent, settings.speed, currentWord, speak, speakChinese, nextWord, stop, resetCancel]);
 
   return {
     stop,

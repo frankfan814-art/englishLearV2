@@ -60,6 +60,7 @@ function App() {
         break;
       case ' ':
         e.preventDefault();
+        import('./hooks/useTTS').then(({ unlockAudio }) => unlockAudio());
         togglePlay();
         break;
     }
