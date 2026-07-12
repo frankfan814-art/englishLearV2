@@ -180,7 +180,20 @@ export function useAutoPlay() {
       isActive = false;
       stop();
     };
-  }, [isPlaying, isLoading, settings.accent, settings.speed, currentWord, speak, speakChinese, nextWord, stop, resetCancel]);
+  }, [
+    isPlaying,
+    isLoading,
+    settings.accent,
+    settings.speed,
+    settings.readExample,
+    settings.speechRate,
+    currentWord,
+    speak,
+    speakChinese,
+    nextWord,
+    stop,
+    resetCancel
+  ]);
 
   return {
     stop,

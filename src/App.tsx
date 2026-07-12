@@ -165,26 +165,30 @@ function App() {
       <footer className="safe-bottom pb-8 pt-4 px-6 bg-background/80 backdrop-blur-lg z-40 border-t border-white/5">
         <div className="max-w-[480px] mx-auto flex flex-col items-center">
           {/* Status */}
-          <div 
-            className="h-10 flex items-center justify-center mb-2 cursor-pointer"
-            onClick={() => {
-              import('./hooks/useTTS').then(({ unlockAudio }) => unlockAudio());
-              togglePlay();
-            }}
-            title={isPlaying ? "点击暂停" : "点击播放"}
-          >
-            {isPlaying ? (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors">
-                <span className="w-2 h-2 rounded-full bg-primary animate-pulse-subtle"></span>
-                <span className="text-xs font-semibold tracking-wide">
-                  自动播放中
-                </span>
-              </div>
-            ) : (
-              <span className="text-xs font-medium text-muted-foreground tracking-wide hover:text-foreground transition-colors">
-                滑动或使用方向键切换 · 点击或空格键播放
-              </span>
-            )}
+          <div className="h-14 flex items-center justify-center mb-1">
+            <button
+              onClick={() => {
+                import('./hooks/useTTS').then(({ unlockAudio }) => unlockAudio());
+                togglePlay();
+              }}
+              className={`flex items-center justify-center gap-2 px-8 py-3 rounded-full font-bold text-sm transition-all shadow-lg active:scale-95 ${
+                isPlaying 
+                  ? 'bg-primary/20 text-primary border-2 border-primary/40 hover:bg-primary/30' 
+                  : 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-primary/30'
+              }`}
+            >
+              {isPlaying ? (
+                <>
+                  <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse-subtle"></span>
+                  暂停自动朗读
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  开始自动朗读
+                </>
+              )}
+            </button>
           </div>
 
           <ControlBar
