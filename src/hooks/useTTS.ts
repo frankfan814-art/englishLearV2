@@ -150,6 +150,7 @@ export function useAutoPlay() {
 
   useEffect(() => {
     let isActive = true;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
     if (!isPlaying || !currentWord || isLoading) {
       stop();
@@ -165,38 +166,49 @@ export function useAutoPlay() {
       // 1. 读单词（真实人声优先）
       const success = await speak(currentWord.word, settings.accent, settings.speechRate || 1.0);
 
-      if (isActive) {
-        if (!success) {
-          // If speech failed (e.g. autoplay blocked or cancelled), stop playing
-          useAppStore.setState({ isPlaying: false });
-          return;
-        }
+      if (!isActive) return;
 
-        // 2. 稍微停顿
-        await new Promise(r => setTimeout(r, 500));
+      if (!success) {
+        // If speech failed (e.g. autoplay blocked or cancelled), stop playing
+        console.warn('[AutoPlay] Speech failed, stopping playback');
+        useAppStore.setState({ isPlaying: false });
+        return;
+      }
+
+      // 2. 稍微停顿
+      await new Promise(r => setTimeout(r, 500));
+      if (!isActive) return;
+
+      const currentSettings = useAppStore.getState().settings;
+
+      // 3. 如果开启了自动读例句，并且有例句，则读英文例句
+      if (currentSettings.readExample && currentWord.example) {
+        const exampleSuccess = await speak(currentWord.example, currentSettings.accent, currentSettings.speechRate || 1.0);
         if (!isActive) return;
-
-        const currentSettings = useAppStore.getState().settings;
-
-        // 3. 如果开启了自动读例句，并且有例句，则读英文例句
-        if (currentSettings.readExample && currentWord.example) {
-          await speak(currentWord.example, currentSettings.accent, currentSettings.speechRate || 1.0);
-          if (!isActive) return;
+        if (!exampleSuccess) {
+          console.warn('[AutoPlay] Example speech failed, but continuing to next word');
         }
+      }
 
-        // 4. 等待用户设置的间隔后切换下一个
-        setTimeout(() => {
-          if (isActive) {
+      // 4. 等待用户设置的间隔后切换下一个
+      timeoutId = setTimeout(() => {
+        if (isActive) {
+          const stillPlaying = useAppStore.getState().isPlaying;
+          if (stillPlaying) {
             nextWord();
           }
-        }, currentSettings.speed * 1000);
-      }
+        }
+      }, currentSettings.speed * 1000);
     };
 
     playCurrentWord();
 
     return () => {
       isActive = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
       stop();
     };
   }, [
