@@ -44,7 +44,7 @@ export const storage = {
       console.error('Failed to load settings:', e);
     }
     return {
-      speed: 2,
+      speed: 0.5,
       speechRate: 1.0,
       readExample: false,
       accent: 'us',
