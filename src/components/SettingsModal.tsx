@@ -1,5 +1,14 @@
+import { useState } from 'react';
 import { Settings } from '../types/word';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import {
   Drawer,
   DrawerClose,
@@ -31,11 +40,13 @@ export function SettingsModal({
   totalWords,
   currentRound,
 }: Props) {
+  const [showConfirm, setShowConfirm] = useState(false);
   const speedOptions = [0.5, 1, 1.5, 2, 3];
   const percentage = ((currentIndex + 1) / totalWords) * 100;
 
   return (
-    <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <>
+      <Drawer open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>设置</DrawerTitle>
@@ -171,12 +182,8 @@ export function SettingsModal({
         <DrawerFooter>
           <Button
             variant="outline"
-            onClick={() => {
-              if (confirm('确定要重置所有进度吗？此操作无法恢复。')) {
-                onResetProgress();
-                onClose();
-              }
-            }}
+            className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+            onClick={() => setShowConfirm(true)}
           >
             重置进度
           </Button>
@@ -185,6 +192,33 @@ export function SettingsModal({
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
-    </Drawer>
+      </Drawer>
+
+      <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>重置进度</DialogTitle>
+            <DialogDescription>
+              确定要重置所有学习进度吗？此操作将清除您所有的学习记录（包括已掌握单词），且无法恢复。
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-end gap-2 mt-4">
+            <Button variant="ghost" onClick={() => setShowConfirm(false)}>
+              取消
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                onResetProgress();
+                setShowConfirm(false);
+                onClose();
+              }}
+            >
+              确认重置
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

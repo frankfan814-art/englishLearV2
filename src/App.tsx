@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from './store/useAppStore';
 import { useAutoPlay, useTTS } from './hooks/useTTS';
 import { WordCard } from './components/WordCard';
-import { ControlBar } from './components/ControlBar';
 import { ProgressBar } from './components/ProgressBar';
 import { SettingsModal } from './components/SettingsModal';
 import { Home } from './components/Home';
@@ -218,13 +217,6 @@ function App() {
               已掌握
             </button>
           </div>
-
-          <ControlBar
-            isPlaying={isPlaying}
-            onPrev={prevWord}
-            onNext={nextWord}
-            onTogglePlay={togglePlay}
-          />
         </div>
       </footer>
 

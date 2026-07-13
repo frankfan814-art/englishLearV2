@@ -59,7 +59,7 @@ export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, onN
   if (isLoading) {
     return (
       <div className="w-full h-full flex items-center justify-center p-4 animate-fade">
-        <Card className="glass w-full h-[72vh] max-h-[700px] flex flex-col items-center justify-center rounded-2xl border-white/5 shadow-2xl">
+        <Card className="glass w-full h-full flex flex-col items-center justify-center rounded-2xl border-white/5 shadow-2xl">
           <div className="w-20 h-1 bg-muted rounded-full mb-6 animate-shimmer"></div>
           <div className="w-48 h-10 bg-muted/50 rounded-lg mb-4 animate-shimmer"></div>
           <div className="w-32 h-5 bg-muted/50 rounded-lg animate-shimmer"></div>
@@ -71,7 +71,7 @@ export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, onN
   if (!word) {
     return (
       <div className="w-full h-full flex items-center justify-center p-4 animate-fade">
-        <Card className="glass w-full h-[72vh] max-h-[700px] flex flex-col items-center justify-center rounded-2xl border-white/5 shadow-2xl">
+        <Card className="glass w-full h-full flex flex-col items-center justify-center rounded-2xl border-white/5 shadow-2xl">
           <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center mb-4">
             <svg className="w-6 h-6 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -109,7 +109,7 @@ export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, onN
         </div>
       </div>
 
-      <Card className="glass card-hover w-full h-[72vh] max-h-[700px] p-8 flex flex-col animate-slide-up rounded-2xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+      <Card className="glass card-hover w-full h-full p-6 sm:p-8 flex flex-col animate-slide-up rounded-2xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] overflow-y-auto">
         {/* Top: Tag & Audio */}
         <div className="flex justify-between items-center w-full">
           <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground bg-muted/80 px-3 py-1.5 rounded-lg">

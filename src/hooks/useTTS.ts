@@ -5,6 +5,8 @@ import { useAppStore } from '../store/useAppStore';
 const audioInstance = new Audio();
 
 export function unlockAudio() {
+  audioInstance.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+  audioInstance.load();
   audioInstance.play().catch(() => {});
   if ('speechSynthesis' in window) {
     const u = new SpeechSynthesisUtterance('');
@@ -16,32 +18,54 @@ export function unlockAudio() {
 // Simple TTS hook that works on web and can be extended for Capacitor
 export function useTTS() {
   const cancelledRef = useRef(false);
+  const currentSpeakRef = useRef<number>(0);
 
   // 播放真实人声（网易有道API）
-  const speakRealAudio = useCallback((word: string, accent: 'us' | 'uk', rate: number = 1.0): Promise<boolean> => {
+  const speakRealAudio = useCallback((speakId: number, word: string, accent: 'us' | 'uk', rate: number = 1.0): Promise<boolean> => {
     return new Promise((resolve) => {
-      if (cancelledRef.current) return resolve(false);
+      if (cancelledRef.current || currentSpeakRef.current !== speakId) return resolve(false);
       
       const type = accent === 'us' ? 2 : 1;
       audioInstance.src = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=${type}`;
+      audioInstance.load();
       audioInstance.playbackRate = rate;
       
-      audioInstance.onended = () => resolve(true);
-      audioInstance.onerror = () => resolve(false); // 失败时走 fallback
+      let timeoutId: any;
+      const onEnded = () => finish(true);
+      const onError = () => finish(false);
+
+      const finish = (result: boolean) => {
+        clearTimeout(timeoutId);
+        if (audioInstance.onended === onEnded) audioInstance.onended = null;
+        if (audioInstance.onerror === onError) audioInstance.onerror = null;
+        
+        if (currentSpeakRef.current !== speakId) {
+          resolve(false);
+        } else {
+          resolve(result);
+        }
+      };
+
+      audioInstance.onended = onEnded;
+      audioInstance.onerror = onError; // 失败时走 fallback
+      
+      timeoutId = setTimeout(() => {
+        finish(false);
+      }, 5000); // 5秒超时
       
       const playPromise = audioInstance.play();
       if (playPromise !== undefined) {
         playPromise.catch((e) => {
           console.error('Audio play error:', e);
-          resolve(false);
+          finish(false);
         });
       }
     });
   }, []);
 
   // 播放 TTS (可以用于单词的 fallback 或者中文释义)
-  const speakTTS = useCallback(async (text: string, lang: string, rate: number = 1.0): Promise<boolean> => {
-    if (cancelledRef.current) return false;
+  const speakTTS = useCallback(async (speakId: number, text: string, lang: string, rate: number = 1.0): Promise<boolean> => {
+    if (cancelledRef.current || currentSpeakRef.current !== speakId) return false;
     window.speechSynthesis?.cancel();
 
     if (!('speechSynthesis' in window)) return false;
@@ -59,7 +83,7 @@ export function useTTS() {
       });
     }
 
-    if (cancelledRef.current) return false;
+    if (cancelledRef.current || currentSpeakRef.current !== speakId) return false;
 
     const allVoices = window.speechSynthesis.getVoices();
     const targetVoice = allVoices.find(v => v.lang === lang) || 
@@ -70,11 +94,11 @@ export function useTTS() {
     }
 
     return new Promise<boolean>((resolve) => {
-      if (cancelledRef.current) {
+      if (cancelledRef.current || currentSpeakRef.current !== speakId) {
         resolve(false);
         return;
       }
-      utterance.onend = () => resolve(true);
+      utterance.onend = () => resolve(currentSpeakRef.current === speakId);
       utterance.onerror = (e) => {
         console.error('TTS Error:', e);
         resolve(false);
@@ -84,23 +108,27 @@ export function useTTS() {
   }, []);
 
   const speak = useCallback(async (word: string, accent: 'us' | 'uk', rate: number = 1.0): Promise<boolean> => {
+    const speakId = ++currentSpeakRef.current;
+    
     // 优先使用真实人声
-    const success = await speakRealAudio(word, accent, rate);
-    if (!success && !cancelledRef.current) {
+    const success = await speakRealAudio(speakId, word, accent, rate);
+    if (!success && !cancelledRef.current && currentSpeakRef.current === speakId) {
       // 失败则降级使用 TTS
       const targetLang = accent === 'us' ? 'en-US' : 'en-GB';
-      return await speakTTS(word, targetLang, rate);
+      return await speakTTS(speakId, word, targetLang, rate);
     }
-    return success;
+    return success && currentSpeakRef.current === speakId;
   }, [speakRealAudio, speakTTS]);
 
   // 读中文释义（借鉴百词斩）
   const speakChinese = useCallback(async (text: string, rate: number = 1.0): Promise<boolean> => {
-    return await speakTTS(text, 'zh-CN', rate);
+    const speakId = ++currentSpeakRef.current;
+    return await speakTTS(speakId, text, 'zh-CN', rate);
   }, [speakTTS]);
 
   const stop = useCallback(() => {
     cancelledRef.current = true;
+    currentSpeakRef.current += 1;
     audioInstance.pause();
     window.speechSynthesis?.cancel();
   }, []);
@@ -113,15 +141,12 @@ export function useTTS() {
 }
 
 export function useAutoPlay() {
-  const { speak, speakChinese, stop, resetCancel } = useTTS();
+  const { speak, stop, resetCancel } = useTTS();
 
-  const {
-    isPlaying,
-    isLoading,
-    settings,
-    nextWord,
-    currentWord,
-  } = useAppStore();
+  const isPlaying = useAppStore(state => state.isPlaying);
+  const isLoading = useAppStore(state => state.isLoading);
+  const currentWord = useAppStore(state => state.currentWord);
+  const nextWord = useAppStore(state => state.nextWord);
 
   useEffect(() => {
     let isActive = true;
@@ -134,6 +159,9 @@ export function useAutoPlay() {
     resetCancel();
 
     const playCurrentWord = async () => {
+      const state = useAppStore.getState();
+      const settings = state.settings;
+
       // 1. 读单词（真实人声优先）
       const success = await speak(currentWord.word, settings.accent, settings.speechRate || 1.0);
 
@@ -148,9 +176,11 @@ export function useAutoPlay() {
         await new Promise(r => setTimeout(r, 500));
         if (!isActive) return;
 
+        const currentSettings = useAppStore.getState().settings;
+
         // 3. 如果开启了自动读例句，并且有例句，则读英文例句
-        if (settings.readExample && currentWord.example) {
-          await speak(currentWord.example, settings.accent, settings.speechRate || 1.0);
+        if (currentSettings.readExample && currentWord.example) {
+          await speak(currentWord.example, currentSettings.accent, currentSettings.speechRate || 1.0);
           if (!isActive) return;
         }
 
@@ -159,7 +189,7 @@ export function useAutoPlay() {
           if (isActive) {
             nextWord();
           }
-        }, settings.speed * 1000);
+        }, currentSettings.speed * 1000);
       }
     };
 
@@ -172,13 +202,8 @@ export function useAutoPlay() {
   }, [
     isPlaying,
     isLoading,
-    settings.accent,
-    settings.speed,
-    settings.readExample,
-    settings.speechRate,
     currentWord,
     speak,
-    speakChinese,
     nextWord,
     stop,
     resetCancel
