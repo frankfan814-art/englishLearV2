@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from './store/useAppStore';
-import { useAutoPlay, useTTS } from './hooks/useTTS';
+import { useAutoPlay, useTTS, unlockAudio } from './hooks/useTTS';
 import { WordCard } from './components/WordCard';
 import { ProgressBar } from './components/ProgressBar';
 import { SettingsModal } from './components/SettingsModal';
@@ -68,7 +68,7 @@ function App() {
         break;
       case ' ':
         e.preventDefault();
-        import('./hooks/useTTS').then(({ unlockAudio }) => unlockAudio());
+        unlockAudio();
         togglePlay();
         break;
     }
@@ -184,7 +184,7 @@ function App() {
           <div className="h-14 flex items-center justify-center gap-3 mb-1 w-full px-4">
             <button
               onClick={() => {
-                import('./hooks/useTTS').then(({ unlockAudio }) => unlockAudio());
+                unlockAudio();
                 togglePlay();
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-bold text-sm transition-all shadow-lg active:scale-95 ${

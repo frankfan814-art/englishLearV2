@@ -1,6 +1,7 @@
 import { useAppStore } from '../store/useAppStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { unlockAudio } from '../hooks/useTTS';
 
 export function Home() {
   const { currentRound, currentIndex, totalWords, completedRounds, startLearning } = useAppStore();
@@ -60,9 +61,7 @@ export function Home() {
           size="lg" 
           className="w-full h-14 rounded-xl text-lg font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-transform"
           onClick={() => {
-            import('../hooks/useTTS').then(({ unlockAudio }) => {
-              unlockAudio();
-            });
+            unlockAudio();
             startLearning();
           }}
         >
