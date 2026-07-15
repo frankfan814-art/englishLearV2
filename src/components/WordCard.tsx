@@ -131,7 +131,7 @@ export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, onN
         {/* Core Content */}
         <CardContent className="flex-1 flex flex-col items-center justify-center w-full py-6 px-0">
           {/* Word */}
-          <h1 className="text-5xl sm:text-6xl font-bold text-gradient text-center mb-6 tracking-tight">
+          <h1 className="word-title text-gradient text-center mb-6 tracking-tight">
             {word.word}
           </h1>
 
