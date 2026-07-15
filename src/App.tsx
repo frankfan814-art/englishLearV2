@@ -21,7 +21,6 @@ function App() {
     isPlaying,
     currentRound,
     currentIndex,
-    completedRounds,
     listTotalWords,
     settings,
     isLearningMode,
@@ -107,12 +106,7 @@ function App() {
 
       {/* Top Progress */}
       <div className="w-full safe-top">
-        <ProgressBar
-          current={currentIndex}
-          total={listTotalWords}
-          round={currentRound}
-          completedRounds={completedRounds}
-        />
+        <ProgressBar />
       </div>
 
       {/* Header */}

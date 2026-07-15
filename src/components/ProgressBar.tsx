@@ -1,39 +1,48 @@
-interface Props {
-  current: number;
-  total: number;
-  round: number;
-  completedRounds: number;
-}
+import { useAppStore } from '../store/useAppStore';
+import { getWordListById } from '../config/wordLists';
 
-export function ProgressBar({ current, total, round, completedRounds }: Props) {
-  const percentage = ((current + 1) / total) * 100;
+export function ProgressBar() {
+  const { currentList, currentIndex, totalWords, listTotalWords, currentRound, completedRounds } = useAppStore();
+
+  // Get list name
+  const wordList = currentList !== 'all' ? getWordListById(currentList) : null;
+  const listName = wordList?.name || '全部单词';
+
+  // Use listTotalWords for percentage when in a specific list
+  const effectiveTotal = currentList === 'all' ? totalWords : listTotalWords;
+  const percentage = effectiveTotal > 0 ? ((currentIndex + 1) / effectiveTotal) * 100 : 0;
 
   return (
-    <div className="w-full animate-fade">
-      {/* Progress Bar */}
-      <div className="w-full h-1 bg-muted/50 overflow-hidden">
-        <div
-          className="h-full bg-gradient-to-r from-primary to-indigo-400 transition-all duration-500 progress-glow"
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
-
-      {/* Progress Text */}
-      <div className="flex justify-between items-center px-6 mt-3">
-        <div className="flex items-center gap-2">
+    <div className="w-full px-4 py-3 bg-background/80 backdrop-blur-sm border-b border-white/5">
+      <div className="max-w-[480px] mx-auto">
+        {/* List name and round */}
+        <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-semibold text-foreground">
-            第{round}轮
+            {listName}
+          </span>
+          <span className="text-xs text-muted-foreground">
+            第 {currentRound} 轮
+          </span>
+        </div>
+
+        {/* Progress bar */}
+        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-primary to-indigo-400 transition-all duration-500 rounded-full progress-glow"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+
+        {/* Count */}
+        <div className="flex justify-between items-center mt-1">
+          <span className="text-xs text-muted-foreground">
+            {currentIndex + 1} / {effectiveTotal}
           </span>
           {completedRounds > 0 && (
-            <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+            <span className="text-xs text-primary">
               已完成 {completedRounds} 轮
             </span>
           )}
-        </div>
-        <div className="text-right">
-          <span className="font-semibold text-foreground">{(current + 1)}</span>
-          <span className="text-muted-foreground mx-1">/</span>
-          <span className="text-sm text-muted-foreground">{total}</span>
         </div>
       </div>
     </div>
