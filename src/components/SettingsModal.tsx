@@ -145,6 +145,32 @@ export function SettingsModal({
             </div>
           </div>
 
+          {/* 朗读中文释义 */}
+          <div>
+            <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+              朗读中文释义
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant={!settings.readDefinition ? 'default' : 'outline'}
+                onClick={() => onUpdateSettings({ readDefinition: false })}
+                className="font-medium"
+              >
+                关闭
+              </Button>
+              <Button
+                variant={settings.readDefinition ? 'default' : 'outline'}
+                onClick={() => onUpdateSettings({ readDefinition: true })}
+                className="font-medium"
+              >
+                开启
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              开启后：单词 → 中文释义
+            </p>
+          </div>
+
           {/* 自动朗读例句 */}
           <div>
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">

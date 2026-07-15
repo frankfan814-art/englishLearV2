@@ -141,7 +141,7 @@ export function useTTS() {
 }
 
 export function useAutoPlay() {
-  const { speak, stop, resetCancel } = useTTS();
+  const { speak, speakChinese, stop, resetCancel } = useTTS();
 
   const isPlaying = useAppStore(state => state.isPlaying);
   const isLoading = useAppStore(state => state.isLoading);
@@ -176,21 +176,37 @@ export function useAutoPlay() {
       }
 
       // 2. 稍微停顿
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 300));
       if (!isActive) return;
 
       const currentSettings = useAppStore.getState().settings;
 
-      // 3. 如果开启了自动读例句，并且有例句，则读英文例句
+      // 3. 如果开启了读释义，读中文释义
+      if (currentSettings.readDefinition && currentWord.definition) {
+        const cleanDef = currentWord.definition.replace(/^[a-z]+\.\s*/i, '').trim();
+        if (cleanDef) {
+          const defSuccess = await speakChinese(cleanDef, settings.speechRate || 1.0);
+          if (!isActive) return;
+          if (!defSuccess) {
+            console.warn('[AutoPlay] Definition speech failed, but continuing');
+          }
+          await new Promise(r => setTimeout(r, 300));
+        }
+      }
+
+      if (!isActive) return;
+
+      // 4. 如果开启了自动读例句，并且有例句，则读英文例句
       if (currentSettings.readExample && currentWord.example) {
         const exampleSuccess = await speak(currentWord.example, currentSettings.accent, currentSettings.speechRate || 1.0);
         if (!isActive) return;
         if (!exampleSuccess) {
           console.warn('[AutoPlay] Example speech failed, but continuing to next word');
         }
+        await new Promise(r => setTimeout(r, 500));
       }
 
-      // 4. 等待用户设置的间隔后切换下一个
+      // 5. 等待用户设置的间隔后切换下一个
       timeoutId = setTimeout(() => {
         if (isActive) {
           const stillPlaying = useAppStore.getState().isPlaying;
