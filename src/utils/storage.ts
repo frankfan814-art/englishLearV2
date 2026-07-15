@@ -82,3 +82,64 @@ export const storage = {
     }
   },
 };
+
+// === Word List Progress Storage ===
+
+const KEY_CURRENT_LIST = 'vocab_current_list';
+const KEY_LIST_PROGRESS = 'vocab_list_progress';
+
+/**
+ * Get current word list ID
+ * Returns 'all' if not set (backward compatible)
+ */
+export function getCurrentList(): string {
+  const stored = localStorage.getItem(KEY_CURRENT_LIST);
+  return stored || 'all';
+}
+
+/**
+ * Save current word list ID
+ */
+export function saveCurrentList(listId: string): void {
+  localStorage.setItem(KEY_CURRENT_LIST, listId);
+}
+
+/**
+ * Get progress for all word lists
+ */
+export function getListProgress(): Record<string, ProgressData> {
+  const stored = localStorage.getItem(KEY_LIST_PROGRESS);
+  if (!stored) {
+    return {};
+  }
+  try {
+    return JSON.parse(stored);
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Save progress for a specific word list
+ */
+export function saveListProgress(progress: Record<string, ProgressData>): void {
+  localStorage.setItem(KEY_LIST_PROGRESS, JSON.stringify(progress));
+}
+
+/**
+ * Get progress for a specific word list
+ * Returns undefined if not found
+ */
+export function getListProgressById(listId: string): ProgressData | undefined {
+  const allProgress = getListProgress();
+  return allProgress[listId];
+}
+
+/**
+ * Save progress for a specific word list
+ */
+export function saveListProgressById(listId: string, progress: ProgressData): void {
+  const allProgress = getListProgress();
+  allProgress[listId] = progress;
+  saveListProgress(allProgress);
+}
