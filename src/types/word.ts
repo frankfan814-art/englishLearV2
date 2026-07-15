@@ -26,6 +26,7 @@ export interface Settings {
   speed: number;
   speechRate?: number;
   readExample?: boolean;
+  readDefinition?: boolean;   // 新增：读中文释义
   accent: 'us' | 'uk';
   autoPlay: boolean;
 }
