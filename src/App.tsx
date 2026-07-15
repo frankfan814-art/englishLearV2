@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from './store/useAppStore';
 import { useAutoPlay, useTTS, unlockAudio } from './hooks/useTTS';
+import { useWakeLock } from './hooks/useWakeLock';
 import { WordCard } from './components/WordCard';
 import { ProgressBar } from './components/ProgressBar';
 import { SettingsModal } from './components/SettingsModal';
@@ -38,6 +39,9 @@ function App() {
   }, [initialize]);
 
   useAutoPlay();
+
+  // Keep screen awake during playback
+  useWakeLock(isPlaying);
 
   const handleSpeak = () => {
     if (currentWord) {
