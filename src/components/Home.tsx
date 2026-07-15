@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { unlockAudio } from '../hooks/useTTS';
 
 export function Home() {
-  const { currentRound, currentIndex, totalWords, completedRounds, startLearning } = useAppStore();
+  const { currentRound, currentIndex, listTotalWords, completedRounds, startLearning } = useAppStore();
 
-  const percentage = ((currentIndex + 1) / totalWords) * 100;
+  const percentage = ((currentIndex + 1) / listTotalWords) * 100;
 
   return (
     <div className="w-full h-full flex items-center justify-center p-4 animate-fade">
@@ -43,7 +43,7 @@ export function Home() {
               <div className="text-right">
                 <span className="font-bold text-foreground">{currentIndex + 1}</span>
                 <span className="text-muted-foreground mx-1">/</span>
-                <span className="text-sm text-muted-foreground">{totalWords}</span>
+                <span className="text-sm text-muted-foreground">{listTotalWords}</span>
               </div>
             </div>
             {/* Progress Bar */}

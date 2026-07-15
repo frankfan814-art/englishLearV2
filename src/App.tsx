@@ -22,7 +22,7 @@ function App() {
     currentRound,
     currentIndex,
     completedRounds,
-    totalWords,
+    listTotalWords,
     settings,
     isLearningMode,
     initialize,
@@ -109,7 +109,7 @@ function App() {
       <div className="w-full safe-top">
         <ProgressBar
           current={currentIndex}
-          total={totalWords}
+          total={listTotalWords}
           round={currentRound}
           completedRounds={completedRounds}
         />
@@ -232,7 +232,7 @@ function App() {
         onUpdateSettings={updateSettings}
         onResetProgress={resetProgress}
         currentIndex={currentIndex}
-        totalWords={totalWords}
+        totalWords={listTotalWords}
         currentRound={currentRound}
       />
 

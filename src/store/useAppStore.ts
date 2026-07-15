@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { Word, Settings } from '../types/word';
-import { storage } from '../utils/storage';
+import { Word, Settings, ProgressData } from '../types/word';
+import { storage, getCurrentList, getListProgress, saveCurrentList, saveListProgress, saveListProgressById } from '../utils/storage';
 import { dataLoader } from '../utils/dataLoader';
 
 interface AppState {
@@ -25,6 +25,13 @@ interface AppState {
   // Mastered
   masteredWords: Record<number, { word: string; definition: string }>;
 
+  // Word list navigation
+  language: string;
+  currentList: string;
+  listProgress: Record<string, ProgressData>;
+  wordIndexesInList: number[];
+  listTotalWords: number;
+
   // Actions
   initialize: () => Promise<void>;
   loadCurrentWord: () => Promise<void>;
@@ -37,6 +44,8 @@ interface AppState {
   resetProgress: () => void;
   markMastered: () => void;
   unmarkMastered: (index: number) => void;
+  switchList: (listId: string) => Promise<void>;
+  loadListWord: () => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -53,32 +62,79 @@ export const useAppStore = create<AppState>((set, get) => ({
   settings: storage.getSettings(),
   masteredWords: storage.getMasteredWords(),
 
+  // Word list navigation initial state
+  language: 'en',
+  currentList: getCurrentList(),
+  listProgress: getListProgress(),
+  wordIndexesInList: [],
+  listTotalWords: 16194,
+
   // Initialize from storage
   initialize: async () => {
     const progress = storage.getProgress();
+    const currentList = getCurrentList();
+    const listProgress = getListProgress();
+
     set({
       currentRound: progress.currentRound,
       currentIndex: progress.currentIndex,
       completedRounds: progress.completedRounds,
       settings: storage.getSettings(),
       masteredWords: storage.getMasteredWords(),
+      currentList,
+      listProgress,
       isLoading: true,
     });
 
-    await get().loadCurrentWord();
+    // Build word list index
+    await import('../utils/wordListIndex').then(({ buildWordListIndex }) => buildWordListIndex());
+
+    // Load word indexes for current list
+    if (currentList === 'all') {
+      set({
+        wordIndexesInList: Array.from({ length: 16194 }, (_, i) => i),
+        listTotalWords: 16194,
+      });
+    } else {
+      const { getWordIndexesByTag } = await import('../utils/wordListIndex');
+      const { getWordListById } = await import('../config/wordLists');
+      const wordList = getWordListById(currentList);
+
+      if (wordList) {
+        const indexes = await getWordIndexesByTag(wordList.tag);
+        set({
+          wordIndexesInList: indexes,
+          listTotalWords: indexes.length,
+        });
+      }
+    }
+
+    await get().loadListWord();
   },
 
-  // Load current word
+  // Load current word (delegates to loadListWord)
   loadCurrentWord: async () => {
-    const { currentIndex } = get();
+    await get().loadListWord();
+  },
+
+  // Load word at current index in current list
+  loadListWord: async () => {
+    const { currentIndex, wordIndexesInList } = get();
+
+    if (wordIndexesInList.length === 0) {
+      set({ currentWord: null, isLoading: false });
+      return;
+    }
+
     set({ isLoading: true, error: null });
 
     try {
-      const word = await dataLoader.getWord(currentIndex);
+      const globalIndex = wordIndexesInList[currentIndex];
+      const word = await dataLoader.getWord(globalIndex);
+
       if (word) {
         set({ currentWord: word, isLoading: false });
-        // Preload adjacent shards
-        dataLoader.preloadAdjacent(currentIndex);
+        dataLoader.preloadAdjacent(globalIndex);
       } else {
         set({ error: 'Word not found', isLoading: false });
       }
@@ -87,24 +143,30 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  // Next word
+  // Next word (within current list)
   nextWord: () => {
-    const { currentIndex, currentRound, totalWords, masteredWords } = get();
+    const { currentIndex, wordIndexesInList, listTotalWords, masteredWords, currentList } = get();
+
+    if (wordIndexesInList.length === 0) return;
+
     let newIndex = currentIndex;
-    let newRound = currentRound;
-    let newCompletedRounds = get().completedRounds;
-    
-    // Prevent infinite loop if all words are mastered
     let attempts = 0;
+
     do {
-      newIndex += 1;
-      if (newIndex >= totalWords) {
-        newIndex = 0;
-        newCompletedRounds += 1;
-        newRound += 1;
-      }
+      newIndex = (newIndex + 1) % listTotalWords;
       attempts++;
-    } while (masteredWords[newIndex] !== undefined && attempts < totalWords);
+    } while (
+      masteredWords[wordIndexesInList[newIndex]] !== undefined
+      && attempts < listTotalWords
+    );
+
+    const newCompletedRounds = attempts >= listTotalWords
+      ? get().completedRounds + 1
+      : get().completedRounds;
+
+    const newRound = attempts >= listTotalWords
+      ? get().currentRound + 1
+      : get().currentRound;
 
     set({
       currentIndex: newIndex,
@@ -113,48 +175,58 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
 
     // Save progress
-    storage.saveProgress({
+    const progress: ProgressData = {
       currentRound: newRound,
       currentIndex: newIndex,
       completedRounds: newCompletedRounds,
       lastUpdate: new Date().toISOString(),
-    });
+    };
 
-    get().loadCurrentWord();
+    if (currentList === 'all') {
+      storage.saveProgress(progress);
+    } else {
+      saveListProgressById(currentList, progress);
+    }
+
+    get().loadListWord();
   },
 
-  // Previous word
+  // Previous word (within current list)
   prevWord: () => {
-    const { currentIndex, currentRound, totalWords, completedRounds, masteredWords } = get();
-    let newIndex = currentIndex;
-    let newRound = currentRound;
-    let newCompletedRounds = completedRounds;
+    const { currentIndex, wordIndexesInList, listTotalWords, masteredWords, currentList } = get();
 
+    if (wordIndexesInList.length === 0) return;
+
+    let newIndex = currentIndex;
     let attempts = 0;
+
     do {
-      newIndex -= 1;
-      if (newIndex < 0) {
-        newIndex = totalWords - 1;
-        newRound = Math.max(1, currentRound - 1);
-        newCompletedRounds = Math.max(0, completedRounds - 1);
-      }
+      newIndex = newIndex === 0 ? listTotalWords - 1 : newIndex - 1;
       attempts++;
-    } while (masteredWords[newIndex] !== undefined && attempts < totalWords);
+    } while (
+      masteredWords[wordIndexesInList[newIndex]] !== undefined
+      && attempts < listTotalWords
+    );
 
     set({
       currentIndex: newIndex,
-      currentRound: newRound,
-      completedRounds: newCompletedRounds,
     });
 
-    storage.saveProgress({
-      currentRound: newRound,
+    // Save progress
+    const progress: ProgressData = {
+      currentRound: get().currentRound,
       currentIndex: newIndex,
-      completedRounds: newCompletedRounds,
+      completedRounds: get().completedRounds,
       lastUpdate: new Date().toISOString(),
-    });
+    };
 
-    get().loadCurrentWord();
+    if (currentList === 'all') {
+      storage.saveProgress(progress);
+    } else {
+      saveListProgressById(currentList, progress);
+    }
+
+    get().loadListWord();
   },
 
   // Toggle play/pause
@@ -196,15 +268,16 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Mark current word as mastered
   markMastered: () => {
-    const { currentWord, currentIndex, masteredWords } = get();
-    if (!currentWord) return;
+    const { currentWord, currentIndex, wordIndexesInList, masteredWords } = get();
+    if (!currentWord || wordIndexesInList.length === 0) return;
 
+    const globalIndex = wordIndexesInList[currentIndex];
     const cleanDef = currentWord.definition.replace(/^[a-z]+\.\s*/i, '').trim();
-    const newMastered = { ...masteredWords, [currentIndex]: { word: currentWord.word, definition: cleanDef } };
-    
+    const newMastered = { ...masteredWords, [globalIndex]: { word: currentWord.word, definition: cleanDef } };
+
     set({ masteredWords: newMastered });
     storage.saveMasteredWords(newMastered);
-    
+
     // Automatically jump to next word after mastering
     get().nextWord();
   },
@@ -214,8 +287,74 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { masteredWords } = get();
     const newMastered = { ...masteredWords };
     delete newMastered[index];
-    
+
     set({ masteredWords: newMastered });
     storage.saveMasteredWords(newMastered);
+  },
+
+  // Switch to a different word list
+  switchList: async (listId: string) => {
+    const { listProgress, currentList, currentRound, currentIndex, completedRounds } = get();
+
+    // Save current list progress
+    const currentProgress: ProgressData = {
+      currentRound,
+      currentIndex,
+      completedRounds,
+      lastUpdate: new Date().toISOString(),
+    };
+
+    const updatedListProgress = {
+      ...listProgress,
+      [currentList]: currentProgress,
+    };
+
+    // Get word indexes for target list
+    let newWordIndexesInList: number[];
+    let newListTotalWords: number;
+
+    if (listId === 'all') {
+      newWordIndexesInList = Array.from({ length: 16194 }, (_, i) => i);
+      newListTotalWords = 16194;
+    } else {
+      const { getWordIndexesByTag } = await import('../utils/wordListIndex');
+      const { getWordListById } = await import('../config/wordLists');
+      const wordList = getWordListById(listId);
+
+      if (!wordList) {
+        console.error(`Word list not found: ${listId}`);
+        return;
+      }
+
+      newWordIndexesInList = await getWordIndexesByTag(wordList.tag);
+      newListTotalWords = newWordIndexesInList.length;
+    }
+
+    // Load target list progress (or initialize)
+    const targetProgress = updatedListProgress[listId] || {
+      currentRound: 1,
+      currentIndex: 0,
+      completedRounds: 0,
+      lastUpdate: new Date().toISOString(),
+    };
+
+    // Update state
+    set({
+      currentList: listId,
+      wordIndexesInList: newWordIndexesInList,
+      listTotalWords: newListTotalWords,
+      currentRound: targetProgress.currentRound,
+      currentIndex: targetProgress.currentIndex,
+      completedRounds: targetProgress.completedRounds,
+      listProgress: updatedListProgress,
+      isLoading: true,
+    });
+
+    // Save to storage
+    saveCurrentList(listId);
+    saveListProgress(updatedListProgress);
+
+    // Load current word
+    await get().loadListWord();
   },
 }));
