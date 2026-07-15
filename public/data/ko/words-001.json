@@ -1,0 +1,106 @@
+{
+  "shardIndex": 1,
+  "totalShards": 1,
+  "words": [
+    {
+      "id": 1,
+      "word": "나",
+      "phonetic": "na",
+      "pos": "pron.",
+      "definition": "我",
+      "tag": "TOPIK 1",
+      "example": "나는 학생이다.",
+      "exampleTranslation": "我是学生。"
+    },
+    {
+      "id": 2,
+      "word": "하다",
+      "phonetic": "hada",
+      "pos": "v.",
+      "definition": "做",
+      "tag": "TOPIK 1",
+      "example": "공부를 하다.",
+      "exampleTranslation": "学习。"
+    },
+    {
+      "id": 3,
+      "word": "가다",
+      "phonetic": "gada",
+      "pos": "v.",
+      "definition": "去",
+      "tag": "TOPIK 1",
+      "example": "학교에 가다.",
+      "exampleTranslation": "去学校。"
+    },
+    {
+      "id": 4,
+      "word": "이것",
+      "phonetic": "igeot",
+      "pos": "pron.",
+      "definition": "这个",
+      "tag": "TOPIK 1",
+      "example": "이것은 책입니다.",
+      "exampleTranslation": "这是书。"
+    },
+    {
+      "id": 5,
+      "word": "좋다",
+      "phonetic": "jota",
+      "pos": "adj.",
+      "definition": "好的",
+      "tag": "TOPIK 1",
+      "example": "날씨가 좋다.",
+      "exampleTranslation": "天气很好。"
+    },
+    {
+      "id": 6,
+      "word": "사람",
+      "phonetic": "saram",
+      "pos": "n.",
+      "definition": "人",
+      "tag": "TOPIK 1",
+      "example": "저 사람은 누구입니까?",
+      "exampleTranslation": "那个人是谁？"
+    },
+    {
+      "id": 7,
+      "word": "먹다",
+      "phonetic": "meokda",
+      "pos": "v.",
+      "definition": "吃",
+      "tag": "TOPIK 1",
+      "example": "밥을 먹다.",
+      "exampleTranslation": "吃饭。"
+    },
+    {
+      "id": 8,
+      "word": "보다",
+      "phonetic": "boda",
+      "pos": "v.",
+      "definition": "看",
+      "tag": "TOPIK 1",
+      "example": "영화를 보다.",
+      "exampleTranslation": "看电影。"
+    },
+    {
+      "id": 9,
+      "word": "크다",
+      "phonetic": "keuda",
+      "pos": "adj.",
+      "definition": "大的",
+      "tag": "TOPIK 1",
+      "example": "집이 크다.",
+      "exampleTranslation": "房子很大。"
+    },
+    {
+      "id": 10,
+      "word": "물",
+      "phonetic": "mul",
+      "pos": "n.",
+      "definition": "水",
+      "tag": "TOPIK 1",
+      "example": "물을 마시다.",
+      "exampleTranslation": "喝水。"
+    }
+  ]
+}

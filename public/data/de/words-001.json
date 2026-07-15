@@ -1,0 +1,106 @@
+{
+  "shardIndex": 1,
+  "totalShards": 1,
+  "words": [
+    {
+      "id": 1,
+      "word": "ich",
+      "phonetic": "ɪç",
+      "pos": "pron.",
+      "definition": "我",
+      "tag": "A1",
+      "example": "Ich bin ein Student.",
+      "exampleTranslation": "我是一名学生。"
+    },
+    {
+      "id": 2,
+      "word": "machen",
+      "phonetic": "ˈmaxn̩",
+      "pos": "v.",
+      "definition": "做",
+      "tag": "A1",
+      "example": "Ich mache meine Hausaufgaben.",
+      "exampleTranslation": "我在做作业。"
+    },
+    {
+      "id": 3,
+      "word": "gehen",
+      "phonetic": "ˈɡeːən",
+      "pos": "v.",
+      "definition": "去",
+      "tag": "A1",
+      "example": "Wir gehen zur Schule.",
+      "exampleTranslation": "我们去学校。"
+    },
+    {
+      "id": 4,
+      "word": "das",
+      "phonetic": "das",
+      "pos": "pron.",
+      "definition": "这个",
+      "tag": "A1",
+      "example": "Das ist ein Buch.",
+      "exampleTranslation": "这是一本书。"
+    },
+    {
+      "id": 5,
+      "word": "gut",
+      "phonetic": "ɡuːt",
+      "pos": "adj.",
+      "definition": "好的",
+      "tag": "A1",
+      "example": "Das Wetter ist gut.",
+      "exampleTranslation": "天气很好。"
+    },
+    {
+      "id": 6,
+      "word": "Mensch",
+      "phonetic": "mɛnʃ",
+      "pos": "n.",
+      "definition": "人",
+      "tag": "A1",
+      "example": "Jeder Mensch ist anders.",
+      "exampleTranslation": "每个人都是不同的。"
+    },
+    {
+      "id": 7,
+      "word": "essen",
+      "phonetic": "ˈɛsn̩",
+      "pos": "v.",
+      "definition": "吃",
+      "tag": "A1",
+      "example": "Ich esse einen Apfel.",
+      "exampleTranslation": "我吃一个苹果。"
+    },
+    {
+      "id": 8,
+      "word": "sehen",
+      "phonetic": "ˈzeːən",
+      "pos": "v.",
+      "definition": "看",
+      "tag": "A1",
+      "example": "Ich sehe einen Film.",
+      "exampleTranslation": "我看一部电影。"
+    },
+    {
+      "id": 9,
+      "word": "groß",
+      "phonetic": "ɡʁoːs",
+      "pos": "adj.",
+      "definition": "大的",
+      "tag": "A1",
+      "example": "Ein großes Haus.",
+      "exampleTranslation": "一座大房子。"
+    },
+    {
+      "id": 10,
+      "word": "Wasser",
+      "phonetic": "ˈvasɐ",
+      "pos": "n.",
+      "definition": "水",
+      "tag": "A1",
+      "example": "Ich trinke Wasser.",
+      "exampleTranslation": "我喝水。"
+    }
+  ]
+}

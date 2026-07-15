@@ -257,13 +257,25 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Reset progress
   resetProgress: () => {
-    storage.resetProgress();
+    const { currentList, listProgress } = get();
+
+    // Clear specific list progress
+    const updatedListProgress = { ...listProgress };
+    if (currentList === 'all') {
+      storage.resetProgress();
+    } else {
+      delete updatedListProgress[currentList];
+    }
+    // Also clear any saved list progress
+    saveListProgress(updatedListProgress);
+
     set({
       currentRound: 1,
       currentIndex: 0,
       completedRounds: 0,
+      listProgress: updatedListProgress,
     });
-    get().loadCurrentWord();
+    get().loadListWord();
   },
 
   // Mark current word as mastered

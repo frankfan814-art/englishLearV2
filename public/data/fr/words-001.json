@@ -1,0 +1,106 @@
+{
+  "shardIndex": 1,
+  "totalShards": 1,
+  "words": [
+    {
+      "id": 1,
+      "word": "je",
+      "phonetic": "ʒə",
+      "pos": "pron.",
+      "definition": "我",
+      "tag": "A1",
+      "example": "Je suis étudiant.",
+      "exampleTranslation": "我是学生。"
+    },
+    {
+      "id": 2,
+      "word": "faire",
+      "phonetic": "fɛʁ",
+      "pos": "v.",
+      "definition": "做",
+      "tag": "A1",
+      "example": "Je fais mes devoirs.",
+      "exampleTranslation": "我在做作业。"
+    },
+    {
+      "id": 3,
+      "word": "aller",
+      "phonetic": "a.le",
+      "pos": "v.",
+      "definition": "去",
+      "tag": "A1",
+      "example": "Je vais à l'école.",
+      "exampleTranslation": "我去学校。"
+    },
+    {
+      "id": 4,
+      "word": "ça",
+      "phonetic": "sa",
+      "pos": "pron.",
+      "definition": "这个",
+      "tag": "A1",
+      "example": "C'est un livre.",
+      "exampleTranslation": "这是一本书。"
+    },
+    {
+      "id": 5,
+      "word": "bon",
+      "phonetic": "bɔ̃",
+      "pos": "adj.",
+      "definition": "好的",
+      "tag": "A1",
+      "example": "Le temps est bon.",
+      "exampleTranslation": "天气很好。"
+    },
+    {
+      "id": 6,
+      "word": "personne",
+      "phonetic": "pɛʁ.sɔn",
+      "pos": "n.",
+      "definition": "人",
+      "tag": "A1",
+      "example": "Qui est cette personne?",
+      "exampleTranslation": "那个人是谁？"
+    },
+    {
+      "id": 7,
+      "word": "manger",
+      "phonetic": "mɑ̃.ʒe",
+      "pos": "v.",
+      "definition": "吃",
+      "tag": "A1",
+      "example": "Je mange une pomme.",
+      "exampleTranslation": "我吃一个苹果。"
+    },
+    {
+      "id": 8,
+      "word": "voir",
+      "phonetic": "vwaʁ",
+      "pos": "v.",
+      "definition": "看",
+      "tag": "A1",
+      "example": "Je vois un film.",
+      "exampleTranslation": "我看一部电影。"
+    },
+    {
+      "id": 9,
+      "word": "grand",
+      "phonetic": "ɡʁɑ̃",
+      "pos": "adj.",
+      "definition": "大的",
+      "tag": "A1",
+      "example": "Une grande maison.",
+      "exampleTranslation": "一座大房子。"
+    },
+    {
+      "id": 10,
+      "word": "eau",
+      "phonetic": "o",
+      "pos": "n.",
+      "definition": "水",
+      "tag": "A1",
+      "example": "Je bois de l'eau.",
+      "exampleTranslation": "我喝水。"
+    }
+  ]
+}

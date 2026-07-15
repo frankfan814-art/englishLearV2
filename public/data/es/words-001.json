@@ -1,0 +1,106 @@
+{
+  "shardIndex": 1,
+  "totalShards": 1,
+  "words": [
+    {
+      "id": 1,
+      "word": "yo",
+      "phonetic": "ʝo",
+      "pos": "pron.",
+      "definition": "我",
+      "tag": "A1",
+      "example": "Yo soy estudiante.",
+      "exampleTranslation": "我是学生。"
+    },
+    {
+      "id": 2,
+      "word": "hacer",
+      "phonetic": "aˈθeɾ",
+      "pos": "v.",
+      "definition": "做",
+      "tag": "A1",
+      "example": "Hago mis deberes.",
+      "exampleTranslation": "我在做作业。"
+    },
+    {
+      "id": 3,
+      "word": "ir",
+      "phonetic": "iɾ",
+      "pos": "v.",
+      "definition": "去",
+      "tag": "A1",
+      "example": "Voy a la escuela.",
+      "exampleTranslation": "我去学校。"
+    },
+    {
+      "id": 4,
+      "word": "esto",
+      "phonetic": "ˈesto",
+      "pos": "pron.",
+      "definition": "这个",
+      "tag": "A1",
+      "example": "Esto es un libro.",
+      "exampleTranslation": "这是一本书。"
+    },
+    {
+      "id": 5,
+      "word": "bueno",
+      "phonetic": "ˈbweno",
+      "pos": "adj.",
+      "definition": "好的",
+      "tag": "A1",
+      "example": "El clima es bueno.",
+      "exampleTranslation": "天气很好。"
+    },
+    {
+      "id": 6,
+      "word": "persona",
+      "phonetic": "peɾˈsona",
+      "pos": "n.",
+      "definition": "人",
+      "tag": "A1",
+      "example": "¿Quién es esa persona?",
+      "exampleTranslation": "那个人是谁？"
+    },
+    {
+      "id": 7,
+      "word": "comer",
+      "phonetic": "koˈmeɾ",
+      "pos": "v.",
+      "definition": "吃",
+      "tag": "A1",
+      "example": "Como una manzana.",
+      "exampleTranslation": "我吃一个苹果。"
+    },
+    {
+      "id": 8,
+      "word": "ver",
+      "phonetic": "beɾ",
+      "pos": "v.",
+      "definition": "看",
+      "tag": "A1",
+      "example": "Veo una película.",
+      "exampleTranslation": "我看一部电影。"
+    },
+    {
+      "id": 9,
+      "word": "grande",
+      "phonetic": "ˈɡɾande",
+      "pos": "adj.",
+      "definition": "大的",
+      "tag": "A1",
+      "example": "Una casa grande.",
+      "exampleTranslation": "一座大房子。"
+    },
+    {
+      "id": 10,
+      "word": "agua",
+      "phonetic": "ˈaɣwa",
+      "pos": "n.",
+      "definition": "水",
+      "tag": "A1",
+      "example": "Bebo agua.",
+      "exampleTranslation": "我喝水。"
+    }
+  ]
+}

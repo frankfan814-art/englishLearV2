@@ -1,3 +1,19 @@
+# Task 8 Brief: 创建词表选择页面
+
+## Files
+- Create: `src/components/WordListSelect.tsx`
+
+## Interfaces
+- Consumes: `WORD_LISTS`, `getWordCountByTag()`, `switchList()`, `startLearning()`
+- Produces: `WordListSelect` 组件
+
+## Requirements
+
+### Step 1: 创建 WordListSelect 组件
+
+创建 `src/components/WordListSelect.tsx`：
+
+```typescript
 import { useEffect, useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { WORD_LISTS, WordList } from '../config/wordLists';
@@ -33,7 +49,7 @@ export function WordListSelect({ isOpen, onClose }: WordListSelectProps) {
     if (isOpen) {
       loadListStats();
     }
-  }, [isOpen, listProgress]);
+  }, [isOpen]);
 
   const loadListStats = async () => {
     setLoading(true);
@@ -125,3 +141,28 @@ export function WordListSelect({ isOpen, onClose }: WordListSelectProps) {
     </Drawer>
   );
 }
+```
+
+### Step 2: 提交
+
+```bash
+git add src/components/WordListSelect.tsx
+git commit -m "feat(ui): add word list selection page
+
+- Display all word lists with word counts
+- Show progress per list (round, percentage)
+- Click to select list and start learning
+- Use Drawer for mobile-friendly UI
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
+```
+
+## Report Contract
+
+After completing the task, write a report to `E:/work/englishLearn/.superpowers/sdd/task-8-report.md` with:
+1. Changes made
+2. Test results (TypeScript check, build)
+3. Any concerns or issues encountered
+4. Commit hash
+
+Then report status: DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED
