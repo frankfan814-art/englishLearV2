@@ -186,6 +186,9 @@ export function useAutoPlay() {
   const isLoading = useAppStore(state => state.isLoading);
   const currentWord = useAppStore(state => state.currentWord);
   const nextWord = useAppStore(state => state.nextWord);
+  const readDefinition = useAppStore(state => state.settings.readDefinition);
+  const readExample = useAppStore(state => state.settings.readExample);
+  const speed = useAppStore(state => state.settings.speed);
 
   useEffect(() => {
     let isActive = true;
@@ -280,9 +283,9 @@ export function useAutoPlay() {
     nextWord,
     stop,
     resetCancel,
-    useAppStore.getState().settings.readDefinition,
-    useAppStore.getState().settings.readExample,
-    useAppStore.getState().settings.speed,
+    readDefinition,
+    readExample,
+    speed,
   ]);
 
   return {

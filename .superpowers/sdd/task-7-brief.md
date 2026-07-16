@@ -1,155 +1,63 @@
-# Task 7 Brief: 改造首页为双入口设计
+### Task 7: 集成测试与最终验证
 
-## Files
-- Modify: `src/components/Home.tsx`
+**Files:**
+- 无代码修改
 
-## Interfaces
-- Consumes: `startLearning()`, `totalWords`, `completedRounds`, `currentRound`, `switchList()`
-- Produces: 双入口 UI（快速开始 + 按词表学习）
+**说明：**
+端到端测试多语言学习流程，确保英语功能不受影响，新语言功能正常工作。
 
-## Requirements
-
-### Step 1: 重构 Home.tsx
-
-完全替换 `src/components/Home.tsx` 内容：
-
-```typescript
-import { useState } from 'react';
-import { useAppStore } from '../store/useAppStore';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { unlockAudio } from '../hooks/useTTS';
-import { WordListSelect } from './WordListSelect';
-
-export function Home() {
-  const { currentRound, currentIndex, totalWords, completedRounds, startLearning, switchList } = useAppStore();
-  const [showListSelect, setShowListSelect] = useState(false);
-
-  const percentage = ((currentIndex + 1) / totalWords) * 100;
-
-  const handleQuickStart = async () => {
-    await switchList('all');
-    unlockAudio();
-    startLearning();
-  };
-
-  const handleListSelect = () => {
-    setShowListSelect(true);
-  };
-
-  return (
-    <>
-      <div className="w-full h-full flex items-center justify-center p-4 animate-fade">
-        <Card className="glass card-hover w-full max-w-[400px] p-8 flex flex-col items-center justify-center rounded-2xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-
-          {/* App Icon / Logo */}
-          <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 mb-6 animate-glow">
-            <span className="text-primary-foreground text-4xl font-bold font-serif">E</span>
-          </div>
-
-          {/* Title */}
-          <h1 className="text-3xl font-bold text-gradient text-center mb-1">
-            单词朗读
-          </h1>
-          <p className="text-sm text-muted-foreground text-center mb-8">
-            听读记忆 · 高效刷词
-          </p>
-
-          {/* Quick Start Button */}
-          <Button
-            size="lg"
-            className="w-full h-14 rounded-xl text-lg font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-transform mb-3"
-            onClick={handleQuickStart}
-          >
-            快速开始
-            <span className="text-sm font-normal opacity-80 ml-2">
-              全部单词 · {totalWords.toLocaleString()} 词
-            </span>
-          </Button>
-
-          {/* Word List Select Button */}
-          <Button
-            size="lg"
-            variant="outline"
-            className="w-full h-14 rounded-xl text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-transform"
-            onClick={handleListSelect}
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-            </svg>
-            按词表学习
-            <span className="text-sm font-normal opacity-60 ml-2">
-              托福 / GRE / 四六级
-            </span>
-          </Button>
-
-          {/* Progress Stats */}
-          <div className="w-full bg-background/50 rounded-xl p-5 mt-6 border border-white/5">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-sm font-medium text-muted-foreground">当前轮次</span>
-              <span className="text-lg font-bold text-foreground">第 {currentRound} 轮</span>
-            </div>
-
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-sm font-medium text-muted-foreground">已完成轮次</span>
-              <span className="text-lg font-bold text-primary">{completedRounds} 轮</span>
-            </div>
-
-            <div className="w-full pt-4 border-t border-white/5">
-              <div className="flex justify-between items-end mb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">进度</span>
-                <div className="text-right">
-                  <span className="font-bold text-foreground">{currentIndex + 1}</span>
-                  <span className="text-muted-foreground mx-1">/</span>
-                  <span className="text-sm text-muted-foreground">{totalWords}</span>
-                </div>
-              </div>
-              {/* Progress Bar */}
-              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-primary to-indigo-400 transition-all duration-500 rounded-full progress-glow"
-                  style={{ width: `${percentage}%` }}
-                />
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Word List Select Modal */}
-      <WordListSelect
-        isOpen={showListSelect}
-        onClose={() => setShowListSelect(false)}
-      />
-    </>
-  );
-}
-```
-
-### Step 2: 提交
+- [ ] **Step 1: 启动开发服务器**
 
 ```bash
-git add src/components/Home.tsx
-git commit -m "feat(home): add dual-entry design with quick start and list select
-
-- Add 'Quick Start' button for all words
-- Add 'Select Word List' button for specific lists
-- Keep progress display at bottom
-- Integrate WordListSelect modal (to be created)
-
-Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
+npm run dev
 ```
 
-## Report Contract
+- [ ] **Step 2: 测试英语功能回归**
 
-After completing the task, write a report to `E:/work/englishLearn/.superpowers/sdd/task-7-report.md` with:
-1. Changes made
-2. Test results (TypeScript check, build)
-3. Any concerns or issues encountered
-4. Commit hash
+1. 访问首页，确认默认显示英语Tab选中
+2. 点击"快速开始" → 进入英语学习模式
+3. 自动播放：单词发音（有道API）→ 中文释义发音 → 例句发音
+4. 点击"已掌握" → 单词被标记，跳到下一个
+5. 打开设置 → 切换美式/英式发音 → 朗读释义开关 → 朗读例句开关
+6. 返回首页，确认进度显示
 
-Then report status: DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED
+- [ ] **Step 3: 测试日语功能**
 
-## Note
+1. 点击"日语"Tab
+2. 点击"快速开始" → 进入日语学习模式
+3. 确认 WordCard 显示日语单词、假名读音、中文释义、日语例句
+4. 自动播放：日语单词发音（Web Speech）→ 中文释义发音 → 日语例句发音
+5. 打开设置 → 确认发音口音显示"标准发音"
+6. 返回首页，确认进度已切换
 
-This task depends on Task 8 (WordListSelect component). The import will fail until Task 8 is complete. You may need to create a stub component or handle this appropriately.
+- [ ] **Step 4: 测试韩语和德语**
+
+1. 点击"韩语"Tab → 快速开始 → 确认韩语单词显示和发音
+2. 返回 → 点击"德语"Tab → 快速开始 → 确认德语单词显示和发音
+
+- [ ] **Step 5: 测试语言切换后进度独立**
+
+1. 英语学习到第10个词 → 切换到日语 → 英语进度应保存
+2. 日语学习到第5个词 → 切回英语 → 回到第10个词
+3. 确认 mastered 单词跨语言不共享
+
+- [ ] **Step 6: 检查 localStorage**
+
+```javascript
+// 在浏览器控制台
+console.log(localStorage.getItem('vocab_current_language'));
+console.log(localStorage.getItem('vocab_list_progress'));
+console.log(localStorage.getItem('vocab_mastered'));
+```
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add -A
+git commit -m "feat: 多语言词库集成完成
+- 支持英语/日语/韩语/德语四种语言切换
+- 英语发音使用有道API，其他语言使用Web Speech API
+- 各语言学习进度独立存储
+- 修复朗读释义开关不生效的bug
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
+```

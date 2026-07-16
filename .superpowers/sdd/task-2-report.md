@@ -1,42 +1,24 @@
-# Task 2 Report: Wake Lock 屏幕常亮
+# Task 2 Report
+
+## Status: DONE
 
 ## Changes Made
+- `src/types/word.ts`: Added `DataLoaderConfig` interface with basePath, shardSize, totalShards, filePattern, lastShardSize fields
+- `src/utils/dataLoader.ts`: Refactored from singleton to instantiable class accepting `DataLoaderConfig`; added `getTotalWords()` method; preserved backward-compatible `dataLoader` export (marked @deprecated)
+- `src/utils/languageRegistry.ts`: Created new file with `LANGUAGE_CONFIGS` (Record<string, DataLoaderConfig>), `getDataLoader()`, and `getTotalWords()` functions
+- `src/config/wordLists.ts`: Added `TTSConfig`, `Language` interfaces; added `LANGUAGES` array with en/ja/ko/de entries; added `en_all`, `ja_all`, `ko_all`, `de_all` word list entries; added `getListsByLanguage()` and `getLanguageInfo()` exports
 
-1. **Created** `src/hooks/useWakeLock.ts` - New React hook implementing Screen Wake Lock API
-   - Requests wake lock when `enabled` is true, releases when false
-   - Uses `enabledRef` to track current enabled state without re-triggering effects
-   - Re-acquires wake lock automatically when released while still enabled and page visible
-   - Re-acquires wake lock on visibility change (tab switch back)
-   - Graceful fallback: logs warning if browser doesn't support Wake Lock API
-
-2. **Modified** `src/App.tsx` - Integrated useWakeLock hook
-   - Added import: `import { useWakeLock } from './hooks/useWakeLock';`
-   - Added call: `useWakeLock(isPlaying);` after `useAutoPlay()` in App component
+## Commits
+aacd847
 
 ## Test Results
+- npm run build: PASS (tsc + vite build succeeded, no type errors)
 
-- **TypeScript check** (`tsc --noEmit`): Passed with no errors
-- **Production build** (`npm run build`): Passed successfully
-  - Output: index.html (0.69 kB), CSS (34.02 kB), JS (315.42 kB / 100.33 kB gzip)
-
-## Self-Review Findings
-
-1. **Interaction with existing visibility handler**: App.tsx already has a `visibilitychange` listener (line 83-91) that sets `isPlaying = false` when the page is hidden. This means:
-   - When user switches tabs: `isPlaying` becomes false -> `useWakeLock(false)` -> wake lock released
-   - When user returns: `isPlaying` is still false -> wake lock NOT re-acquired
-   - This is correct behavior: playback was paused on tab switch, so screen should not stay awake
-   - The visibility re-acquire logic in useWakeLock handles the edge case where the wake lock is released by the browser (e.g., minimize) but `isPlaying` is still true
-
-2. **WakeLockSentinel type**: TypeScript recognizes `WakeLockSentinel` as a global type (available in lib DOM), so no additional type declarations needed.
-
-3. **No memory leaks**: All event listeners are properly cleaned up in effect cleanup functions. Wake lock is released on unmount.
-
-4. **Error handling**: All `release()` calls use `.catch(() => {})` to prevent unhandled promise rejections. Wake lock request failures are logged as warnings.
-
-## Commit
-
-- `3077d40` - feat(wake-lock): keep screen awake during playback
+## Self-Review
+- [x] Spec compliance: all requirements met
+- [x] No unnecessary code added
+- [x] Types correct
+- [x] Backward compatible (dataLoader singleton export preserved, Settings.accent unchanged)
 
 ## Concerns
-
-None. The implementation follows the brief exactly and integrates cleanly with the existing codebase.
+- Vite build warnings about mixed static/dynamic imports for wordLists.ts and wordListIndex.ts — pre-existing, not introduced by this task

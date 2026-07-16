@@ -1,162 +1,292 @@
-# Task 2 Brief: 实现 Wake Lock 屏幕常亮
+### Task 2: 重构 DataLoader 为多语言实例化
 
-## Files
-- Create: `src/hooks/useWakeLock.ts`
-- Modify: `src/App.tsx`
+**Files:**
+- Create: `src/utils/languageRegistry.ts`
+- Modify: `src/utils/dataLoader.ts`
+- Modify: `src/config/wordLists.ts`
+- Modify: `src/types/word.ts`
 
-## Interfaces
-- Consumes: `isPlaying: boolean` (from store)
-- Produces: `useWakeLock(enabled: boolean): void`
+**说明：**
+DataLoader 从单例改为可实例化，每种语言独立实例。`languageRegistry.ts` 管理语言配置和 DataLoader 实例。
 
-## Requirements
+**Interfaces:**
+- Consumes: 无
+- Produces: `DataLoader` (可实例化类), `DataLoaderConfig`, `getDataLoader(language)`, `LANGUAGE_CONFIGS`, `LANGUAGES`, `TTSConfig`
 
-### Step 1: 创建 useWakeLock hook
-
-创建 `src/hooks/useWakeLock.ts`：
+- [ ] **Step 1: 重构 DataLoader 为可实例化类**
 
 ```typescript
-import { useEffect, useRef } from 'react';
+// src/utils/dataLoader.ts
+import { Word, WordShard, DataLoaderConfig } from '../types/word';
 
-/**
- * Keep screen awake while enabled (e.g., during audio playback)
- * Uses Screen Wake Lock API with graceful fallback for unsupported browsers
- */
-export function useWakeLock(enabled: boolean) {
-  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
-  const enabledRef = useRef(enabled);
+export class DataLoader {
+  private config: DataLoaderConfig;
+  private cache: Map<number, Word[]> = new Map();
+  private loading: Map<number, Promise<Word[]>> = new Map();
 
-  // Keep enabledRef in sync
-  useEffect(() => {
-    enabledRef.current = enabled;
-  }, [enabled]);
+  constructor(config: DataLoaderConfig) {
+    this.config = config;
+  }
 
-  useEffect(() => {
-    if (!enabled) {
-      // Release Wake Lock when disabled
-      if (wakeLockRef.current) {
-        wakeLockRef.current.release().catch(() => {});
-        wakeLockRef.current = null;
-      }
-      return;
+  async loadShard(index: number): Promise<Word[]> {
+    if (this.cache.has(index)) {
+      return this.cache.get(index)!;
     }
-
-    // Check browser support
-    if (!('wakeLock' in navigator)) {
-      console.warn('[WakeLock] API not supported in this browser');
-      return;
+    if (this.loading.has(index)) {
+      return this.loading.get(index)!;
     }
+    const loadPromise = this._fetchShard(index);
+    this.loading.set(index, loadPromise);
+    return loadPromise;
+  }
 
-    // Request Wake Lock
-    const requestWakeLock = async () => {
-      try {
-        const wakeLock = await navigator.wakeLock.request('screen');
-        wakeLockRef.current = wakeLock;
-
-        // Listen for automatic release (tab switch, minimize, etc.)
-        wakeLock.addEventListener('release', () => {
-          wakeLockRef.current = null;
-          // Re-acquire if still enabled and page is visible
-          if (enabledRef.current && !document.hidden) {
-            requestWakeLock();
-          }
-        });
-      } catch (err) {
-        console.warn('[WakeLock] Request failed:', err);
+  private async _fetchShard(index: number): Promise<Word[]> {
+    try {
+      const { basePath, filePattern } = this.config;
+      const filename = filePattern.replace('{index}', String(index).padStart(3, '0'));
+      const response = await fetch(`${basePath}${filename}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load shard ${index} from ${basePath}`);
       }
-    };
+      const data: WordShard = await response.json();
+      this.cache.set(index, data.words);
+      this.loading.delete(index);
+      return data.words;
+    } catch (error) {
+      this.loading.delete(index);
+      throw error;
+    }
+  }
 
-    requestWakeLock();
+  async getWord(globalIndex: number): Promise<Word | null> {
+    const { shardSize } = this.config;
+    const shardIndex = Math.floor(globalIndex / shardSize) + 1;
+    const localIndex = globalIndex % shardSize;
 
-    // Cleanup
-    return () => {
-      if (wakeLockRef.current) {
-        wakeLockRef.current.release().catch(() => {});
-        wakeLockRef.current = null;
-      }
-    };
-  }, [enabled]);
+    try {
+      const words = await this.loadShard(shardIndex);
+      return words[localIndex] || null;
+    } catch (error) {
+      console.error('Failed to get word:', error);
+      return null;
+    }
+  }
 
-  // Re-acquire wake lock when page becomes visible again
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && enabledRef.current && !wakeLockRef.current) {
-        if ('wakeLock' in navigator) {
-          navigator.wakeLock.request('screen')
-            .then(wakeLock => {
-              wakeLockRef.current = wakeLock;
-              wakeLock.addEventListener('release', () => {
-                wakeLockRef.current = null;
-              });
-            })
-            .catch(() => {});
-        }
-      }
-    };
+  async preloadAdjacent(currentIndex: number): Promise<void> {
+    const { shardSize, totalShards } = this.config;
+    const currentShard = Math.floor(currentIndex / shardSize) + 1;
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, []);
+    const toPreload = [
+      currentShard - 1,
+      currentShard,
+      currentShard + 1,
+    ].filter(i => i >= 1 && i <= totalShards);
+
+    await Promise.all(toPreload.map(i => this.loadShard(i).catch(() => {})));
+  }
+
+  clearCache(): void {
+    this.cache.clear();
+    this.loading.clear();
+  }
+
+  getTotalWords(): number {
+    return this.config.shardSize * (this.config.totalShards - 1) + this.config.lastShardSize;
+  }
+}
+
+// 保留实例以供向后兼容，但标记为废弃
+/** @deprecated 使用 languageRegistry.getDataLoader('en') 替代 */
+export const dataLoader = new DataLoader({
+  basePath: '/data/',
+  shardSize: 1000,
+  totalShards: 17,
+  filePattern: 'words-{index}.json',
+  lastShardSize: 194,
+});
+```
+
+- [ ] **Step 2: 在 types/word.ts 中添加 DataLoaderConfig 类型**
+
+```typescript
+// src/types/word.ts 新增
+export interface DataLoaderConfig {
+  basePath: string;
+  shardSize: number;
+  totalShards: number;
+  filePattern: string;   // 支持 {index} 占位符
+  lastShardSize: number; // 最后一个分片的实际单词数
 }
 ```
 
-### Step 2: 在 App.tsx 中集成 Wake Lock
-
-修改 `src/App.tsx`，在文件顶部添加 import：
+- [ ] **Step 3: 创建 languageRegistry.ts**
 
 ```typescript
-import { useWakeLock } from './hooks/useWakeLock';
-```
+// src/utils/languageRegistry.ts
+import { DataLoader } from './dataLoader';
+import { DataLoaderConfig } from '../types/word';
 
-在 `App` 函数体内，`useAutoPlay()` 之后添加：
+export const LANGUAGE_CONFIGS: Record<string, DataLoaderConfig> = {
+  en: {
+    basePath: '/data/',
+    shardSize: 1000,
+    totalShards: 17,
+    filePattern: 'words-{index}.json',
+    lastShardSize: 194,
+  },
+  ja: {
+    basePath: '/data/ja/',
+    shardSize: 5000,
+    totalShards: 4,
+    filePattern: 'words-{index}.json',
+    lastShardSize: 5000,
+  },
+  ko: {
+    basePath: '/data/ko/',
+    shardSize: 5000,
+    totalShards: 1,
+    filePattern: 'words-{index}.json',
+    lastShardSize: 5000,
+  },
+  de: {
+    basePath: '/data/de/',
+    shardSize: 5000,
+    totalShards: 1,
+    filePattern: 'words-{index}.json',
+    lastShardSize: 5000,
+  },
+};
 
-```typescript
-// Keep screen awake during playback
-useWakeLock(isPlaying);
-```
+const loaders = new Map<string, DataLoader>();
 
-完整位置参考：
+export function getDataLoader(language: string): DataLoader {
+  if (!loaders.has(language)) {
+    const config = LANGUAGE_CONFIGS[language];
+    if (!config) {
+      throw new Error(`Unknown language: ${language}`);
+    }
+    loaders.set(language, new DataLoader(config));
+  }
+  return loaders.get(language)!;
+}
 
-```typescript
-function App() {
-  // ... existing state and hooks
-
-  useAutoPlay();
-
-  // Keep screen awake during playback
-  useWakeLock(isPlaying);
-
-  // ... rest of the component
+export function getTotalWords(language: string): number {
+  const config = LANGUAGE_CONFIGS[language];
+  if (!config) return 0;
+  return config.shardSize * (config.totalShards - 1) + config.lastShardSize;
 }
 ```
 
-### Step 3: 手动测试
+- [ ] **Step 4: 重构 wordLists.ts 添加语言配置**
 
-运行 `npm run dev`，测试：
-1. 点击"开始学习"进入学习页面
-2. 点击"自动朗读"开始播放
-3. 等待 1-2 分钟，观察屏幕是否保持常亮（不会自动锁屏）
-4. 点击"暂停朗读"，Wake Lock 应释放
-5. 切换到其他标签页再切回来，确认 Wake Lock 重新获取
+```typescript
+// src/config/wordLists.ts
+export interface TTSConfig {
+  mode: 'youdao' | 'webspeech';
+  webspeechLang?: string;
+  accentOptions: { label: string; value: string }[];
+  defaultAccent: string;
+}
 
-### Step 4: 提交
+export interface Language {
+  code: string;
+  name: string;
+  flag: string;
+  ttsConfig: TTSConfig;
+}
+
+export const LANGUAGES: Language[] = [
+  {
+    code: 'en', name: '英语', flag: '🇺🇸',
+    ttsConfig: {
+      mode: 'youdao',
+      accentOptions: [{ label: '美式', value: 'us' }, { label: '英式', value: 'uk' }],
+      defaultAccent: 'us',
+    },
+  },
+  {
+    code: 'ja', name: '日语', flag: '🇯🇵',
+    ttsConfig: {
+      mode: 'webspeech',
+      webspeechLang: 'ja-JP',
+      accentOptions: [{ label: '标准', value: 'ja-JP' }],
+      defaultAccent: 'ja-JP',
+    },
+  },
+  {
+    code: 'ko', name: '韩语', flag: '🇰🇷',
+    ttsConfig: {
+      mode: 'webspeech',
+      webspeechLang: 'ko-KR',
+      accentOptions: [{ label: '标准', value: 'ko-KR' }],
+      defaultAccent: 'ko-KR',
+    },
+  },
+  {
+    code: 'de', name: '德语', flag: '🇩🇪',
+    ttsConfig: {
+      mode: 'webspeech',
+      webspeechLang: 'de-DE',
+      accentOptions: [{ label: '标准', value: 'de-DE' }],
+      defaultAccent: 'de-DE',
+    },
+  },
+];
+
+export const WORD_LISTS: WordList[] = [
+  // English
+  { id: 'toefl', name: '托福词汇', tag: 'toefl', language: 'en' },
+  { id: 'gre', name: 'GRE词汇', tag: 'gre', language: 'en' },
+  { id: 'cet6', name: '六级词汇', tag: 'cet6', language: 'en' },
+  { id: 'ky', name: '考研词汇', tag: 'ky', language: 'en' },
+  { id: 'ielts', name: '雅思词汇', tag: 'ielts', language: 'en' },
+  { id: 'cet4', name: '四级词汇', tag: 'cet4', language: 'en' },
+  { id: 'gk', name: '高考词汇', tag: 'gk', language: 'en' },
+  { id: 'other', name: '其他词汇', tag: '', language: 'en' },
+  { id: 'en_all', name: '全部单词', tag: '*', language: 'en' },
+  // Japanese
+  { id: 'ja_all', name: '全部单词', tag: '*', language: 'ja' },
+  // Korean
+  { id: 'ko_all', name: '全部单词', tag: '*', language: 'ko' },
+  // German
+  { id: 'de_all', name: '全部单词', tag: '*', language: 'de' },
+];
+
+export function getListsByLanguage(language: string): WordList[] {
+  return WORD_LISTS.filter(list => list.language === language);
+}
+
+export function getLanguageInfo(code: string): Language | undefined {
+  return LANGUAGES.find(lang => lang.code === code);
+}
+
+export function getWordListById(id: string): WordList | undefined {
+  return WORD_LISTS.find(list => list.id === id);
+}
+
+export function getWordListIds(): string[] {
+  return WORD_LISTS.map(list => list.id);
+}
+```
+
+- [ ] **Step 5: 验证**
 
 ```bash
-git add src/hooks/useWakeLock.ts src/App.tsx
-git commit -m "feat(wake-lock): keep screen awake during playback
+npm run build
+```
+确保没有 TypeScript 编译错误。
 
-- Add useWakeLock hook using Screen Wake Lock API
-- Re-acquire wake lock on visibility change
-- Graceful fallback for unsupported browsers
+- [ ] **Step 6: Commit**
 
+```bash
+git add src/utils/dataLoader.ts src/utils/languageRegistry.ts src/types/word.ts src/config/wordLists.ts
+git commit -m "refactor: DataLoader 重构为多语言实例化模式
+- DataLoader 改为可实例化类，接收 DataLoaderConfig 配置
+- 新增 languageRegistry.ts 管理语言配置和 DataLoader 实例
+- wordLists.ts 新增 LANGUAGES 注册表和 getListsByLanguage 辅助函数
+- 向后兼容保留 dataLoader 单例引用
 Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ```
 
-## Report Contract
+---
 
-After completing the task, write a report to `E:/work/englishLearn/.superpowers/sdd/task-2-report.md` with:
-1. Changes made
-2. Test results (TypeScript check, build, manual testing observations)
-3. Any concerns or issues encountered
-4. Commit hash
-
-Then report status: DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED

@@ -1,43 +1,38 @@
-# Task 4 Report: 实现词表索引构建
+# Task 4 Report: TTS 多语言发音支持
+
+## Status: DONE
 
 ## Changes Made
 
-Created `src/utils/wordListIndex.ts` with the following exports:
+**File modified**: `src/hooks/useTTS.ts`
 
-- `buildWordListIndex()`: Scans all 16,194 words via `dataLoader.getWord()`, builds a `Map<string, Set<number>>` mapping each tag to its word indexes. Caches result and deduplicates concurrent build calls.
-- `getWordIndexesByTag(tag)`: Returns sorted array of word indexes for a given tag, or empty array if not found.
-- `getWordCountByTag(tag)`: Returns count of words for a given tag.
-- `clearWordListIndexCache()`: Clears cache for testing.
+### 1. Added `speakByLanguage` method
 
-Key behaviors:
-- Combined tags (e.g., "cet4 cet6 toefl") are split on whitespace; each sub-tag gets its own entry pointing to the word.
-- Empty/missing tag maps to the empty string key `''` (for "other vocabulary").
-- Build is guarded against concurrent calls via `indexBuildPromise`.
-- Errors loading individual words are caught and logged, not fatal.
+New method with signature `(speakId, text, language, accent, rate) => Promise<boolean>`:
+- Uses `getLanguageInfo(language)` to look up TTS config
+- If `ttsConfig.mode === 'youdao'` (English), routes to `speakRealAudio` (Youdao API)
+- Otherwise, routes to `speakTTS` with `ttsConfig.webspeechLang` (e.g., `ja-JP`, `ko-KR`, `de-DE`)
+- Unknown language falls back to Web Speech with `en-US`
 
-## Test Results
+### 2. Modified `useAutoPlay` to use `speakByLanguage`
 
-- **TypeScript check** (`tsc --noEmit`): Passed with no errors.
-- **Vite build** (`npm run build`): Passed. Output: `index-BIwhNQEO.js` (315.42 kB / 100.33 kB gzip).
+- Word pronunciation: `speakByLanguage(speakId, word, currentLanguage, accent, rate)` instead of `speak(word, accent, rate)`
+- Example sentence: `speakByLanguage(speakId, example, currentLanguage, accent, rate)` instead of `speak(example, accent, rate)`
+- Reads `currentLanguage` from `useAppStore.getState()` inside `playCurrentWord`
+- Updated effect dependencies: replaced `speak` with `speakByLanguage`
 
-## Files Changed
+### 3. Preserved `speak()` function
 
-- **Created**: `src/utils/wordListIndex.ts` (99 lines)
+The original `speak()` function remains unchanged for backward compatibility (used by WordCard for manual speak button).
 
-## Self-Review Findings
+### 4. Fixed TS6133 error
 
-1. **Performance concern**: The build iterates all 16,194 words sequentially via `dataLoader.getWord()`, which loads shards one at a time. Since `dataLoader` caches shards, the actual network fetches are only 17 (one per shard), but the sequential `await` in the loop means each word lookup waits for the previous one. This is acceptable for a one-time initialization but could be optimized later by loading all shards in parallel first, then iterating the cached data.
+Removed unused `speak` destructuring in `useAutoPlay` since it now uses `speakByLanguage` exclusively.
 
-2. **Hardcoded total**: `const totalWords = 16194` is hardcoded. If the word database changes size, this constant must be updated. The `dataLoader` does not expose a total count constant. This matches the brief exactly but is a maintenance risk.
+## Build Verification
 
-3. **Module-level mutable state**: `wordListIndexCache` and `indexBuildPromise` are module-level variables. This is fine for a singleton pattern but makes testing slightly harder (hence `clearWordListIndexCache()`).
-
-4. **No runtime test yet**: The module compiles and builds correctly but has not been exercised at runtime since no consumer calls it yet. This is expected per the task description.
+`npm run build` passes with no TypeScript errors.
 
 ## Commit
 
-- `5ecd126` feat(index): add word list index builder
-
-## Issues or Concerns
-
-None blocking. The performance note above is a future optimization opportunity, not a current problem.
+`2cf8577` on branch `multilang-support`

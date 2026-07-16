@@ -1,140 +1,203 @@
-# Task 4 Brief: 实现词表索引构建
+### Task 4: 改造 TTS 支持多语言
 
-## Files
-- Create: `src/utils/wordListIndex.ts`
+**Files:**
+- Modify: `src/hooks/useTTS.ts`
 
-## Interfaces
-- Consumes: `Word` type, data loader shard data
-- Produces: `buildWordListIndex()`, `getWordIndexesByTag(tag: string): number[]`, `getWordCountByTag(tag: string): number`
+**说明：**
+`useTTS` 和 `useAutoPlay` 根据当前语言选择发音方式：英语走有道API，其他语言走 Web Speech API。
 
-## Requirements
+**Interfaces:**
+- Consumes: `currentLanguage` (from store), `getLanguageInfo(lang)`
+- Produces: 语言感知的 `speakByLanguage`, `speakExample`, 改造后的 `useAutoPlay`
 
-### Step 1: 创建词表索引模块
-
-创建 `src/utils/wordListIndex.ts`：
+- [ ] **Step 1: 添加 speakByLanguage 方法**
 
 ```typescript
-import { dataLoader } from './dataLoader';
+// src/hooks/useTTS.ts 新增
+import { getLanguageInfo } from '../config/wordLists';
 
-/**
- * Word list index for fast lookup
- * Maps tag -> Set of global word indexes
- */
-let wordListIndexCache: Map<string, Set<number>> | null = null;
-let indexBuildPromise: Promise<Map<string, Set<number>>> | null = null;
-
-/**
- * Build word list index by scanning all words
- * Caches the result for subsequent calls
- */
-export async function buildWordListIndex(): Promise<Map<string, Set<number>>> {
-  // Return cached index if available
-  if (wordListIndexCache) {
-    return wordListIndexCache;
+// 在 useTTS hook 内新增方法
+const speakByLanguage = useCallback(async (
+  speakId: number,
+  text: string,
+  language: string,
+  accent: string,
+  rate: number = 1.0
+): Promise<boolean> => {
+  const langConfig = getLanguageInfo(language);
+  if (!langConfig) {
+    // 未知语言，用 Web Speech 兜底
+    return await speakTTS(speakId, text, 'en-US', rate);
   }
 
-  // Return existing build promise if already building
-  if (indexBuildPromise) {
-    return indexBuildPromise;
+  const { ttsConfig } = langConfig;
+
+  if (ttsConfig.mode === 'youdao') {
+    return await speakRealAudio(speakId, text, accent as 'us' | 'uk', rate);
   }
 
-  // Build index
-  indexBuildPromise = (async () => {
-    const index = new Map<string, Set<number>>();
+  const lang = ttsConfig.webspeechLang || `${language}-${language.toUpperCase()}`;
+  return await speakTTS(speakId, text, lang, rate);
+}, [speakRealAudio, speakTTS]);
 
-    // Total words: 16194 (17 shards * ~1000)
-    const totalWords = 16194;
+// 返回增加 speakByLanguage
+return { speak, speakChinese, speakByLanguage, stop, resetCancel };
+```
 
-    // Load all shards and build index
-    for (let globalIndex = 0; globalIndex < totalWords; globalIndex++) {
-      try {
-        const word = await dataLoader.getWord(globalIndex);
-        if (word) {
-          const tag = word.tag || '';
+- [ ] **Step 2: 改造 useAutoPlay 使用语言感知发音**
 
-          // Handle empty tag (other vocabulary)
-          if (tag === '') {
-            if (!index.has('')) {
-              index.set('', new Set());
-            }
-            index.get('')!.add(globalIndex);
-          } else {
-            // Split combined tags (e.g., "cet4 cet6 toefl")
-            const tags = tag.split(/\s+/).filter(t => t);
-            for (const t of tags) {
-              if (!index.has(t)) {
-                index.set(t, new Set());
-              }
-              index.get(t)!.add(globalIndex);
-            }
-          }
-        }
-      } catch (err) {
-        console.error(`Failed to load word at index ${globalIndex}:`, err);
-      }
-    }
+```typescript
+// useAutoPlay 中
+const { speak, speakChinese, speakByLanguage, stop, resetCancel } = useTTS();
 
-    wordListIndexCache = index;
-    indexBuildPromise = null;
-    return index;
-  })();
+// 在 playCurrentWord 中：
+const currentLanguage = useAppStore.getState().currentLanguage;
+const currentSettings = useAppStore.getState().settings;
 
-  return indexBuildPromise;
-}
+// 1. 读单词
+const success = await speakByLanguage(
+  speakId, currentWord.word, currentLanguage,
+  currentSettings.accent, currentSettings.speechRate || 1.0
+);
 
-/**
- * Get word indexes by tag
- * Returns empty array if tag not found
- */
-export async function getWordIndexesByTag(tag: string): Promise<number[]> {
-  const index = await buildWordListIndex();
-  const indexes = index.get(tag);
-
-  if (!indexes) {
-    return [];
-  }
-
-  return Array.from(indexes).sort((a, b) => a - b);
-}
-
-/**
- * Get word count by tag
- */
-export async function getWordCountByTag(tag: string): Promise<number> {
-  const index = await buildWordListIndex();
-  const indexes = index.get(tag);
-  return indexes ? indexes.size : 0;
-}
-
-/**
- * Clear index cache (for testing)
- */
-export function clearWordListIndexCache(): void {
-  wordListIndexCache = null;
-  indexBuildPromise = null;
+// 4. 读例句（如果开了）
+if (currentSettings.readExample && currentWord.example) {
+  const exampleSuccess = await speakByLanguage(
+    speakId, currentWord.example, currentLanguage,
+    currentSettings.accent, currentSettings.speechRate || 1.0
+  );
 }
 ```
 
-### Step 2: 提交
+- [ ] **Step 3: 完整修改 useTTS.ts 中的 useAutoPlay**
+
+```typescript
+// useAutoPlay 完整修改
+export function useAutoPlay() {
+  const { speak, speakChinese, speakByLanguage, stop, resetCancel } = useTTS();
+
+  const isPlaying = useAppStore(state => state.isPlaying);
+  const isLoading = useAppStore(state => state.isLoading);
+  const currentWord = useAppStore(state => state.currentWord);
+  const nextWord = useAppStore(state => state.nextWord);
+
+  useEffect(() => {
+    let isActive = true;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    if (!isPlaying || !currentWord || isLoading) {
+      stop();
+      return;
+    }
+
+    resetCancel();
+
+    const playCurrentWord = async () => {
+      const state = useAppStore.getState();
+      const settings = state.settings;
+      const currentLanguage = state.currentLanguage;
+
+      // 1. 读单词（语言感知）
+      const success = await speakByLanguage(
+        Date.now(), currentWord.word, currentLanguage,
+        settings.accent, settings.speechRate || 1.0
+      );
+
+      if (!isActive) return;
+
+      if (!success) {
+        console.warn('[AutoPlay] Speech failed, stopping playback');
+        useAppStore.setState({ isPlaying: false });
+        return;
+      }
+
+      // 2. 停顿
+      await new Promise(r => setTimeout(r, 300));
+      if (!isActive) return;
+
+      const currentSettings = useAppStore.getState().settings;
+
+      // 3. 读中文释义
+      if (currentSettings.readDefinition && currentWord.definition) {
+        const cleanDef = currentWord.definition.replace(/^[a-z]+\.\s*/i, '').trim();
+        if (cleanDef) {
+          const defSuccess = await speakChinese(cleanDef, settings.speechRate || 1.0);
+          if (!isActive) return;
+          if (!defSuccess) {
+            console.warn('[AutoPlay] Definition speech failed, but continuing');
+          }
+          await new Promise(r => setTimeout(r, 300));
+        }
+      }
+
+      if (!isActive) return;
+
+      // 4. 读例句（语言感知）
+      if (currentSettings.readExample && currentWord.example) {
+        const exampleSuccess = await speakByLanguage(
+          Date.now(), currentWord.example, currentLanguage,
+          currentSettings.accent, currentSettings.speechRate || 1.0
+        );
+        if (!isActive) return;
+        if (!exampleSuccess) {
+          console.warn('[AutoPlay] Example speech failed, but continuing');
+        }
+        await new Promise(r => setTimeout(r, 500));
+      }
+
+      // 5. 等待间隔
+      timeoutId = setTimeout(() => {
+        if (isActive) {
+          const stillPlaying = useAppStore.getState().isPlaying;
+          if (stillPlaying) {
+            nextWord();
+          }
+        }
+      }, currentSettings.speed * 1000);
+    };
+
+    playCurrentWord();
+
+    return () => {
+      isActive = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      stop();
+    };
+  }, [
+    isPlaying,
+    isLoading,
+    currentWord,
+    speakByLanguage,
+    nextWord,
+    stop,
+    resetCancel,
+    useAppStore.getState().settings.readDefinition,
+    useAppStore.getState().settings.readExample,
+    useAppStore.getState().settings.speed,
+  ]);
+}
+```
+
+- [ ] **Step 4: 验证**
 
 ```bash
-git add src/utils/wordListIndex.ts
-git commit -m "feat(index): add word list index builder
+npm run build
+```
+确保没有 TypeScript 编译错误。
 
-- Build in-memory index mapping tag -> word indexes
-- Support combined tags (e.g., 'cet4 cet6 toefl')
-- Cache index for fast subsequent lookups
-- Handle empty tag for 'other vocabulary'
+- [ ] **Step 5: Commit**
 
+```bash
+git add src/hooks/useTTS.ts
+git commit -m "feat: TTS 支持多语言发音
+- 新增 speakByLanguage 方法，英语走有道API，其他走Web Speech
+- useAutoPlay 使用语言感知的 speakByLanguage
+- 修复 readDefinition 依赖缺失问题
 Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ```
 
-## Report Contract
+---
 
-After completing the task, write a report to `E:/work/englishLearn/.superpowers/sdd/task-4-report.md` with:
-1. Changes made
-2. Test results (TypeScript check, build)
-3. Any concerns or issues encountered
-4. Commit hash
-
-Then report status: DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED

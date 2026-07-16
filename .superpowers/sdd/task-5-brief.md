@@ -1,100 +1,118 @@
-# Task 5 Brief: 扩展存储层支持词表进度
+### Task 5: 首页 UI 添加语言 Tab 切换
 
-## Files
-- Modify: `src/utils/storage.ts`
+**Files:**
+- Modify: `src/components/Home.tsx`
+- Modify: `src/components/WordListSelect.tsx`
+- Modify: `src/App.tsx`
 
-## Interfaces
-- Consumes: `ProgressData` type
-- Produces: `getCurrentList()`, `saveCurrentList()`, `getListProgress()`, `saveListProgress()`
+**说明：**
+首页添加语言 Tab 栏，切换时更新语言状态。词表选择列表根据当前语言过滤显示。
 
-## Requirements
-
-### Step 1: 扩展 storage.ts
-
-在 `src/utils/storage.ts` 文件末尾添加：
+- [ ] **Step 1: 改造 Home.tsx 添加语言 Tab 栏**
 
 ```typescript
-// === Word List Progress Storage ===
+// src/components/Home.tsx
+// 新增 LanguageTabBar 组件，在 Logo 和 快速开始按钮 之间插入
 
-const KEY_CURRENT_LIST = 'vocab_current_list';
-const KEY_LIST_PROGRESS = 'vocab_list_progress';
+import { LANGUAGES, getListsByLanguage, getLanguageInfo } from '../config/wordLists';
+import { getTotalWords } from '../utils/languageRegistry';
 
-/**
- * Get current word list ID
- * Returns 'all' if not set (backward compatible)
- */
-export function getCurrentList(): string {
-  const stored = localStorage.getItem(KEY_CURRENT_LIST);
-  return stored || 'all';
-}
+// 在 Home 组件内
+const { currentLanguage, switchLanguage, completedRounds, currentRound, currentIndex, switchList, startLearning } = useAppStore();
+const [showListSelect, setShowListSelect] = useState(false);
 
-/**
- * Save current word list ID
- */
-export function saveCurrentList(listId: string): void {
-  localStorage.setItem(KEY_CURRENT_LIST, listId);
-}
+const totalWords = getTotalWords(currentLanguage);
+const percentage = totalWords > 0 ? ((currentIndex + 1) / totalWords) * 100 : 0;
 
-/**
- * Get progress for all word lists
- */
-export function getListProgress(): Record<string, ProgressData> {
-  const stored = localStorage.getItem(KEY_LIST_PROGRESS);
-  if (!stored) {
-    return {};
+const handleQuickStart = async () => {
+  // 快速开始：当前语言的全部单词
+  const langInfo = getLanguageInfo(currentLanguage);
+  if (langInfo) {
+    await switchList(`${currentLanguage}_all`);
+  } else {
+    await switchList('all');
   }
-  try {
-    return JSON.parse(stored);
-  } catch {
-    return {};
-  }
-}
+  unlockAudio();
+  startLearning();
+};
 
-/**
- * Save progress for a specific word list
- */
-export function saveListProgress(progress: Record<string, ProgressData>): void {
-  localStorage.setItem(KEY_LIST_PROGRESS, JSON.stringify(progress));
-}
-
-/**
- * Get progress for a specific word list
- * Returns undefined if not found
- */
-export function getListProgressById(listId: string): ProgressData | undefined {
-  const allProgress = getListProgress();
-  return allProgress[listId];
-}
-
-/**
- * Save progress for a specific word list
- */
-export function saveListProgressById(listId: string, progress: ProgressData): void {
-  const allProgress = getListProgress();
-  allProgress[listId] = progress;
-  saveListProgress(allProgress);
-}
+// 在 Logo 下方添加 Language Tab 栏
 ```
 
-### Step 2: 提交
+```tsx
+{/* Language Tabs */}
+<div className="flex gap-1.5 mb-6 bg-background/50 rounded-xl p-1 border border-white/5 w-full">
+  {LANGUAGES.map((lang) => (
+    <button
+      key={lang.code}
+      onClick={() => {
+        if (lang.code !== currentLanguage) {
+          switchLanguage(lang.code);
+        }
+      }}
+      className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+        currentLanguage === lang.code
+          ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+      }`}
+    >
+      <span className="text-base">{lang.flag}</span>
+      <span>{lang.name}</span>
+    </button>
+  ))}
+</div>
+```
+
+- [ ] **Step 2: 改造 WordListSelect.tsx 按语言过滤**
+
+```typescript
+// src/components/WordListSelect.tsx
+// 修改 loadListStats 函数
+
+const loadListStats = async () => {
+  setLoading(true);
+  const { currentLanguage } = useAppStore.getState();
+  const listsWithStats: WordListWithStats[] = [];
+
+  const filteredLists = WORD_LISTS.filter(list => list.language === currentLanguage);
+
+  for (const list of filteredLists) {
+    const wordCount = list.tag === '*'
+      ? getTotalWords(currentLanguage)
+      : await getWordCountByTag(list.tag, currentLanguage);  // 传入 language 参数
+    listsWithStats.push({
+      ...list,
+      wordCount,
+      progress: listProgress[list.id],
+    });
+  }
+
+  setLists(listsWithStats);
+  setLoading(false);
+};
+```
+
+- [ ] **Step 3: 验证**
 
 ```bash
-git add src/utils/storage.ts
-git commit -m "feat(storage): add word list progress storage
+npm run build
+```
+手动测试：
+1. 首页显示语言Tab（英语/日语/韩语/德语）
+2. 点击日语Tab → 切换到日语，进度重置
+3. 点击"快速开始" → 进入日语学习模式
+4. 返回首页 → 点击韩语Tab → 切换到韩语
 
-- Store current list ID (default: 'all')
-- Store progress per list independently
-- Backward compatible with existing data
+- [ ] **Step 4: Commit**
 
+```bash
+git add src/components/Home.tsx src/components/WordListSelect.tsx
+git commit -m "feat: 首页添加语言Tab切换
+- 新增 LanguageTabBar 组件，支持英语/日语/韩语/德语切换
+- WordListSelect 按当前语言过滤显示词表
+- 快速开始使用当前语言的默认词表
 Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>"
 ```
 
-## Report Contract
+---
 
-After completing the task, write a report to `E:/work/englishLearn/.superpowers/sdd/task-5-report.md` with:
-1. Changes made
-2. Test results (TypeScript check, build)
-3. Any concerns or issues encountered
-4. Commit hash
-
-Then report status: DONE, DONE_WITH_CONCERNS, NEEDS_CONTEXT, or BLOCKED

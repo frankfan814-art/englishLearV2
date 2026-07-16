@@ -1,84 +1,58 @@
 # Subagent-Driven Development Progress
 
-## Plan: 2026-07-15-word-list-and-tts-enhancement-plan.md
+## Plan: 2026-07-16-multilang-plan.md
 
 ## Global Constraints
-- 保持向后兼容，不破坏现有用户数据
-- 已掌握单词全局生效，不按词表隔离
-- 词表切换时各自进度独立保存
-- 默认语言为 'en'，架构预留多语种扩展
-- 单词可属于多个词表（tag 可组合）
+- 英语数据路径保持 `/data/words-{index}.json` 不变，不移动文件
+- 词表ID全局唯一，格式为 `{lang}_{tag}` 或兼容现有ID
+- 所有语言的 Word 数据格式保持一致
+- TTS 英语优先走有道API，其他语言走 Web Speech API
+- 进度按词表ID存储，不跨语言共享
 
 ## Progress
 
-### Task 1: 修复长单词溢出和字母底部裁剪 ✅
+### Task 1: 修复"朗读释义"不生效的bug ✅
 - Status: DONE
-- Commit: 88441e7
+- Commit: aacd847 (merged into Task 2 branch)
 - Review: Clean - all requirements met
-- Files: WordCard.tsx, index.css
+- Files: useTTS.ts, storage.ts
 
-### Task 2: 实现 Wake Lock 屏幕常亮 ✅
+### Task 2: 重构 DataLoader 为多语言实例化 ✅
 - Status: DONE
-- Commit: 3077d40
+- Commit: aacd847
 - Review: Clean - all requirements met
-- Files: useWakeLock.ts (new), App.tsx
+- Files: dataLoader.ts, languageRegistry.ts (new), wordLists.ts, types/word.ts
 
-### Task 3: 创建词表配置和类型定义 ✅
+### Task 3: 重构 Store 添加多语言支持 ✅
 - Status: DONE
-- Commit: e2f1491
+- Commit: f865d77
+- Review: PASS with minor issues (SettingsModal accent not updated - will be handled in Task 6)
+- Files: storage.ts, wordListIndex.ts, useAppStore.ts, useTTS.ts, types/word.ts, WordCard.tsx
+
+### Task 4: 改造 TTS 支持多语言 ✅
+- Status: DONE
+- Commit: 2cf8577 (fix pending in Task 6)
+- Review: Needs revision (Youdao fallback missing - will be fixed in Task 6)
+
+### Task 5: 首页 UI 添加语言 Tab 切换 ✅
+- Status: DONE
+- Commit: 7e73514
+
+### Task 6: 学习页 UI 适配多语言 ✅
+- Status: DONE
+- Commit: d81e932
+- Includes: Task 4 fix (Youdao fallback), App.tsx, WordCard.tsx, SettingsModal.tsx
 - Review: Clean - all requirements met
-- Files: wordLists.ts (new), word.ts
 
-### Task 4: 实现词表索引构建 ✅
+### Task 7: 集成测试与最终验证 ✅
 - Status: DONE
-- Commit: 5ecd126
-- Review: Clean - all requirements met
-- Files: wordListIndex.ts (new)
-- Note: Sequential loading acceptable for one-time init
-
-### Task 5: 扩展存储层支持词表进度 ✅
-- Status: DONE
-- Commit: ded7d11
-- Review: Clean - all requirements met
-- Files: storage.ts
-
-### Task 6: 扩展 Store 支持词表切换 ✅
-- Status: DONE
-- Commit: 6b1f628
-- Review: Clean - all requirements met
-- Files: useAppStore.ts, App.tsx, Home.tsx
-- Note: totalWords could be cleaned up later; switchList error handling is silent
-
-### Task 7: 改造首页为双入口设计 ✅
-- Status: DONE
-- Commit: c7dabcb
-- Review: Clean - all requirements met
-- Files: Home.tsx
-- Note: Home progress uses totalWords (global) per spec
-
-### Task 8: 创建词表选择页面 ✅
-- Status: DONE
-- Commit: c7dabcb (combined with Task 7)
-- Review: Clean - all requirements met
-- Files: WordListSelect.tsx (new)
-
-### Task 9: 更新进度条显示当前词表 ✅
-- Status: DONE
-- Commit: 3eb92d8
-- Review: Clean - all requirements met
-- Files: ProgressBar.tsx, App.tsx
-
-### Task 10: 实现读中文释义功能 ✅
-- Status: DONE
-- Commit: b2be196
-- Review: Clean - all requirements met
-- Files: useTTS.ts, SettingsModal.tsx
-
-### Task 11: 端到端测试 ✅
-- Status: DONE
-- Result: TypeScript check passed, build passed, dev server starts correctly
-- 2 Vite warnings (mixed static/dynamic imports) - non-blocking
+- Result: TypeScript check passed, build passed (4.40s), dev server starts correctly
+- 1 non-critical Vite warning (dynamic import chunking)
+- Branch: multilang-support, 5 commits ahead of main
 
 ## Summary
-All 11 tasks completed successfully. 7 feature commits + supporting documentation.
-Branch is ready for final code review and merge.
+All 7 tasks completed successfully. 5 feature commits on multilang-support branch.
+Bug fix: 朗读释义开关不生效 ✅
+New features: DataLoader多语言实例化, Store多语言状态, TTS多语言发音, 首页语言Tab切换, 学习页UI适配
+Japanese word data integrated (words-001~004, progress_ai.json)
+Ready for final code review and merge.
