@@ -107,17 +107,25 @@ export function useTTS() {
     });
   }, []);
 
-  const speak = useCallback(async (word: string, accent: 'us' | 'uk', rate: number = 1.0): Promise<boolean> => {
+  const speak = useCallback(async (word: string, accent: string, rate: number = 1.0): Promise<boolean> => {
     const speakId = ++currentSpeakRef.current;
-    
-    // 优先使用真实人声
-    const success = await speakRealAudio(speakId, word, accent, rate);
-    if (!success && !cancelledRef.current && currentSpeakRef.current === speakId) {
-      // 失败则降级使用 TTS
-      const targetLang = accent === 'us' ? 'en-US' : 'en-GB';
-      return await speakTTS(speakId, word, targetLang, rate);
+
+    // Check if it's a Youdao-supported accent (us/uk)
+    const isYoudaoAccent = accent === 'us' || accent === 'uk';
+
+    // Prefer real audio for us/uk
+    if (isYoudaoAccent) {
+      const success = await speakRealAudio(speakId, word, accent as 'us' | 'uk', rate);
+      if (!success && !cancelledRef.current && currentSpeakRef.current === speakId) {
+        // Fallback to TTS
+        const targetLang = accent === 'us' ? 'en-US' : 'en-GB';
+        return await speakTTS(speakId, word, targetLang, rate);
+      }
+      return success && currentSpeakRef.current === speakId;
+    } else {
+      // For non-English languages, use Web Speech API directly
+      return await speakTTS(speakId, word, accent, rate);
     }
-    return success && currentSpeakRef.current === speakId;
   }, [speakRealAudio, speakTTS]);
 
   // 读中文释义（借鉴百词斩）

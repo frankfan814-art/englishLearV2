@@ -35,6 +35,6 @@ export interface Settings {
   speechRate?: number;
   readExample?: boolean;
   readDefinition?: boolean;   // 新增：读中文释义
-  accent: 'us' | 'uk';
+  accent: string;
   autoPlay: boolean;
 }

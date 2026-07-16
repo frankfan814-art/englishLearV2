@@ -8,7 +8,7 @@ interface Props {
   isLoading: boolean;
   onSpeak: () => void;
   onSpeakExample?: () => void;
-  accent: 'us' | 'uk';
+  accent: string;
   onNext: () => void;
   onPrev: () => void;
 }
@@ -142,7 +142,7 @@ export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, onN
             </span>
             <div className="w-px h-3 bg-border"></div>
             <span className="text-xs uppercase font-semibold tracking-wider bg-primary/15 text-primary px-2 py-0.5 rounded">
-              {accent === 'us' ? 'US' : 'UK'}
+              {accent.toUpperCase()}
             </span>
           </div>
 

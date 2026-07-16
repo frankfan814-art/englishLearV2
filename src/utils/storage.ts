@@ -144,3 +144,22 @@ export function saveListProgressById(listId: string, progress: ProgressData): vo
   allProgress[listId] = progress;
   saveListProgress(allProgress);
 }
+
+// === Language Storage ===
+
+const KEY_CURRENT_LANGUAGE = 'vocab_current_language';
+
+/**
+ * Get current language code
+ * Returns 'en' if not set (backward compatible)
+ */
+export function getCurrentLanguage(): string {
+  return localStorage.getItem(KEY_CURRENT_LANGUAGE) || 'en';
+}
+
+/**
+ * Save current language code
+ */
+export function saveCurrentLanguage(language: string): void {
+  localStorage.setItem(KEY_CURRENT_LANGUAGE, language);
+}
