@@ -80,6 +80,11 @@ export const WORD_LISTS: WordList[] = [
   { id: 'en_all', name: '全部单词', tag: '*', language: 'en' },
   // Japanese
   { id: 'ja_all', name: '全部单词', tag: '*', language: 'ja' },
+  { id: 'jlpt_n5', name: 'JLPT N5', tag: 'jlpt_n5', language: 'ja' },
+  { id: 'jlpt_n4', name: 'JLPT N4', tag: 'jlpt_n4', language: 'ja' },
+  { id: 'jlpt_n3', name: 'JLPT N3', tag: 'jlpt_n3', language: 'ja' },
+  { id: 'jlpt_n2', name: 'JLPT N2', tag: 'jlpt_n2', language: 'ja' },
+  { id: 'jlpt_n1', name: 'JLPT N1', tag: 'jlpt_n1', language: 'ja' },
   // Korean
   { id: 'ko_all', name: '全部单词', tag: '*', language: 'ko' },
   // German

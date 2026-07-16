@@ -14,7 +14,7 @@ export const LANGUAGE_CONFIGS: Record<string, DataLoaderConfig> = {
     shardSize: 5000,
     totalShards: 4,
     filePattern: 'words-{index}.json',
-    lastShardSize: 5000,
+    lastShardSize: 4929,
   },
   ko: {
     basePath: '/data/ko/',

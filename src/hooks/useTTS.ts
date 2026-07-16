@@ -137,12 +137,12 @@ export function useTTS() {
 
   // 语言感知的发音方法：英语走有道API，其他语言走Web Speech
   const speakByLanguage = useCallback(async (
-    speakId: number,
     text: string,
     language: string,
     accent: string,
     rate: number = 1.0
   ): Promise<boolean> => {
+    const speakId = ++currentSpeakRef.current;
     const langConfig = getLanguageInfo(language);
     if (!langConfig) {
       // 未知语言，用 Web Speech 兜底
@@ -176,11 +176,11 @@ export function useTTS() {
     cancelledRef.current = false;
   }, []);
 
-  return { speak, speakChinese, speakByLanguage, stop, resetCancel };
+  return { speak, speakChinese, speakByLanguage, stop, resetCancel, currentSpeakRef };
 }
 
 export function useAutoPlay() {
-  const { speakByLanguage, speakChinese, stop, resetCancel } = useTTS();
+  const { speakByLanguage, speakChinese, stop, resetCancel, currentSpeakRef } = useTTS();
 
   const isPlaying = useAppStore(state => state.isPlaying);
   const isLoading = useAppStore(state => state.isLoading);
@@ -208,15 +208,19 @@ export function useAutoPlay() {
 
       // 1. 读单词（语言感知）
       const success = await speakByLanguage(
-        Date.now(), currentWord.word, currentLanguage,
+        currentWord.word, currentLanguage,
         settings.accent, settings.speechRate || 1.0
       );
 
       if (!isActive) return;
 
       if (!success) {
-        console.warn('[AutoPlay] Speech failed, stopping playback');
-        useAppStore.setState({ isPlaying: false });
+        // Check if speech was cancelled (user navigated)
+        if (currentSpeakRef.current > 0) {
+          console.warn('[AutoPlay] Speech failed, stopping playback');
+          useAppStore.setState({ isPlaying: false });
+          return;
+        }
         return;
       }
 
@@ -244,7 +248,7 @@ export function useAutoPlay() {
       // 4. 读例句（语言感知）
       if (currentSettings.readExample && currentWord.example) {
         const exampleSuccess = await speakByLanguage(
-          Date.now(), currentWord.example, currentLanguage,
+          currentWord.example, currentLanguage,
           settings.accent, settings.speechRate || 1.0
         );
         if (!isActive) return;

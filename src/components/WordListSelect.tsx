@@ -123,8 +123,10 @@ export function WordListSelect({ isOpen, onClose }: WordListSelectProps) {
         </div>
 
         <DrawerFooter>
-          <DrawerClose>
-            <Button variant="ghost" className="w-full">取消</Button>
+          <DrawerClose className="w-full">
+            <div className="w-full">
+              <Button variant="ghost" className="w-full">取消</Button>
+            </div>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

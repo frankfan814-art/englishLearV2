@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { unlockAudio } from '../hooks/useTTS';
 import { WordListSelect } from './WordListSelect';
-import { LANGUAGES, getLanguageInfo } from '../config/wordLists';
+import { LANGUAGES } from '../config/wordLists';
 import { getTotalWords } from '../utils/languageRegistry';
 
 export function Home() {
@@ -15,12 +15,7 @@ export function Home() {
   const percentage = totalWords > 0 ? ((currentIndex + 1) / totalWords) * 100 : 0;
 
   const handleQuickStart = async () => {
-    const langInfo = getLanguageInfo(currentLanguage);
-    if (langInfo) {
-      await switchList(`${currentLanguage}_all`);
-    } else {
-      await switchList('all');
-    }
+    await switchList(`${currentLanguage}_all`);
     unlockAudio();
     startLearning();
   };

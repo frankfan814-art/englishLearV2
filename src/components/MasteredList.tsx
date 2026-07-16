@@ -76,7 +76,9 @@ export function MasteredList({ isOpen, onClose }: Props) {
             </Button>
           )}
           <DrawerClose>
-            <Button variant="ghost">关闭</Button>
+            <div className="w-full">
+              <Button variant="ghost" className="w-full">关闭</Button>
+            </div>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

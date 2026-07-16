@@ -221,7 +221,9 @@ export function SettingsModal({
             重置进度
           </Button>
           <DrawerClose>
-            <Button variant="ghost">关闭</Button>
+            <div className="w-full">
+              <Button variant="ghost" className="w-full">关闭</Button>
+            </div>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
