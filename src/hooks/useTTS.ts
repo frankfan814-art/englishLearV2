@@ -234,7 +234,12 @@ export function useAutoPlay() {
     speak,
     nextWord,
     stop,
-    resetCancel
+    resetCancel,
+    // 依赖 settings 中的 readDefinition 和 readExample 开关
+    // 当用户在设置中更改这些选项时，effect 需要重新执行以应用新设置
+    useAppStore.getState().settings.readDefinition,
+    useAppStore.getState().settings.readExample,
+    useAppStore.getState().settings.speed,
   ]);
 
   return {

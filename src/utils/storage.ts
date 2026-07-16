@@ -46,6 +46,7 @@ export const storage = {
     return {
       speed: 0.5,
       speechRate: 1.0,
+      readDefinition: false,
       readExample: false,
       accent: 'us',
       autoPlay: true,
