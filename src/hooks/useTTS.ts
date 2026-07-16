@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { useAppStore } from '../store/useAppStore';
+import { getLanguageInfo } from '../config/wordLists';
 
 // 创建单例的 Audio 对象，便于在移动端解锁后复用
 const audioInstance = new Audio();
@@ -134,6 +135,30 @@ export function useTTS() {
     return await speakTTS(speakId, text, 'zh-CN', rate);
   }, [speakTTS]);
 
+  // 语言感知的发音方法：英语走有道API，其他语言走Web Speech
+  const speakByLanguage = useCallback(async (
+    speakId: number,
+    text: string,
+    language: string,
+    accent: string,
+    rate: number = 1.0
+  ): Promise<boolean> => {
+    const langConfig = getLanguageInfo(language);
+    if (!langConfig) {
+      // 未知语言，用 Web Speech 兜底
+      return await speakTTS(speakId, text, 'en-US', rate);
+    }
+
+    const { ttsConfig } = langConfig;
+
+    if (ttsConfig.mode === 'youdao') {
+      return await speakRealAudio(speakId, text, accent as 'us' | 'uk', rate);
+    }
+
+    const lang = ttsConfig.webspeechLang || `${language}-${language.toUpperCase()}`;
+    return await speakTTS(speakId, text, lang, rate);
+  }, [speakRealAudio, speakTTS]);
+
   const stop = useCallback(() => {
     cancelledRef.current = true;
     currentSpeakRef.current += 1;
@@ -145,11 +170,11 @@ export function useTTS() {
     cancelledRef.current = false;
   }, []);
 
-  return { speak, speakChinese, stop, resetCancel };
+  return { speak, speakChinese, speakByLanguage, stop, resetCancel };
 }
 
 export function useAutoPlay() {
-  const { speak, speakChinese, stop, resetCancel } = useTTS();
+  const { speakByLanguage, speakChinese, stop, resetCancel } = useTTS();
 
   const isPlaying = useAppStore(state => state.isPlaying);
   const isLoading = useAppStore(state => state.isLoading);
@@ -170,26 +195,29 @@ export function useAutoPlay() {
     const playCurrentWord = async () => {
       const state = useAppStore.getState();
       const settings = state.settings;
+      const currentLanguage = state.currentLanguage;
 
-      // 1. 读单词（真实人声优先）
-      const success = await speak(currentWord.word, settings.accent, settings.speechRate || 1.0);
+      // 1. 读单词（语言感知）
+      const success = await speakByLanguage(
+        Date.now(), currentWord.word, currentLanguage,
+        settings.accent, settings.speechRate || 1.0
+      );
 
       if (!isActive) return;
 
       if (!success) {
-        // If speech failed (e.g. autoplay blocked or cancelled), stop playing
         console.warn('[AutoPlay] Speech failed, stopping playback');
         useAppStore.setState({ isPlaying: false });
         return;
       }
 
-      // 2. 稍微停顿
+      // 2. 停顿
       await new Promise(r => setTimeout(r, 300));
       if (!isActive) return;
 
       const currentSettings = useAppStore.getState().settings;
 
-      // 3. 如果开启了读释义，读中文释义
+      // 3. 读中文释义
       if (currentSettings.readDefinition && currentWord.definition) {
         const cleanDef = currentWord.definition.replace(/^[a-z]+\.\s*/i, '').trim();
         if (cleanDef) {
@@ -204,17 +232,20 @@ export function useAutoPlay() {
 
       if (!isActive) return;
 
-      // 4. 如果开启了自动读例句，并且有例句，则读英文例句
+      // 4. 读例句（语言感知）
       if (currentSettings.readExample && currentWord.example) {
-        const exampleSuccess = await speak(currentWord.example, currentSettings.accent, currentSettings.speechRate || 1.0);
+        const exampleSuccess = await speakByLanguage(
+          Date.now(), currentWord.example, currentLanguage,
+          settings.accent, settings.speechRate || 1.0
+        );
         if (!isActive) return;
         if (!exampleSuccess) {
-          console.warn('[AutoPlay] Example speech failed, but continuing to next word');
+          console.warn('[AutoPlay] Example speech failed, but continuing');
         }
         await new Promise(r => setTimeout(r, 500));
       }
 
-      // 5. 等待用户设置的间隔后切换下一个
+      // 5. 等待间隔后切换下一个
       timeoutId = setTimeout(() => {
         if (isActive) {
           const stillPlaying = useAppStore.getState().isPlaying;
@@ -239,12 +270,10 @@ export function useAutoPlay() {
     isPlaying,
     isLoading,
     currentWord,
-    speak,
+    speakByLanguage,
     nextWord,
     stop,
     resetCancel,
-    // 依赖 settings 中的 readDefinition 和 readExample 开关
-    // 当用户在设置中更改这些选项时，effect 需要重新执行以应用新设置
     useAppStore.getState().settings.readDefinition,
     useAppStore.getState().settings.readExample,
     useAppStore.getState().settings.speed,
