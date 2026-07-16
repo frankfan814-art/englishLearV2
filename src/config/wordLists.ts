@@ -11,11 +11,64 @@ export interface WordList {
   description?: string; // Optional description
 }
 
+export interface TTSConfig {
+  mode: 'youdao' | 'webspeech';
+  webspeechLang?: string;
+  accentOptions: { label: string; value: string }[];
+  defaultAccent: string;
+}
+
+export interface Language {
+  code: string;
+  name: string;
+  flag: string;
+  ttsConfig: TTSConfig;
+}
+
+export const LANGUAGES: Language[] = [
+  {
+    code: 'en', name: '英语', flag: '🇺🇸',
+    ttsConfig: {
+      mode: 'youdao',
+      accentOptions: [{ label: '美式', value: 'us' }, { label: '英式', value: 'uk' }],
+      defaultAccent: 'us',
+    },
+  },
+  {
+    code: 'ja', name: '日语', flag: '🇯🇵',
+    ttsConfig: {
+      mode: 'webspeech',
+      webspeechLang: 'ja-JP',
+      accentOptions: [{ label: '标准', value: 'ja-JP' }],
+      defaultAccent: 'ja-JP',
+    },
+  },
+  {
+    code: 'ko', name: '韩语', flag: '🇰🇷',
+    ttsConfig: {
+      mode: 'webspeech',
+      webspeechLang: 'ko-KR',
+      accentOptions: [{ label: '标准', value: 'ko-KR' }],
+      defaultAccent: 'ko-KR',
+    },
+  },
+  {
+    code: 'de', name: '德语', flag: '🇩🇪',
+    ttsConfig: {
+      mode: 'webspeech',
+      webspeechLang: 'de-DE',
+      accentOptions: [{ label: '标准', value: 'de-DE' }],
+      defaultAccent: 'de-DE',
+    },
+  },
+];
+
 /**
  * Predefined word lists based on existing tag data
  * Words can belong to multiple lists (tags can be combined)
  */
 export const WORD_LISTS: WordList[] = [
+  // English
   { id: 'toefl', name: '托福词汇', tag: 'toefl', language: 'en' },
   { id: 'gre', name: 'GRE词汇', tag: 'gre', language: 'en' },
   { id: 'cet6', name: '六级词汇', tag: 'cet6', language: 'en' },
@@ -24,7 +77,28 @@ export const WORD_LISTS: WordList[] = [
   { id: 'cet4', name: '四级词汇', tag: 'cet4', language: 'en' },
   { id: 'gk', name: '高考词汇', tag: 'gk', language: 'en' },
   { id: 'other', name: '其他词汇', tag: '', language: 'en' },
+  { id: 'en_all', name: '全部单词', tag: '*', language: 'en' },
+  // Japanese
+  { id: 'ja_all', name: '全部单词', tag: '*', language: 'ja' },
+  // Korean
+  { id: 'ko_all', name: '全部单词', tag: '*', language: 'ko' },
+  // German
+  { id: 'de_all', name: '全部单词', tag: '*', language: 'de' },
 ];
+
+/**
+ * Get word lists by language
+ */
+export function getListsByLanguage(language: string): WordList[] {
+  return WORD_LISTS.filter(list => list.language === language);
+}
+
+/**
+ * Get language info by code
+ */
+export function getLanguageInfo(code: string): Language | undefined {
+  return LANGUAGES.find(lang => lang.code === code);
+}
 
 /**
  * Get word list by ID

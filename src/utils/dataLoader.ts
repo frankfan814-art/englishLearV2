@@ -1,21 +1,21 @@
-import { Word, WordShard } from '../types/word';
+import { Word, WordShard, DataLoaderConfig } from '../types/word';
 
-const SHARD_SIZE = 1000;
-const TOTAL_SHARDS = 17;
-
-class DataLoader {
+export class DataLoader {
+  private config: DataLoaderConfig;
   private cache: Map<number, Word[]> = new Map();
   private loading: Map<number, Promise<Word[]>> = new Map();
+
+  constructor(config: DataLoaderConfig) {
+    this.config = config;
+  }
 
   async loadShard(index: number): Promise<Word[]> {
     if (this.cache.has(index)) {
       return this.cache.get(index)!;
     }
-
     if (this.loading.has(index)) {
       return this.loading.get(index)!;
     }
-
     const loadPromise = this._fetchShard(index);
     this.loading.set(index, loadPromise);
     return loadPromise;
@@ -23,9 +23,11 @@ class DataLoader {
 
   private async _fetchShard(index: number): Promise<Word[]> {
     try {
-      const response = await fetch(`/data/words-${String(index).padStart(3, '0')}.json`);
+      const { basePath, filePattern } = this.config;
+      const filename = filePattern.replace('{index}', String(index).padStart(3, '0'));
+      const response = await fetch(`${basePath}${filename}`);
       if (!response.ok) {
-        throw new Error(`Failed to load shard ${index}`);
+        throw new Error(`Failed to load shard ${index} from ${basePath}`);
       }
       const data: WordShard = await response.json();
       this.cache.set(index, data.words);
@@ -38,8 +40,9 @@ class DataLoader {
   }
 
   async getWord(globalIndex: number): Promise<Word | null> {
-    const shardIndex = Math.floor(globalIndex / SHARD_SIZE) + 1;
-    const localIndex = globalIndex % SHARD_SIZE;
+    const { shardSize } = this.config;
+    const shardIndex = Math.floor(globalIndex / shardSize) + 1;
+    const localIndex = globalIndex % shardSize;
 
     try {
       const words = await this.loadShard(shardIndex);
@@ -51,13 +54,14 @@ class DataLoader {
   }
 
   async preloadAdjacent(currentIndex: number): Promise<void> {
-    const currentShard = Math.floor(currentIndex / SHARD_SIZE) + 1;
+    const { shardSize, totalShards } = this.config;
+    const currentShard = Math.floor(currentIndex / shardSize) + 1;
 
     const toPreload = [
       currentShard - 1,
       currentShard,
       currentShard + 1,
-    ].filter(i => i >= 1 && i <= TOTAL_SHARDS);
+    ].filter(i => i >= 1 && i <= totalShards);
 
     await Promise.all(toPreload.map(i => this.loadShard(i).catch(() => {})));
   }
@@ -66,6 +70,18 @@ class DataLoader {
     this.cache.clear();
     this.loading.clear();
   }
+
+  getTotalWords(): number {
+    return this.config.shardSize * (this.config.totalShards - 1) + this.config.lastShardSize;
+  }
 }
 
-export const dataLoader = new DataLoader();
+// 保留实例以供向后兼容，但标记为废弃
+/** @deprecated 使用 languageRegistry.getDataLoader('en') 替代 */
+export const dataLoader = new DataLoader({
+  basePath: '/data/',
+  shardSize: 1000,
+  totalShards: 17,
+  filePattern: 'words-{index}.json',
+  lastShardSize: 194,
+});
