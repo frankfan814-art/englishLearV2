@@ -4,15 +4,23 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { unlockAudio } from '../hooks/useTTS';
 import { WordListSelect } from './WordListSelect';
+import { LANGUAGES, getLanguageInfo } from '../config/wordLists';
+import { getTotalWords } from '../utils/languageRegistry';
 
 export function Home() {
-  const { currentRound, currentIndex, totalWords, completedRounds, startLearning, switchList } = useAppStore();
+  const { currentLanguage, switchLanguage, currentRound, currentIndex, completedRounds, startLearning, switchList } = useAppStore();
   const [showListSelect, setShowListSelect] = useState(false);
 
-  const percentage = ((currentIndex + 1) / totalWords) * 100;
+  const totalWords = getTotalWords(currentLanguage);
+  const percentage = totalWords > 0 ? ((currentIndex + 1) / totalWords) * 100 : 0;
 
   const handleQuickStart = async () => {
-    await switchList('all');
+    const langInfo = getLanguageInfo(currentLanguage);
+    if (langInfo) {
+      await switchList(`${currentLanguage}_all`);
+    } else {
+      await switchList('all');
+    }
     unlockAudio();
     startLearning();
   };
@@ -35,9 +43,31 @@ export function Home() {
           <h1 className="text-3xl font-bold text-gradient text-center mb-1">
             单词朗读
           </h1>
-          <p className="text-sm text-muted-foreground text-center mb-8">
+          <p className="text-sm text-muted-foreground text-center mb-6">
             听读记忆 · 高效刷词
           </p>
+
+          {/* Language Tabs */}
+          <div className="flex gap-1.5 mb-6 bg-background/50 rounded-xl p-1 border border-white/5 w-full">
+            {LANGUAGES.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => {
+                  if (lang.code !== currentLanguage) {
+                    switchLanguage(lang.code);
+                  }
+                }}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                  currentLanguage === lang.code
+                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
+              >
+                <span className="text-base">{lang.flag}</span>
+                <span>{lang.name}</span>
+              </button>
+            ))}
+          </div>
 
           {/* Quick Start Button */}
           <Button

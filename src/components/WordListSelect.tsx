@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { WORD_LISTS, WordList } from '../config/wordLists';
 import { getWordCountByTag } from '../utils/wordListIndex';
+import { getTotalWords } from '../utils/languageRegistry';
 import { unlockAudio } from '../hooks/useTTS';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +26,7 @@ interface WordListWithStats extends WordList {
 }
 
 export function WordListSelect({ isOpen, onClose }: WordListSelectProps) {
-  const { switchList, startLearning, listProgress } = useAppStore();
+  const { switchList, startLearning, listProgress, currentLanguage } = useAppStore();
   const [lists, setLists] = useState<WordListWithStats[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -33,14 +34,19 @@ export function WordListSelect({ isOpen, onClose }: WordListSelectProps) {
     if (isOpen) {
       loadListStats();
     }
-  }, [isOpen, listProgress]);
+  }, [isOpen, listProgress, currentLanguage]);
 
   const loadListStats = async () => {
     setLoading(true);
+    const { currentLanguage } = useAppStore.getState();
     const listsWithStats: WordListWithStats[] = [];
 
-    for (const list of WORD_LISTS) {
-      const wordCount = await getWordCountByTag(list.tag);
+    const filteredLists = WORD_LISTS.filter(list => list.language === currentLanguage);
+
+    for (const list of filteredLists) {
+      const wordCount = list.tag === '*'
+        ? getTotalWords(currentLanguage)
+        : await getWordCountByTag(list.tag, currentLanguage);
       listsWithStats.push({
         ...list,
         wordCount,
@@ -48,7 +54,7 @@ export function WordListSelect({ isOpen, onClose }: WordListSelectProps) {
       });
     }
 
-    setLists(listsWithStats);
+    setLists(listsWithStats.sort((a, b) => a.id.localeCompare(b.id)));
     setLoading(false);
   };
 
