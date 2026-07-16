@@ -18,6 +18,8 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer';
+import { getLanguageInfo } from '../config/wordLists';
+import { useAppStore } from '../store/useAppStore';
 
 interface Props {
   isOpen: boolean;
@@ -43,6 +45,11 @@ export function SettingsModal({
   const [showConfirm, setShowConfirm] = useState(false);
   const speedOptions = [0.5, 1, 1.5, 2, 3];
   const percentage = ((currentIndex + 1) / totalWords) * 100;
+
+  // 根据当前语言获取发音口音选项
+  const currentLanguage = useAppStore(state => state.currentLanguage);
+  const langInfo = getLanguageInfo(currentLanguage);
+  const accentOptions = langInfo?.ttsConfig.accentOptions || [];
 
   return (
     <>
@@ -125,24 +132,24 @@ export function SettingsModal({
             <label className="block text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
               发音口音
             </label>
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                variant={settings.accent === 'us' ? 'default' : 'outline'}
-                onClick={() => onUpdateSettings({ accent: 'us' })}
-                className="justify-start gap-2"
-              >
-                <span className="text-lg">🇺🇸</span>
-                <span className="font-medium">美式发音</span>
-              </Button>
-              <Button
-                variant={settings.accent === 'uk' ? 'default' : 'outline'}
-                onClick={() => onUpdateSettings({ accent: 'uk' })}
-                className="justify-start gap-2"
-              >
-                <span className="text-lg">🇬🇧</span>
-                <span className="font-medium">英式发音</span>
-              </Button>
-            </div>
+            {accentOptions.length > 1 ? (
+              <div className="grid grid-cols-2 gap-3">
+                {accentOptions.map(opt => (
+                  <Button
+                    key={opt.value}
+                    variant={settings.accent === opt.value ? 'default' : 'outline'}
+                    onClick={() => onUpdateSettings({ accent: opt.value })}
+                    className="justify-start gap-2"
+                  >
+                    <span className="font-medium">{opt.label}</span>
+                  </Button>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-muted/50 rounded-xl p-4 text-center">
+                <span className="text-sm text-muted-foreground">标准发音</span>
+              </div>
+            )}
           </div>
 
           {/* 朗读中文释义 */}

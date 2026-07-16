@@ -9,6 +9,7 @@ interface Props {
   onSpeak: () => void;
   onSpeakExample?: () => void;
   accent: string;
+  language: string;
   onNext: () => void;
   onPrev: () => void;
 }
@@ -22,7 +23,7 @@ function parseDefinition(def: string) {
   return { pos: '', definition: def };
 }
 
-export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, onNext, onPrev }: Props) {
+export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, language, onNext, onPrev }: Props) {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
   const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null);
@@ -86,6 +87,12 @@ export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, onN
   const { pos: extractedPos, definition: cleanDefinition } = parseDefinition(word.definition);
   const displayPos = word.pos || extractedPos;
 
+  // Tag 显示逻辑：有 tag 显示 tag，否则显示语言名称
+  const tagDisplayMap: Record<string, string> = { ja: '日本語', ko: '한국어', de: 'DEUTSCH' };
+  const tagDisplay = word.tag
+    ? word.tag.split(' ')[0].toUpperCase()
+    : (tagDisplayMap[language] || 'VOCAB');
+
   return (
     <div
       className="w-full h-full flex items-center justify-center p-4"
@@ -113,7 +120,7 @@ export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, onN
         {/* Top: Tag & Audio */}
         <div className="flex justify-between items-center w-full">
           <span className="text-xs uppercase tracking-wider font-semibold text-muted-foreground bg-muted/80 px-3 py-1.5 rounded-lg">
-            {word.tag ? word.tag.split(' ')[0].toUpperCase() : 'VOCAB'}
+            {tagDisplay}
           </span>
           <Button
             variant="outline"

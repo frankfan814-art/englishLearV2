@@ -152,7 +152,13 @@ export function useTTS() {
     const { ttsConfig } = langConfig;
 
     if (ttsConfig.mode === 'youdao') {
-      return await speakRealAudio(speakId, text, accent as 'us' | 'uk', rate);
+      const success = await speakRealAudio(speakId, text, accent as 'us' | 'uk', rate);
+      if (!success && !cancelledRef.current && currentSpeakRef.current === speakId) {
+        // Fallback to Web Speech API when Youdao fails
+        const targetLang = accent === 'uk' ? 'en-GB' : 'en-US';
+        return await speakTTS(speakId, text, targetLang, rate);
+      }
+      return success && currentSpeakRef.current === speakId;
     }
 
     const lang = ttsConfig.webspeechLang || `${language}-${language.toUpperCase()}`;

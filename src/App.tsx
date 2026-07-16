@@ -24,6 +24,7 @@ function App() {
     listTotalWords,
     settings,
     isLearningMode,
+    currentLanguage,
     initialize,
     nextWord,
     prevWord,
@@ -32,6 +33,17 @@ function App() {
     updateSettings,
     resetProgress,
   } = useAppStore();
+
+  // 语言相关的 Logo 和副标题
+  const languageLogo: Record<string, string> = { en: 'E', ja: '日', ko: '한', de: 'D' };
+  const languageSubtitle: Record<string, string> = {
+    en: 'Vocab Master',
+    ja: '日本語マスター',
+    ko: '단어 마스터',
+    de: 'Wortmeister',
+  };
+  const logoLetter = languageLogo[currentLanguage] || 'E';
+  const subtitle = languageSubtitle[currentLanguage] || 'Vocab Master';
 
   useEffect(() => {
     initialize();
@@ -124,14 +136,14 @@ function App() {
             </svg>
           </Button>
           <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-            <span className="text-primary-foreground text-base font-bold">E</span>
+            <span className="text-primary-foreground text-base font-bold">{logoLetter}</span>
           </div>
           <div>
             <h1 className="text-base font-semibold text-foreground">
               单词朗读
             </h1>
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-              Vocab Master
+              {subtitle}
             </p>
           </div>
         </div>
@@ -170,6 +182,7 @@ function App() {
           onSpeak={handleSpeak}
           onSpeakExample={handleSpeakExample}
           accent={settings.accent}
+          language={currentLanguage}
           onNext={nextWord}
           onPrev={prevWord}
         />
