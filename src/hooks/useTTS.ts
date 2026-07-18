@@ -193,19 +193,37 @@ const POS_ZH: Record<string, string> = {
 
 /**
  * 清洗释义文本，用于 TTS 朗读：
- * 1. 词库中多个义项以字面量 "\n"（反斜杠+n）或真实换行分隔，只取前两个主要义项
+ * 1. 词库中多个义项以字面量 "\n"（反斜杠+n）或真实换行分隔，只取第一个主要义项
  * 2. 词性前缀转换为中文朗读（n. → 名词、vt. → 及物动词等），[计]/[医] 等领域标记静默去除
  * 3. 去掉反斜杠、省略号等会被误读出来的符号，过滤含英文/数字的噪音释义
- * 4. 跨义项去重（如名词、动词释义都是"关系"时只读一遍），每个义项最多读 2 个同义释义
+ * 4. 极简模式（闭眼刷词）：只读第一个义项的第一个意思，如 "last → 形容词，最后的"
  */
+/** 按逗号/分号拆分释义，但不拆开括号内部（如 "的（助词，表示所属）" 不拆断） */
+function splitGlosses(s: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let cur = '';
+  for (const ch of s) {
+    if (ch === '（' || ch === '(') depth++;
+    else if (ch === '）' || ch === ')') depth = Math.max(0, depth - 1);
+    if ((ch === ',' || ch === '，' || ch === ';' || ch === '；') && depth === 0) {
+      parts.push(cur);
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  parts.push(cur);
+  return parts.map(x => x.trim()).filter(x => x.length > 0);
+}
+
 function cleanDefinitionForSpeech(definition: string): string {
   const senses = definition
     .split(/\\n|[\n\r]+/)
     .map(s => s.trim())
     .filter(Boolean)
-    .slice(0, 2); // 只读前两个主要意思
+    .slice(0, 1); // 只读第一个主要意思
 
-  const seen = new Set<string>(); // 已读过的释义，跨义项去重
   const cleaned = senses
     .map(sense => {
       // 词性前缀转中文朗读，领域标记静默去除；二者可能叠加（如 "[计] n. xxx"），循环处理
@@ -227,20 +245,12 @@ function cleanDefinitionForSpeech(definition: string): string {
       s = s.replace(/\.{2,}|…+/g, '');
       // 去掉残余的反斜杠、斜杠等符号
       s = s.replace(/[\\/]/g, '');
-      // 拆分同义释义：过滤含英文或数字的噪音项（如 "DOS内部命令:..."）、跨义项去重，每个义项最多读 2 个
-      const glosses = s
-        .split(/[,，;；]/)
-        .map(g => g.trim())
-        .filter(g => g.length > 0 && !/[A-Za-z0-9]/.test(g))
-        .filter(g => {
-          if (seen.has(g)) return false;
-          seen.add(g);
-          return true;
-        })
-        .slice(0, 2);
-      if (glosses.length === 0) return '';
-      // 先读词性再读释义，如 "名词，关系，关联"
-      return (posLabel ? posLabel + '，' : '') + glosses.join('，');
+      // 只取第一个意思：过滤含英文或数字的噪音项（如 "DOS内部命令:..."）后取首个
+      const gloss = splitGlosses(s)
+        .filter(g => !/[A-Za-z0-9]/.test(g))[0];
+      if (!gloss) return '';
+      // 先读词性再读释义，如 "名词，关系"
+      return (posLabel ? posLabel + '，' : '') + gloss;
     })
     .filter(s => s.length > 0);
 
@@ -319,13 +329,13 @@ export function useAutoPlay() {
         return;
       }
 
-      // 2. 停顿
-      await new Promise(r => setTimeout(r, 300));
+      // 2. 停顿 0.5 秒（极简刷词节奏：留一点回忆时间再报意思）
+      await new Promise(r => setTimeout(r, 500));
       if (!isActive) return;
 
       const currentSettings = useAppStore.getState().settings;
 
-      // 3. 读中文释义（清洗后只读前两个主要意思，避免读出反斜杠等符号）
+      // 3. 读中文释义（极简模式：只读第一个义项的第一个意思）
       if (currentSettings.readDefinition && currentWord.definition) {
         const cleanDef = cleanDefinitionForSpeech(currentWord.definition);
         if (cleanDef) {
