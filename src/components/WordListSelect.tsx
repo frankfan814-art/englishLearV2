@@ -4,7 +4,6 @@ import { WORD_LISTS, WordList } from '../config/wordLists';
 import { getWordCountByTag } from '../utils/wordListIndex';
 import { getTotalWords } from '../utils/languageRegistry';
 import { unlockAudio } from '../hooks/useTTS';
-import { Button } from '@/components/ui/button';
 import {
   Drawer,
   DrawerClose,
@@ -119,10 +118,9 @@ export function WordListSelect({ isOpen, onClose }: WordListSelectProps) {
         </div>
 
         <DrawerFooter>
-          <DrawerClose className="w-full">
-            <div className="w-full">
-              <Button variant="ghost" className="w-full">取消</Button>
-            </div>
+          {/* DrawerClose 自身渲染 button，内部不能再嵌套 Button（validateDOMNesting 警告） */}
+          <DrawerClose className="w-full inline-flex items-center justify-center h-10 rounded-md text-sm font-medium text-foreground hover:bg-muted/60 transition-colors">
+            取消
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

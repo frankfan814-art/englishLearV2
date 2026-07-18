@@ -101,7 +101,10 @@ export function useTTS() {
       }
       utterance.onend = () => resolve(currentSpeakRef.current === speakId);
       utterance.onerror = (e) => {
-        console.error('TTS Error:', e);
+        // interrupted/canceled 是主动 stop() 或切换时的正常中断，不算错误
+        if (e.error !== 'interrupted' && e.error !== 'canceled') {
+          console.error('TTS Error:', e);
+        }
         resolve(false);
       };
       window.speechSynthesis.speak(utterance);
@@ -263,7 +266,7 @@ function cleanDefinitionForSpeech(definition: string): string {
  * 2. 去掉全角括号注音/标签（如 学校（がっこう）、（英語）），避免单词被读两遍
  * 3. 去掉省略号与残余反斜杠；清洗后无内容（如 "（无合适例句）" 占位符）则返回空串跳过朗读
  */
-function cleanExampleForSpeech(example: string): string {
+export function cleanExampleForSpeech(example: string): string {
   let s = example
     // 词典用法说明 "(= ... )" 不朗读
     .replace(/\(\s*=\s*[^)]*\)/g, ' ')

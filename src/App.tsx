@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, CircleCheck, SlidersHorizontal, Play, Check } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
-import { useAutoPlay, useTTS, unlockAudio } from './hooks/useTTS';
+import { useAutoPlay, useTTS, unlockAudio, cleanExampleForSpeech } from './hooks/useTTS';
 import { useWakeLock } from './hooks/useWakeLock';
 import { WordCard } from './components/WordCard';
 import { ProgressBar } from './components/ProgressBar';
@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showMastered, setShowMastered] = useState(false);
-  const { speak } = useTTS();
+  const { speakByLanguage } = useTTS();
 
   const {
     currentWord,
@@ -51,13 +51,18 @@ function App() {
 
   const handleSpeak = () => {
     if (currentWord) {
-      speak(currentWord.word, settings.accent, settings.speechRate || 1.0);
+      // 语言感知：英语走有道，日/韩/德走 Web Speech（修复非英语手动发音走错通道的问题）
+      speakByLanguage(currentWord.word, currentLanguage, settings.accent, settings.speechRate || 1.0);
     }
   };
 
   const handleSpeakExample = () => {
     if (currentWord && currentWord.example) {
-      speak(currentWord.example, settings.accent, settings.speechRate || 1.0);
+      // 例句先清洗（去除用法说明/注音括号等），与自动播放保持一致
+      const cleanExample = cleanExampleForSpeech(currentWord.example);
+      if (cleanExample) {
+        speakByLanguage(cleanExample, currentLanguage, settings.accent, settings.speechRate || 1.0);
+      }
     }
   };
 

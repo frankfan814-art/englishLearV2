@@ -64,11 +64,20 @@ export const useAppStore = create<AppState>((set, get) => ({
   wordIndexTotal: getTotalWords(getCurrentLanguage()),
 
   initialize: async () => {
-    const progress = storage.getProgress();
     const currentLanguage = getCurrentLanguage();
     const currentList = getCurrentList();
     const listProgress = getListProgress();
     const totalWords = getTotalWords(currentLanguage);
+
+    // 进度恢复：旧版 'all' 词表读全局 vocab_progress；各语言"全部单词"等词表读各自的 listProgress，
+    // 避免不同语言共用一份全局进度互相覆盖。某语言"全部单词"首次无独立进度时，
+    // 若旧版全局进度在该语言词数范围内则迁移一次（老用户进度不丢失）
+    const legacyProgress = storage.getProgress();
+    const progress = currentList === 'all'
+      ? legacyProgress
+      : (listProgress[currentList]
+          ?? (currentList === `${currentLanguage}_all` && legacyProgress.currentIndex < totalWords ? legacyProgress : undefined)
+          ?? { currentRound: 1, currentIndex: 0, completedRounds: 0, lastUpdate: new Date().toISOString() });
 
     set({
       currentRound: progress.currentRound,
@@ -122,10 +131,17 @@ export const useAppStore = create<AppState>((set, get) => ({
       return;
     }
 
+    // 词库数据可能变化（如词数减少），索引越界时回退到有效范围内
+    let safeIndex = currentIndex;
+    if (safeIndex >= wordIndexesInList.length) {
+      safeIndex = wordIndexesInList.length - 1;
+      set({ currentIndex: safeIndex });
+    }
+
     set({ isLoading: true, error: null });
 
     try {
-      const globalIndex = wordIndexesInList[currentIndex];
+      const globalIndex = wordIndexesInList[safeIndex];
       const loader = getDataLoader(currentLanguage);
       const word = await loader.getWord(globalIndex);
 
@@ -177,7 +193,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       lastUpdate: new Date().toISOString(),
     };
 
-    if (currentList === 'all' || currentList === `${get().currentLanguage}_all`) {
+    if (currentList === 'all') {
       storage.saveProgress(progress);
     } else {
       saveListProgressById(currentList, progress);
@@ -211,7 +227,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       lastUpdate: new Date().toISOString(),
     };
 
-    if (currentList === 'all' || currentList === `${get().currentLanguage}_all`) {
+    if (currentList === 'all') {
       storage.saveProgress(progress);
     } else {
       saveListProgressById(currentList, progress);
@@ -246,7 +262,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { currentList, listProgress } = get();
 
     const updatedListProgress = { ...listProgress };
-    if (currentList === 'all' || currentList === `${get().currentLanguage}_all`) {
+    if (currentList === 'all') {
       storage.resetProgress();
     } else {
       delete updatedListProgress[currentList];
