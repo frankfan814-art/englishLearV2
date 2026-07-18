@@ -14,6 +14,7 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { ProgressData } from '../types/word';
+import { GradientProgress } from './GradientProgress';
 
 interface WordListSelectProps {
   isOpen: boolean;
@@ -80,7 +81,7 @@ export function WordListSelect({ isOpen, onClose }: WordListSelectProps) {
           <DrawerTitle>选择词表</DrawerTitle>
         </DrawerHeader>
 
-        <div className="px-4 space-y-3 max-h-[60vh] overflow-y-auto">
+        <div className="px-4 space-y-2.5 max-h-[60vh] overflow-y-auto">
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">
               加载中...
@@ -95,26 +96,21 @@ export function WordListSelect({ isOpen, onClose }: WordListSelectProps) {
                 <button
                   key={list.id}
                   onClick={() => handleSelectList(list.id)}
-                  className="w-full text-left p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors border border-white/5 active:scale-[0.98]"
+                  className="w-full text-left p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-all border border-white/5 hover:border-white/10 active:scale-[0.98]"
                 >
-                  <div className="flex justify-between items-start mb-2">
+                  <div className="flex justify-between items-start mb-1">
                     <div>
                       <h3 className="font-semibold text-foreground">{list.name}</h3>
-                      <p className="text-sm text-muted-foreground mt-0.5">
+                      <p className="text-sm text-muted-foreground mt-0.5 tabular-nums">
                         {list.wordCount.toLocaleString()} 词
                       </p>
                     </div>
-                    <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                    <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md shrink-0">
                       {formatProgress(list.progress, list.wordCount)}
                     </span>
                   </div>
                   {list.progress && list.progress.currentIndex > 0 && (
-                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden mt-2">
-                      <div
-                        className="h-full bg-gradient-to-r from-primary to-indigo-400 transition-all duration-500 rounded-full"
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
+                    <GradientProgress percentage={percentage} className="h-1.5 mt-2" />
                   )}
                 </button>
               );

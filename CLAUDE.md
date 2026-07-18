@@ -4,13 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-"单词朗读" (Vocab Master) is a minimal English vocabulary learning app focused on automatic word pronunciation and spaced repetition. It's a React-based PWA that can be packaged as an Android APK via Capacitor.
+"单词朗读" (Vocab Master) is a minimal vocabulary learning app focused on automatic word pronunciation and spaced repetition. It's a React-based PWA that can be packaged as an Android APK via Capacitor. Supports multiple languages: English, Japanese, Korean, and German.
 
 **Core Features:**
-- Automatic TTS pronunciation with configurable speed/accent (US/UK)
-- 16,194 words loaded in 17 sharded JSON files (1000 words each)
+- Automatic TTS pronunciation with configurable speed/accent
+- Multi-language support (English, Japanese, Korean, German) with language-specific TTS strategies
+- Word data loaded in shards from JSON files (lazy loading with adjacent shard preloading)
 - Progress tracking with rounds and persistence via localStorage
 - "Mastered" words system - marked words are skipped in future rounds
+- Word list filtering by tags (TOEFL, GRE, CET4/6, JLPT levels, etc.)
 - Mobile-first design with swipe gestures and glassmorphism UI
 
 ## Commands
@@ -38,39 +40,63 @@ npx cap open android # Open Android Studio for APK build
 - Word data, progress, settings, and playback state
 - Persists to localStorage via `src/utils/storage.ts`
 - Handles "mastered words" logic (skips them during navigation)
+- Multi-language state (`currentLanguage`, `wordIndexTotal`)
+- Word list progress tracking per list (`listProgress`)
+
+### Multi-Language Architecture
+
+`src/config/wordLists.ts` defines available languages and word lists:
+- Languages: English, Japanese, Korean, German
+- Each language has its own TTS config (Youdao API for English, Web Speech for others)
+- Word lists are defined per language with tag-based filtering
+
+`src/utils/languageRegistry.ts` manages per-language data loading:
+- Each language has its own `DataLoaderConfig` (basePath, shardSize, totalShards)
+- `getDataLoader(language)` returns language-specific DataLoader instance
+
+`src/utils/wordListIndex.ts` builds tag→word index for fast list filtering:
+- Scans all words to build `Map<tag, Set<globalIndex>>`
+- Cached per language to avoid repeated scanning
 
 ### Data Loading
 
 `src/utils/dataLoader.ts` implements lazy loading:
-- Words stored in `public/data/words-001.json` to `words-017.json`
-- Each shard: 1000 words
+- Words stored in sharded JSON files under `public/data/{language}/`
+- English: 17 shards × 1000 words (16,194 total)
+- Japanese: 4 shards × 5000 words (19,929 total)
+- Other languages: 1 shard each
 - Cache + preload adjacent shards for smooth navigation
 
 ### TTS System
 
 `src/hooks/useTTS.ts`:
-1. **Primary**: Youdao Dictionary API for real human audio (`https://dict.youdao.com/dictvoice?audio={word}&type={1|2}`)
-2. **Fallback**: Web Speech API (`speechSynthesis`)
+1. **English**: Youdao Dictionary API for real human audio (`https://dict.youdao.com/dictvoice?audio={word}&type={1|2}`), with Web Speech fallback
+2. **Other languages**: Web Speech API (`speechSynthesis`) with language-specific voices
 - Single `Audio` instance for mobile autoplay unlock
 - `unlockAudio()` must be called on user interaction before playback
+- Language-aware `speakByLanguage()` method that routes to correct TTS strategy
+- `useAutoPlay()` hook orchestrates the full playback sequence: word → (optional) definition → (optional) example → next word
 
 ### Key Components
 
 | Component | Purpose |
 |-----------|---------|
-| `App.tsx` | Main layout, keyboard shortcuts, visibility change handling |
-| `Home.tsx` | Landing page with progress stats |
+| `App.tsx` | Main layout, keyboard shortcuts, visibility change handling, language-aware UI |
+| `Home.tsx` | Landing page with language tabs, progress stats, quick start |
 | `WordCard.tsx` | Word display + swipe gestures for prev/next |
-| `SettingsModal.tsx` | Speed, speech rate, accent, read example toggles |
+| `SettingsModal.tsx` | Speed, speech rate, accent, read example/definition toggles |
 | `MasteredList.tsx` | View/restore mastered words |
 | `ProgressBar.tsx` | Round progress indicator |
+| `WordListSelect.tsx` | Modal for selecting word lists (TOEFL, GRE, JLPT, etc.) |
+| `GradientProgress.tsx` | Shared gradient progress bar (Home / ProgressBar / Settings / WordListSelect) |
 
 ### Types
 
 `src/types/word.ts`:
 - `Word`: id, word, phonetic, pos, definition, example?, tag?
-- `Settings`: speed (interval), speechRate, accent, autoPlay, readExample
+- `Settings`: speed (interval), speechRate, accent, autoPlay, readExample, readDefinition
 - `ProgressData`: currentRound, currentIndex, completedRounds
+- `DataLoaderConfig`: basePath, shardSize, totalShards, filePattern, lastShardSize
 
 ## UI/Styling
 
@@ -88,4 +114,18 @@ npx cap open android # Open Android Studio for APK build
 ## Data Source
 
 - Word database curated from ECDICT (see `TECHNICAL_DESIGN.md` for details)
-- Filtered for ~16K useful vocabulary (excludes very simple words)
+- English words filtered for ~16K useful vocabulary (excludes very simple words)
+- Japanese vocabulary sourced from JLPT word lists
+- Korean and German vocabularies available
+
+## Key Files Reference
+
+| File | Purpose |
+|------|---------|
+| `src/store/useAppStore.ts` | Zustand global state - words, progress, settings, language |
+| `src/utils/languageRegistry.ts` | Per-language DataLoader configs and factory |
+| `src/utils/wordListIndex.ts` | Tag→index mapping for word list filtering |
+| `src/config/wordLists.ts` | Language definitions, TTS configs, word list metadata |
+| `src/hooks/useTTS.ts` | TTS system with Youdao + Web Speech, useAutoPlay hook |
+| `src/utils/storage.ts` | localStorage wrapper for progress, settings, mastered words |
+| `src/utils/dataLoader.ts` | Lazy-loading DataLoader class |

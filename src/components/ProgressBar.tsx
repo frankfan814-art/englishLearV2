@@ -1,5 +1,6 @@
 import { useAppStore } from '../store/useAppStore';
 import { getWordListById } from '../config/wordLists';
+import { GradientProgress } from './GradientProgress';
 
 export function ProgressBar() {
   const { currentList, currentIndex, totalWords, listTotalWords, currentRound, completedRounds } = useAppStore();
@@ -13,7 +14,7 @@ export function ProgressBar() {
   const percentage = effectiveTotal > 0 ? ((currentIndex + 1) / effectiveTotal) * 100 : 0;
 
   return (
-    <div className="w-full px-4 py-3 bg-background/80 backdrop-blur-sm border-b border-white/5">
+    <div className="w-full px-4 py-3 bg-background/70 backdrop-blur-xl border-b border-white/5">
       <div className="max-w-[480px] mx-auto">
         {/* List name and round */}
         <div className="flex justify-between items-center mb-2">
@@ -26,16 +27,11 @@ export function ProgressBar() {
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-primary to-indigo-400 transition-all duration-500 rounded-full progress-glow"
-            style={{ width: `${percentage}%` }}
-          />
-        </div>
+        <GradientProgress percentage={percentage} />
 
         {/* Count */}
-        <div className="flex justify-between items-center mt-1">
-          <span className="text-xs text-muted-foreground">
+        <div className="flex justify-between items-center mt-1.5">
+          <span className="text-xs text-muted-foreground tabular-nums">
             {currentIndex + 1} / {effectiveTotal}
           </span>
           {completedRounds > 0 && (

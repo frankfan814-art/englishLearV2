@@ -179,6 +179,101 @@ export function useTTS() {
   return { speak, speakChinese, speakByLanguage, stop, resetCancel, currentSpeakRef };
 }
 
+// 领域标记（如 [计] / [医] / 【法律】）：朗读时静默去除
+const DOMAIN_TAG_RE = /^(\[[^\]]{1,6}\]|【[^】]{1,8}】)\s*/;
+
+// 词性缩写 → 中文读法（朗读释义时先报词性，如 "名词，关系，关联"）
+const POS_ZH: Record<string, string> = {
+  n: '名词', v: '动词', vt: '及物动词', vi: '不及物动词', vbl: '动词',
+  a: '形容词', adj: '形容词', ad: '副词', adv: '副词',
+  pron: '代词', num: '数词', art: '冠词', prep: '介词', conj: '连词',
+  int: '感叹词', interj: '感叹词', aux: '助动词',
+  pl: '复数', abbr: '缩写词', pref: '前缀', suf: '后缀',
+};
+
+/**
+ * 清洗释义文本，用于 TTS 朗读：
+ * 1. 词库中多个义项以字面量 "\n"（反斜杠+n）或真实换行分隔，只取前两个主要义项
+ * 2. 词性前缀转换为中文朗读（n. → 名词、vt. → 及物动词等），[计]/[医] 等领域标记静默去除
+ * 3. 去掉反斜杠、省略号等会被误读出来的符号，过滤含英文/数字的噪音释义
+ * 4. 跨义项去重（如名词、动词释义都是"关系"时只读一遍），每个义项最多读 2 个同义释义
+ */
+function cleanDefinitionForSpeech(definition: string): string {
+  const senses = definition
+    .split(/\\n|[\n\r]+/)
+    .map(s => s.trim())
+    .filter(Boolean)
+    .slice(0, 2); // 只读前两个主要意思
+
+  const seen = new Set<string>(); // 已读过的释义，跨义项去重
+  const cleaned = senses
+    .map(sense => {
+      // 词性前缀转中文朗读，领域标记静默去除；二者可能叠加（如 "[计] n. xxx"），循环处理
+      let s = sense;
+      let posLabel = '';
+      for (let i = 0; i < 3; i++) {
+        const noDomain = s.replace(DOMAIN_TAG_RE, '');
+        if (noDomain !== s) { s = noDomain; continue; }
+        const m = s.match(/^([a-z]{1,6})\.\s*/i);
+        if (m) {
+          const zh = POS_ZH[m[1].toLowerCase()];
+          if (zh && !posLabel) posLabel = zh;
+          s = s.slice(m[0].length);
+          continue;
+        }
+        break;
+      }
+      // 省略号会被读成"点点点"，直接去掉
+      s = s.replace(/\.{2,}|…+/g, '');
+      // 去掉残余的反斜杠、斜杠等符号
+      s = s.replace(/[\\/]/g, '');
+      // 拆分同义释义：过滤含英文或数字的噪音项（如 "DOS内部命令:..."）、跨义项去重，每个义项最多读 2 个
+      const glosses = s
+        .split(/[,，;；]/)
+        .map(g => g.trim())
+        .filter(g => g.length > 0 && !/[A-Za-z0-9]/.test(g))
+        .filter(g => {
+          if (seen.has(g)) return false;
+          seen.add(g);
+          return true;
+        })
+        .slice(0, 2);
+      if (glosses.length === 0) return '';
+      // 先读词性再读释义，如 "名词，关系，关联"
+      return (posLabel ? posLabel + '，' : '') + glosses.join('，');
+    })
+    .filter(s => s.length > 0);
+
+  return cleaned.join('。');
+}
+
+/**
+ * 清洗例句文本，用于 TTS 朗读：
+ * 1. 去掉词典用法说明（如 "(= a clear example of ... )"），避免读出 "equals"
+ * 2. 去掉全角括号注音/标签（如 学校（がっこう）、（英語）），避免单词被读两遍
+ * 3. 去掉省略号与残余反斜杠；清洗后无内容（如 "（无合适例句）" 占位符）则返回空串跳过朗读
+ */
+function cleanExampleForSpeech(example: string): string {
+  let s = example
+    // 词典用法说明 "(= ... )" 不朗读
+    .replace(/\(\s*=\s*[^)]*\)/g, ' ')
+    // 全角括号注音 / 标签 / 占位符不朗读
+    .replace(/（[^）]*）/g, ' ')
+    // 省略号（语料截断标记，如 "...the last decade"）替换为停顿
+    .replace(/\.{2,}|…+/g, ' ')
+    // 残余反斜杠
+    .replace(/\\/g, ' ')
+    // 合并空白，修正标点前多余空格
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([.,!?;:。，！？；：])/g, '$1')
+    // 中日韩字符之间不留空格（去除括号注音后残留的空隙）
+    .replace(/([぀-ヿ一-鿿])\s+([぀-ヿ一-鿿])/g, '$1$2')
+    .trim();
+  // 清洗后不剩任何文字（如占位符）则跳过
+  if (!/[\p{L}\p{N}]/u.test(s)) return '';
+  return s;
+}
+
 export function useAutoPlay() {
   const { speakByLanguage, speakChinese, stop, resetCancel, currentSpeakRef } = useTTS();
 
@@ -230,9 +325,9 @@ export function useAutoPlay() {
 
       const currentSettings = useAppStore.getState().settings;
 
-      // 3. 读中文释义
+      // 3. 读中文释义（清洗后只读前两个主要意思，避免读出反斜杠等符号）
       if (currentSettings.readDefinition && currentWord.definition) {
-        const cleanDef = currentWord.definition.replace(/^[a-z]+\.\s*/i, '').trim();
+        const cleanDef = cleanDefinitionForSpeech(currentWord.definition);
         if (cleanDef) {
           const defSuccess = await speakChinese(cleanDef, settings.speechRate || 1.0);
           if (!isActive) return;
@@ -245,17 +340,20 @@ export function useAutoPlay() {
 
       if (!isActive) return;
 
-      // 4. 读例句（语言感知）
+      // 4. 读例句（语言感知，清洗后朗读；占位符例句自动跳过）
       if (currentSettings.readExample && currentWord.example) {
-        const exampleSuccess = await speakByLanguage(
-          currentWord.example, currentLanguage,
-          settings.accent, settings.speechRate || 1.0
-        );
-        if (!isActive) return;
-        if (!exampleSuccess) {
-          console.warn('[AutoPlay] Example speech failed, but continuing');
+        const cleanExample = cleanExampleForSpeech(currentWord.example);
+        if (cleanExample) {
+          const exampleSuccess = await speakByLanguage(
+            cleanExample, currentLanguage,
+            settings.accent, settings.speechRate || 1.0
+          );
+          if (!isActive) return;
+          if (!exampleSuccess) {
+            console.warn('[AutoPlay] Example speech failed, but continuing');
+          }
+          await new Promise(r => setTimeout(r, 500));
         }
-        await new Promise(r => setTimeout(r, 500));
       }
 
       // 5. 等待间隔后切换下一个

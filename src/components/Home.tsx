@@ -1,11 +1,14 @@
 import { useState } from 'react';
+import { List } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { unlockAudio } from '../hooks/useTTS';
 import { WordListSelect } from './WordListSelect';
-import { LANGUAGES } from '../config/wordLists';
+import { GradientProgress } from './GradientProgress';
+import { LANGUAGES, LANGUAGE_BRAND } from '../config/wordLists';
 import { getTotalWords } from '../utils/languageRegistry';
+import { cn } from '@/lib/utils';
 
 export function Home() {
   const { currentLanguage, switchLanguage, currentRound, currentIndex, completedRounds, startLearning, switchList } = useAppStore();
@@ -13,6 +16,7 @@ export function Home() {
 
   const totalWords = getTotalWords(currentLanguage);
   const percentage = totalWords > 0 ? ((currentIndex + 1) / totalWords) * 100 : 0;
+  const brand = LANGUAGE_BRAND[currentLanguage] || LANGUAGE_BRAND.en;
 
   const handleQuickStart = async () => {
     await switchList(`${currentLanguage}_all`);
@@ -26,24 +30,24 @@ export function Home() {
 
   return (
     <>
-      <div className="w-full h-full flex items-center justify-center p-4 animate-fade">
-        <Card className="glass card-hover w-full max-w-[400px] p-8 flex flex-col items-center justify-center rounded-2xl border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+      <div className="w-full h-full flex items-center justify-center p-4 animate-fade overflow-y-auto">
+        <Card className="glass card-hover w-full max-w-[400px] p-8 flex flex-col items-center justify-center rounded-3xl border-white/10">
 
           {/* App Icon / Logo */}
-          <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 mb-6 animate-glow">
-            <span className="text-primary-foreground text-4xl font-bold font-serif">E</span>
+          <div className="w-20 h-20 rounded-[1.4rem] bg-gradient-to-br from-primary to-indigo-500 flex items-center justify-center shadow-xl shadow-primary/30 mb-6 animate-glow">
+            <span className="text-primary-foreground text-4xl font-bold">{brand.logo}</span>
           </div>
 
           {/* Title */}
           <h1 className="text-3xl font-bold text-gradient text-center mb-1">
             单词朗读
           </h1>
-          <p className="text-sm text-muted-foreground text-center mb-6">
+          <p className="text-sm text-muted-foreground text-center mb-7">
             听读记忆 · 高效刷词
           </p>
 
           {/* Language Tabs */}
-          <div className="flex gap-1.5 mb-6 bg-background/50 rounded-xl p-1 border border-white/5 w-full">
+          <div className="flex gap-1 mb-7 bg-background/60 rounded-xl p-1 border border-white/5 w-full">
             {LANGUAGES.map((lang) => (
               <button
                 key={lang.code}
@@ -52,13 +56,14 @@ export function Home() {
                     switchLanguage(lang.code);
                   }
                 }}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                className={cn(
+                  'flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-sm font-medium transition-all',
                   currentLanguage === lang.code
-                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/30'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
+                )}
               >
-                <span className="text-base">{lang.flag}</span>
+                <span className="text-base leading-none">{lang.flag}</span>
                 <span>{lang.name}</span>
               </button>
             ))}
@@ -67,11 +72,11 @@ export function Home() {
           {/* Quick Start Button */}
           <Button
             size="lg"
-            className="w-full h-14 rounded-xl text-lg font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-transform mb-3"
+            className="w-full h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-transform mb-3"
             onClick={handleQuickStart}
           >
             快速开始
-            <span className="text-sm font-normal opacity-80 ml-2">
+            <span className="text-xs font-normal opacity-75 ml-2">
               全部单词 · {totalWords.toLocaleString()} 词
             </span>
           </Button>
@@ -80,28 +85,27 @@ export function Home() {
           <Button
             size="lg"
             variant="outline"
-            className="w-full h-14 rounded-xl text-base font-semibold hover:scale-[1.02] active:scale-[0.98] transition-transform"
+            className="w-full h-12 rounded-xl text-sm font-semibold hover:scale-[1.02] active:scale-[0.98] transition-transform"
             onClick={handleListSelect}
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-            </svg>
+            <List className="w-4 h-4 mr-2" />
             按词表学习
-            <span className="text-sm font-normal opacity-60 ml-2">
+            <span className="text-xs font-normal opacity-60 ml-2">
               托福 / GRE / 四六级
             </span>
           </Button>
 
           {/* Progress Stats */}
-          <div className="w-full bg-background/50 rounded-xl p-5 mt-6 border border-white/5">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-sm font-medium text-muted-foreground">当前轮次</span>
-              <span className="text-lg font-bold text-foreground">第 {currentRound} 轮</span>
-            </div>
-
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-sm font-medium text-muted-foreground">已完成轮次</span>
-              <span className="text-lg font-bold text-primary">{completedRounds} 轮</span>
+          <div className="w-full bg-background/60 rounded-2xl p-5 mt-7 border border-white/5">
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-1">当前轮次</p>
+                <p className="text-lg font-bold text-foreground">第 {currentRound} 轮</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-medium text-muted-foreground mb-1">已完成轮次</p>
+                <p className="text-lg font-bold text-primary">{completedRounds} 轮</p>
+              </div>
             </div>
 
             <div className="w-full pt-4 border-t border-white/5">
@@ -110,16 +114,10 @@ export function Home() {
                 <div className="text-right">
                   <span className="font-bold text-foreground">{currentIndex + 1}</span>
                   <span className="text-muted-foreground mx-1">/</span>
-                  <span className="text-sm text-muted-foreground">{totalWords}</span>
+                  <span className="text-sm text-muted-foreground">{totalWords.toLocaleString()}</span>
                 </div>
               </div>
-              {/* Progress Bar */}
-              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-primary to-indigo-400 transition-all duration-500 rounded-full progress-glow"
-                  style={{ width: `${percentage}%` }}
-                />
-              </div>
+              <GradientProgress percentage={percentage} />
             </div>
           </div>
         </Card>

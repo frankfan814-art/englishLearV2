@@ -63,6 +63,14 @@ export const LANGUAGES: Language[] = [
   },
 ];
 
+/** 各语言的品牌标识（logo 字符与副标题），用于首页与学习页 header */
+export const LANGUAGE_BRAND: Record<string, { logo: string; subtitle: string }> = {
+  en: { logo: 'E', subtitle: 'Vocab Master' },
+  ja: { logo: '日', subtitle: '日本語マスター' },
+  ko: { logo: '한', subtitle: '단어 마스터' },
+  de: { logo: 'D', subtitle: 'Wortmeister' },
+};
+
 /**
  * Predefined word lists based on existing tag data
  * Words can belong to multiple lists (tags can be combined)

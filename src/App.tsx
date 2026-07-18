@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { ChevronLeft, CircleCheck, SlidersHorizontal, Play, Check } from 'lucide-react';
 import { useAppStore } from './store/useAppStore';
 import { useAutoPlay, useTTS, unlockAudio } from './hooks/useTTS';
 import { useWakeLock } from './hooks/useWakeLock';
@@ -7,8 +8,9 @@ import { ProgressBar } from './components/ProgressBar';
 import { SettingsModal } from './components/SettingsModal';
 import { Home } from './components/Home';
 import { Button } from '@/components/ui/button';
-
 import { MasteredList } from './components/MasteredList';
+import { LANGUAGE_BRAND } from './config/wordLists';
+import { cn } from '@/lib/utils';
 
 function App() {
   const [showSettings, setShowSettings] = useState(false);
@@ -32,18 +34,11 @@ function App() {
     quitLearning,
     updateSettings,
     resetProgress,
+    markMastered,
   } = useAppStore();
 
   // 语言相关的 Logo 和副标题
-  const languageLogo: Record<string, string> = { en: 'E', ja: '日', ko: '한', de: 'D' };
-  const languageSubtitle: Record<string, string> = {
-    en: 'Vocab Master',
-    ja: '日本語マスター',
-    ko: '단어 마스터',
-    de: 'Wortmeister',
-  };
-  const logoLetter = languageLogo[currentLanguage] || 'E';
-  const subtitle = languageSubtitle[currentLanguage] || 'Vocab Master';
+  const brand = LANGUAGE_BRAND[currentLanguage] || LANGUAGE_BRAND.en;
 
   useEffect(() => {
     initialize();
@@ -122,54 +117,49 @@ function App() {
       </div>
 
       {/* Header */}
-      <header className="px-6 py-4 flex items-center justify-between z-40">
+      <header className="px-4 py-3 flex items-center justify-between z-40">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={quitLearning}
-            className="mr-1 hover:bg-white/10 rounded-full"
+            className="rounded-full hover:bg-white/10"
             aria-label="返回首页"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <ChevronLeft className="w-5 h-5" />
           </Button>
-          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-            <span className="text-primary-foreground text-base font-bold">{logoLetter}</span>
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-indigo-500 flex items-center justify-center shadow-lg shadow-primary/25">
+            <span className="text-primary-foreground text-base font-bold">{brand.logo}</span>
           </div>
           <div>
-            <h1 className="text-base font-semibold text-foreground">
+            <h1 className="text-base font-semibold text-foreground leading-tight">
               单词朗读
             </h1>
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-              {subtitle}
+              {brand.subtitle}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             onClick={() => setShowMastered(true)}
             aria-label="已掌握单词"
-            className="text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10 border-emerald-500/30"
+            className="rounded-full text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <CircleCheck className="w-5 h-5" />
           </Button>
 
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             onClick={() => setShowSettings(true)}
             aria-label="设置"
+            className="rounded-full hover:bg-white/10"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h10M4 18h7" />
-            </svg>
+            <SlidersHorizontal className="w-5 h-5" />
           </Button>
         </div>
       </header>
@@ -189,45 +179,41 @@ function App() {
       </main>
 
       {/* Bottom Control */}
-      <footer className="safe-bottom pb-8 pt-4 px-6 bg-background/80 backdrop-blur-lg z-40 border-t border-white/5">
-        <div className="max-w-[480px] mx-auto flex flex-col items-center">
-          {/* Status & Master Button */}
-          <div className="h-14 flex items-center justify-center gap-3 mb-1 w-full px-4">
-            <button
-              onClick={() => {
-                unlockAudio();
-                togglePlay();
-              }}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-bold text-sm transition-all shadow-lg active:scale-95 ${
-                isPlaying 
-                  ? 'bg-primary/20 text-primary border-2 border-primary/40 hover:bg-primary/30' 
-                  : 'bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-primary/30'
-              }`}
-            >
-              {isPlaying ? (
-                <>
-                  <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse-subtle"></span>
-                  暂停朗读
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                  自动朗读
-                </>
-              )}
-            </button>
+      <footer className="safe-bottom pb-6 pt-4 px-6 bg-background/70 backdrop-blur-xl z-40 border-t border-white/5">
+        <div className="max-w-[480px] mx-auto flex items-center gap-3">
+          <button
+            onClick={() => {
+              unlockAudio();
+              togglePlay();
+            }}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-bold text-sm border transition-all active:scale-95',
+              isPlaying
+                ? 'bg-primary/15 text-primary border-primary/30 hover:bg-primary/25'
+                : 'bg-primary text-primary-foreground border-transparent shadow-lg shadow-primary/25 hover:bg-primary/90'
+            )}
+          >
+            {isPlaying ? (
+              <>
+                <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse-subtle"></span>
+                暂停朗读
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4 fill-current" />
+                自动朗读
+              </>
+            )}
+          </button>
 
-            <button
-              onClick={() => useAppStore.getState().markMastered()}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-bold text-sm bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 hover:bg-emerald-500/20 active:scale-95 transition-all shadow-sm"
-              title="掌握此单词后，将不再循环出现"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-              已掌握
-            </button>
-          </div>
+          <button
+            onClick={markMastered}
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-full font-bold text-sm border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 active:scale-95 transition-all"
+            title="掌握此单词后，将不再循环出现"
+          >
+            <Check className="w-4 h-4" strokeWidth={3} />
+            已掌握
+          </button>
         </div>
       </footer>
 

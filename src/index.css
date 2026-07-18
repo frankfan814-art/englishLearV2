@@ -6,24 +6,24 @@
 
 :root {
   /* Premium Dark Theme */
-  --background: #1a1a2e;
+  --background: #12121f;
   --foreground: #f5f5f7;
-  --card: rgba(30, 30, 60, 0.65);
+  --card: rgba(255, 255, 255, 0.05);
   --card-foreground: #f5f5f7;
-  --popover: #1e1e3c;
+  --popover: #1b1b2e;
   --popover-foreground: #f5f5f7;
   --primary: #7c5cfc;
   --primary-foreground: #ffffff;
-  --secondary: #2a2a4a;
+  --secondary: #22223a;
   --secondary-foreground: #f5f5f7;
-  --muted: #2a2a4a;
-  --muted-foreground: #9898b8;
-  --accent: rgba(124, 92, 252, 0.2);
+  --muted: #22223a;
+  --muted-foreground: #9a9ab5;
+  --accent: rgba(124, 92, 252, 0.18);
   --accent-foreground: #f5f5f7;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.09);
+  --input: rgba(255, 255, 255, 0.12);
   --ring: #7c5cfc;
   --radius: 0.75rem;
 
@@ -45,17 +45,17 @@
 /* Glassmorphism Utilities */
 .glass {
   background: var(--card);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(28px) saturate(1.5);
+  -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* Gradient text */
 .text-gradient {
-  background: linear-gradient(135deg, #a78bfa, #7c5cfc, #6366f1);
+  background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 45%, #818cf8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -64,8 +64,9 @@
 /* Gradient background for the app */
 .app-bg {
   background:
-    radial-gradient(ellipse at top right, rgba(124, 92, 252, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse at bottom left, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    radial-gradient(120% 70% at 50% 0%, rgba(124, 92, 252, 0.16) 0%, transparent 55%),
+    radial-gradient(70% 55% at 90% 100%, rgba(99, 102, 241, 0.09) 0%, transparent 60%),
+    radial-gradient(50% 40% at 0% 80%, rgba(124, 92, 252, 0.05) 0%, transparent 60%),
     var(--background);
 }
 
