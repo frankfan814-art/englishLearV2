@@ -93,8 +93,11 @@ docs/                     设计文档（ios-testing-plan.md、superpowers/plans
 
 ### TTS 系统（`src/hooks/useTTS.ts`）
 
-- 英语单词：有道音频 `https://dict.youdao.com/dictvoice?audio={word}&type={1|2}`（type 2 美式 / 1 英式），5 秒超时或出错时回退 TTS；**英语例句（含空白的句子）不走过道**，直接走 TTS
-- 其余 TTS（日/韩/德单词与例句、中文释义 zh-CN、有道失败兜底）：浏览器走 Web Speech API（`speechSynthesis`，按 `ttsConfig.webspeechLang` 选 voice）；**原生 App 走 `@capacitor-community/text-to-speech` 插件**（Android WebView 不支持 Web Speech），speak 的 Promise 在朗读完毕后 resolve，`stop()` 调原生 `TextToSpeech.stop()`
+- 发音采用**多级兜底链**（网络音频优先、系统 TTS 最后），全部为国内可达服务：
+  1. 英语单词：有道音频 `https://dict.youdao.com/dictvoice?audio={word}&type={1|2}`（type 2 美式 / 1 英式；仅适合单词，句子不走过道）
+  2. 百度翻译公开 TTS `https://fanyi.baidu.com/gettts?lan={zh|en|jp|kor}&text=...&spd=4&source=web`：实测支持中/英/日/韩含句子（德语 403 不支持），英语单词/例句、中文释义（`speakChinese`）、日韩语的第二级
+  3. 系统 TTS：浏览器 Web Speech / 原生 `@capacitor-community/text-to-speech`（Android WebView 不支持 Web Speech；speak 的 Promise 朗读完毕才 resolve）；德语唯一通道
+- 每级 5 秒超时或出错自动落下一级；`BAIDU_LAN` 维护语言→百度 lan 映射
 - 全局单例 `Audio` 实例；移动端必须先在用户手势中调用 `unlockAudio()` 解锁自动播放
 - 取消机制：`currentSpeakRef` 自增 speakId，过期回调一律丢弃；`stop()` 置 cancelled 标志
 - `useAutoPlay()` 编排完整播放序列：单词 → 300ms →（可选）中文释义 → 300ms →（可选）例句 → 500ms → 间隔 `settings.speed` 秒后 `nextWord()`

@@ -7,6 +7,15 @@ import { getLanguageInfo } from '../config/wordLists';
 // 创建单例的 Audio 对象，便于在移动端解锁后复用
 const audioInstance = new Audio();
 
+// 百度翻译公开 TTS 端点支持的语言（实测：中/英/日/韩可用，德语 403 不支持）
+type BaiduLan = 'zh' | 'en' | 'jp' | 'kor';
+const BAIDU_LAN: Record<string, BaiduLan | undefined> = {
+  en: 'en',
+  ja: 'jp',
+  ko: 'kor',
+  de: undefined,
+};
+
 export function unlockAudio() {
   audioInstance.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
   audioInstance.load();
@@ -23,16 +32,15 @@ export function useTTS() {
   const cancelledRef = useRef(false);
   const currentSpeakRef = useRef<number>(0);
 
-  // 播放真实人声（网易有道API）
-  const speakRealAudio = useCallback((speakId: number, word: string, accent: 'us' | 'uk', rate: number = 1.0): Promise<boolean> => {
+  // 通过 <audio> 播放网络音频 URL（有道/百度等公开语音源），5 秒超时或出错返回 false 走下一级兜底
+  const playAudioUrl = useCallback((speakId: number, url: string, rate: number = 1.0): Promise<boolean> => {
     return new Promise((resolve) => {
       if (cancelledRef.current || currentSpeakRef.current !== speakId) return resolve(false);
-      
-      const type = accent === 'us' ? 2 : 1;
-      audioInstance.src = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=${type}`;
+
+      audioInstance.src = url;
       audioInstance.load();
       audioInstance.playbackRate = rate;
-      
+
       let timeoutId: any;
       const onEnded = () => finish(true);
       const onError = () => finish(false);
@@ -41,7 +49,7 @@ export function useTTS() {
         clearTimeout(timeoutId);
         if (audioInstance.onended === onEnded) audioInstance.onended = null;
         if (audioInstance.onerror === onError) audioInstance.onerror = null;
-        
+
         if (currentSpeakRef.current !== speakId) {
           resolve(false);
         } else {
@@ -51,11 +59,11 @@ export function useTTS() {
 
       audioInstance.onended = onEnded;
       audioInstance.onerror = onError; // 失败时走 fallback
-      
+
       timeoutId = setTimeout(() => {
         finish(false);
       }, 5000); // 5秒超时
-      
+
       const playPromise = audioInstance.play();
       if (playPromise !== undefined) {
         playPromise.catch((e) => {
@@ -65,6 +73,19 @@ export function useTTS() {
       }
     });
   }, []);
+
+  // 网易有道词典人声（仅适合英语单词/短词）
+  const speakRealAudio = useCallback((speakId: number, word: string, accent: 'us' | 'uk', rate: number = 1.0): Promise<boolean> => {
+    const type = accent === 'us' ? 2 : 1;
+    const url = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=${type}`;
+    return playAudioUrl(speakId, url, rate);
+  }, [playAudioUrl]);
+
+  // 百度翻译公开 TTS 端点（实测支持 中/英/日/韩，含句子；德语不支持）
+  const speakBaiduAudio = useCallback((speakId: number, text: string, lan: BaiduLan, rate: number = 1.0): Promise<boolean> => {
+    const url = `https://fanyi.baidu.com/gettts?lan=${lan}&text=${encodeURIComponent(text)}&spd=4&source=web`;
+    return playAudioUrl(speakId, url, rate);
+  }, [playAudioUrl]);
 
   // 播放 TTS (可以用于单词的 fallback 或者中文释义)
   const speakTTS = useCallback(async (speakId: number, text: string, lang: string, rate: number = 1.0): Promise<boolean> => {
@@ -127,6 +148,7 @@ export function useTTS() {
 
   const speak = useCallback(async (word: string, accent: string, rate: number = 1.0): Promise<boolean> => {
     const speakId = ++currentSpeakRef.current;
+    const alive = () => !cancelledRef.current && currentSpeakRef.current === speakId;
 
     // Check if it's a Youdao-supported accent (us/uk)
     const isYoudaoAccent = accent === 'us' || accent === 'uk';
@@ -134,23 +156,30 @@ export function useTTS() {
     // Prefer real audio for us/uk
     if (isYoudaoAccent) {
       const success = await speakRealAudio(speakId, word, accent as 'us' | 'uk', rate);
-      if (!success && !cancelledRef.current && currentSpeakRef.current === speakId) {
-        // Fallback to TTS
-        const targetLang = accent === 'us' ? 'en-US' : 'en-GB';
-        return await speakTTS(speakId, word, targetLang, rate);
+      if (success && alive()) return true;
+      // 百度音频兜底
+      if (alive()) {
+        const ok = await speakBaiduAudio(speakId, word, 'en', rate);
+        if (ok && alive()) return true;
       }
-      return success && currentSpeakRef.current === speakId;
+      // 系统 TTS 最后兜底
+      if (!alive()) return false;
+      const targetLang = accent === 'us' ? 'en-US' : 'en-GB';
+      return await speakTTS(speakId, word, targetLang, rate);
     } else {
       // For non-English languages, use Web Speech API directly
       return await speakTTS(speakId, word, accent, rate);
     }
-  }, [speakRealAudio, speakTTS]);
+  }, [speakRealAudio, speakBaiduAudio, speakTTS]);
 
-  // 读中文释义（借鉴百词斩）
+  // 读中文释义：优先百度网络音频（保证国产手机无系统中文语音时也有声），系统 TTS 兜底
   const speakChinese = useCallback(async (text: string, rate: number = 1.0): Promise<boolean> => {
     const speakId = ++currentSpeakRef.current;
+    const ok = await speakBaiduAudio(speakId, text, 'zh', rate);
+    if (ok && !cancelledRef.current && currentSpeakRef.current === speakId) return true;
+    if (cancelledRef.current || currentSpeakRef.current !== speakId) return false;
     return await speakTTS(speakId, text, 'zh-CN', rate);
-  }, [speakTTS]);
+  }, [speakBaiduAudio, speakTTS]);
 
   // 语言感知的发音方法：英语走有道API，其他语言走Web Speech
   const speakByLanguage = useCallback(async (
@@ -167,23 +196,33 @@ export function useTTS() {
     }
 
     const { ttsConfig } = langConfig;
+    const alive = () => !cancelledRef.current && currentSpeakRef.current === speakId;
 
-    // 有道 dictvoice 仅适合单词/短词；句子（含空白）直接走 TTS，避免加载失败空等 5 秒
+    // 有道 dictvoice 仅适合单词/短词；句子（含空白）不走过道
     const isSentence = /\s/.test(text.trim());
 
+    // 第 1 级：英语单词走有道真人发音（质量最好）
     if (ttsConfig.mode === 'youdao' && !isSentence) {
       const success = await speakRealAudio(speakId, text, accent as 'us' | 'uk', rate);
-      if (!success && !cancelledRef.current && currentSpeakRef.current === speakId) {
-        // Fallback to Web Speech API when Youdao fails
-        const targetLang = accent === 'uk' ? 'en-GB' : 'en-US';
-        return await speakTTS(speakId, text, targetLang, rate);
-      }
-      return success && currentSpeakRef.current === speakId;
+      if (success && alive()) return true;
     }
 
+    // 第 2 级：百度公开 TTS 音频（中/英/日/韩，含句子；保证没有系统语音引擎的国产手机也有声）
+    const baiduLan = BAIDU_LAN[language];
+    if (baiduLan && alive()) {
+      const ok = await speakBaiduAudio(speakId, text, baiduLan, rate);
+      if (ok && alive()) return true;
+    }
+
+    // 第 3 级：系统 TTS（原生插件 / Web Speech）兜底；德语无公开音频源，直接走这一级
+    if (!alive()) return false;
+    if (ttsConfig.mode === 'youdao') {
+      const targetLang = accent === 'uk' ? 'en-GB' : 'en-US';
+      return await speakTTS(speakId, text, targetLang, rate);
+    }
     const lang = ttsConfig.webspeechLang || `${language}-${language.toUpperCase()}`;
     return await speakTTS(speakId, text, lang, rate);
-  }, [speakRealAudio, speakTTS]);
+  }, [speakRealAudio, speakBaiduAudio, speakTTS]);
 
   const stop = useCallback(() => {
     cancelledRef.current = true;
