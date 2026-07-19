@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      PGYER_API_KEY: ${{ secrets.PGYER_API_KEY }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -63,3 +65,25 @@ jobs:
           body: "👉 点击下方的 **`app-debug.apk`** 即可直接下载安装，无需解压，无需登录！\n\n*(这是由机器人自动打包的最新版本)*"
           artifacts: "android/app/build/outputs/apk/debug/app-debug.apk"
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload APK to Pgyer
+        id: pgyer
+        continue-on-error: true
+        if: env.PGYER_API_KEY != ''
+        run: |
+          response=$(curl -s -F "file=@android/app/build/outputs/apk/debug/app-debug.apk" \
+            -F "_api_key=${PGYER_API_KEY}" \
+            https://www.pgyer.com/apiv2/app/upload)
+          echo "$response"
+          short_url=$(echo "$response" | jq -r '.data.buildShortcutUrl')
+          echo "url=https://www.pgyer.com/${short_url}" >> "$GITHUB_OUTPUT"
+
+      - name: Output Download Links
+        if: always()
+        run: |
+          {
+            echo "### 📱 手机直接安装（无需电脑中转）"
+            echo ""
+            echo "- **蒲公英（国内推荐）**：${{ steps.pgyer.outputs.url }}"
+            echo "- **GitHub Releases（固定地址，可收藏）**：https://github.com/${{ github.repository }}/releases/tag/latest"
+          } >> "$GITHUB_STEP_SUMMARY"

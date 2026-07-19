@@ -114,8 +114,9 @@ docs/                     设计文档（ios-testing-plan.md、superpowers/plans
 
 - Web 构建产物输出到 `dist/`；**`dist/` 已在 `.gitignore` 中，不随仓库提交**，克隆后需先 `npm run build` 再 `cap:sync`
 - Android：`capacitor.config.ts`（appId `com.vocab.app`，webDir `dist`）；本地用 `npm run cap:sync` + Android Studio
+- debug 签名：`android/app/debug.keystore` 已提交仓库并在 `android/app/build.gradle` 的 `signingConfigs.debug` 中固定（标准 debug 口令 `android`/`androiddebugkey`），本地与 CI 打出的包签名一致可覆盖安装；**不要删除或重新生成该文件**，否则已安装用户又会被迫卸载重装
 - CI 有两个 GitHub Actions 工作流：
-  - `.github/workflows/build-apk.yml`：push 到 main（或手动触发）时构建 debug APK 并发布到 GitHub Releases（tag `latest`，Node 22 + Java 21）
+  - `.github/workflows/build-apk.yml`：push 到 main（或手动触发）时构建 debug APK，发布到 GitHub Releases（tag `latest`），并上传蒲公英（需 Secrets 配置 `PGYER_API_KEY`，构建摘要会输出两个手机直装链接；Node 22 + Java 21）
   - `.github/workflows/android-build.yml`：push/PR 到 main 时仅构建验证并上传 artifact，不发版（Node 20 + Java 21）
 
 ## 安全注意事项
