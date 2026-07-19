@@ -93,13 +93,13 @@ docs/                     设计文档（ios-testing-plan.md、superpowers/plans
 
 ### TTS 系统（`src/hooks/useTTS.ts`）
 
-- 英语：有道音频 `https://dict.youdao.com/dictvoice?audio={word}&type={1|2}`（type 2 美式 / 1 英式），5 秒超时或出错时回退 Web Speech
-- 日/韩/德：Web Speech API（`speechSynthesis`），按 `ttsConfig.webspeechLang` 选 voice；中文释义固定走 `zh-CN`
+- 英语单词：有道音频 `https://dict.youdao.com/dictvoice?audio={word}&type={1|2}`（type 2 美式 / 1 英式），5 秒超时或出错时回退 TTS；**英语例句（含空白的句子）不走过道**，直接走 TTS
+- 其余 TTS（日/韩/德单词与例句、中文释义 zh-CN、有道失败兜底）：浏览器走 Web Speech API（`speechSynthesis`，按 `ttsConfig.webspeechLang` 选 voice）；**原生 App 走 `@capacitor-community/text-to-speech` 插件**（Android WebView 不支持 Web Speech），speak 的 Promise 在朗读完毕后 resolve，`stop()` 调原生 `TextToSpeech.stop()`
 - 全局单例 `Audio` 实例；移动端必须先在用户手势中调用 `unlockAudio()` 解锁自动播放
 - 取消机制：`currentSpeakRef` 自增 speakId，过期回调一律丢弃；`stop()` 置 cancelled 标志
 - `useAutoPlay()` 编排完整播放序列：单词 → 300ms →（可选）中文释义 → 300ms →（可选）例句 → 500ms → 间隔 `settings.speed` 秒后 `nextWord()`
 - 其他行为：学习页支持键盘快捷键（←/→ 切换单词，空格播放/暂停）；页面切入后台（`visibilitychange`）自动暂停；播放期间 `useWakeLock` 保持屏幕常亮
-- 注意：`@capacitor-community/text-to-speech` 在依赖中但 src 内未引用，当前 TTS 全部走 Web 方案
+- 注意：`@capacitor-community/text-to-speech` 已被 `speakTTS` 在原生环境使用；插件 `stop()` 会丢弃进行中的 speak 回调（Promise 不再 settle），属于可接受的轻微泄漏，不要依赖 stop 后 speak Promise 返回
 
 ## 代码风格约定
 

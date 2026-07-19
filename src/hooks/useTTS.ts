@@ -1,4 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
 import { useAppStore } from '../store/useAppStore';
 import { getLanguageInfo } from '../config/wordLists';
 
@@ -67,6 +69,18 @@ export function useTTS() {
   // 播放 TTS (可以用于单词的 fallback 或者中文释义)
   const speakTTS = useCallback(async (speakId: number, text: string, lang: string, rate: number = 1.0): Promise<boolean> => {
     if (cancelledRef.current || currentSpeakRef.current !== speakId) return false;
+
+    // 原生 App：Android WebView 不支持 Web Speech API，走原生 TTS 引擎（speak 的 Promise 在朗读完毕后才 resolve）
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await TextToSpeech.speak({ text, lang, rate, pitch: 1.0, volume: 1.0, category: 'ambient' });
+        return !cancelledRef.current && currentSpeakRef.current === speakId;
+      } catch (e) {
+        console.error('Native TTS Error:', e);
+        return false;
+      }
+    }
+
     window.speechSynthesis?.cancel();
 
     if (!('speechSynthesis' in window)) return false;
@@ -154,7 +168,10 @@ export function useTTS() {
 
     const { ttsConfig } = langConfig;
 
-    if (ttsConfig.mode === 'youdao') {
+    // 有道 dictvoice 仅适合单词/短词；句子（含空白）直接走 TTS，避免加载失败空等 5 秒
+    const isSentence = /\s/.test(text.trim());
+
+    if (ttsConfig.mode === 'youdao' && !isSentence) {
       const success = await speakRealAudio(speakId, text, accent as 'us' | 'uk', rate);
       if (!success && !cancelledRef.current && currentSpeakRef.current === speakId) {
         // Fallback to Web Speech API when Youdao fails
@@ -172,6 +189,9 @@ export function useTTS() {
     cancelledRef.current = true;
     currentSpeakRef.current += 1;
     audioInstance.pause();
+    if (Capacitor.isNativePlatform()) {
+      TextToSpeech.stop().catch(() => {});
+    }
     window.speechSynthesis?.cancel();
   }, []);
 
@@ -196,10 +216,12 @@ const POS_ZH: Record<string, string> = {
 
 /**
  * 清洗释义文本，用于 TTS 朗读：
- * 1. 词库中多个义项以字面量 "\n"（反斜杠+n）或真实换行分隔，只取第一个主要义项
+ * 1. 词库中多个义项以字面量 "\n"（反斜杠+n）或真实换行分隔；极简模式只读一个意思，
+ *    按顺序取第一个能读出来的义项（首个义项常含英文解释等噪音，不宜直接放弃整个单词）
  * 2. 词性前缀转换为中文朗读（n. → 名词、vt. → 及物动词等），[计]/[医] 等领域标记静默去除
- * 3. 去掉反斜杠、省略号等会被误读出来的符号，过滤含英文/数字的噪音释义
- * 4. 极简模式（闭眼刷词）：只读第一个义项的第一个意思，如 "last → 形容词，最后的"
+ * 3. 去掉反斜杠、省略号等会被误读出来的符号；括号内的英文注释（如 "（ABC）"）静默去除，
+ *    仍含英文/数字的噪音释义（如 "DOS内部命令:..."）则跳过
+ * 4. 示例："last → 形容词，最后的"
  */
 /** 按逗号/分号拆分释义，但不拆开括号内部（如 "的（助词，表示所属）" 不拆断） */
 function splitGlosses(s: string): string[] {
@@ -224,40 +246,39 @@ function cleanDefinitionForSpeech(definition: string): string {
   const senses = definition
     .split(/\\n|[\n\r]+/)
     .map(s => s.trim())
-    .filter(Boolean)
-    .slice(0, 1); // 只读第一个主要意思
+    .filter(Boolean);
 
-  const cleaned = senses
-    .map(sense => {
-      // 词性前缀转中文朗读，领域标记静默去除；二者可能叠加（如 "[计] n. xxx"），循环处理
-      let s = sense;
-      let posLabel = '';
-      for (let i = 0; i < 3; i++) {
-        const noDomain = s.replace(DOMAIN_TAG_RE, '');
-        if (noDomain !== s) { s = noDomain; continue; }
-        const m = s.match(/^([a-z]{1,6})\.\s*/i);
-        if (m) {
-          const zh = POS_ZH[m[1].toLowerCase()];
-          if (zh && !posLabel) posLabel = zh;
-          s = s.slice(m[0].length);
-          continue;
-        }
-        break;
+  // 按顺序找第一个能读出来的义项，找到即返回（只读一个意思）
+  for (const sense of senses) {
+    // 词性前缀转中文朗读，领域标记静默去除；二者可能叠加（如 "[计] n. xxx"），循环处理
+    let s = sense;
+    let posLabel = '';
+    for (let i = 0; i < 3; i++) {
+      const noDomain = s.replace(DOMAIN_TAG_RE, '');
+      if (noDomain !== s) { s = noDomain; continue; }
+      const m = s.match(/^([a-z]{1,6})\.\s*/i);
+      if (m) {
+        const zh = POS_ZH[m[1].toLowerCase()];
+        if (zh && !posLabel) posLabel = zh;
+        s = s.slice(m[0].length);
+        continue;
       }
-      // 省略号会被读成"点点点"，直接去掉
-      s = s.replace(/\.{2,}|…+/g, '');
-      // 去掉残余的反斜杠、斜杠等符号
-      s = s.replace(/[\\/]/g, '');
-      // 只取第一个意思：过滤含英文或数字的噪音项（如 "DOS内部命令:..."）后取首个
-      const gloss = splitGlosses(s)
-        .filter(g => !/[A-Za-z0-9]/.test(g))[0];
-      if (!gloss) return '';
-      // 先读词性再读释义，如 "名词，关系"
-      return (posLabel ? posLabel + '，' : '') + gloss;
-    })
-    .filter(s => s.length > 0);
+      break;
+    }
+    // 省略号会被读成"点点点"，直接去掉
+    s = s.replace(/\.{2,}|…+/g, '');
+    // 去掉残余的反斜杠、斜杠等符号
+    s = s.replace(/[\\/]/g, '');
+    // 只取第一个意思：括号内的英文注释静默去除，过滤仍含英文/数字的噪音项（如 "DOS内部命令:..."）
+    const gloss = splitGlosses(s)
+      .map(g => g.replace(/（[^）]*[A-Za-z0-9][^）]*）|\([^)]*[A-Za-z0-9][^)]*\)/g, '').trim())
+      .filter(g => g.length > 0 && !/[A-Za-z0-9]/.test(g))[0];
+    if (!gloss) continue; // 该义项不可读，尝试下一个义项
+    // 先读词性再读释义，如 "名词，关系"
+    return (posLabel ? posLabel + '，' : '') + gloss;
+  }
 
-  return cleaned.join('。');
+  return '';
 }
 
 /**

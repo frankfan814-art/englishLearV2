@@ -152,9 +152,9 @@ export function SettingsModal({
             )}
           </div>
 
-          {/* 朗读中文释义 */}
+          {/* 自动朗读释义 */}
           <div>
-            <SectionLabel>朗读中文释义</SectionLabel>
+            <SectionLabel>自动朗读释义</SectionLabel>
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant={!settings.readDefinition ? 'default' : 'outline'}
