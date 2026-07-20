@@ -33,7 +33,7 @@ npm run cap:open   # 打开 Android Studio 构建 APK
 
 - `npm run lint` 存在于 package.json，但仓库中**没有 eslint 配置文件**（ESLint 9 需要 `eslint.config.js`），该命令当前无法正常运行。提交前请以 `npm run build`（含 tsc 严格检查）作为质量门禁。
 - 没有任何自动化测试框架（无 vitest/jest，无 test 脚本）。验证方式为手动运行 dev server 或构建后在真机/模拟器测试。
-- 数据生成脚本在 `scripts/`（`generate_dict.js`、`free_crawler.js`、`mock_data.js` 为 Node ESM 脚本，`tag-jlpt.py` 为 Python 脚本），从仓库根目录运行；`scripts/raw/` 存放原始语料（如 `ja_50k.txt`）。这些脚本依赖翻译 API，仅用于离线生成词库，不属于应用运行时。`generate_dict.js` 会在输出目录写 `progress_ai.json` 断点续跑文件（`public/data/ja/progress_ai.json` 即是其产物，会被一并拷入 dist，无害）。
+- 数据生成脚本在 `scripts/`（`generate_dict.js` / `gen_dict_agy.js` 为核心管线，默认后端为 GLM，可通过 `--backend glm|deepseek` 切换。断点文件归档在 `scripts/raw/progress_archive/`，续跑需拷回 `public/data/{lang}/`）；从仓库根目录运行。这些脚本依赖翻译 API，仅用于离线生成词库，不属于应用运行时。
 
 ## 目录结构与模块划分
 
@@ -42,21 +42,24 @@ src/
   App.tsx                 主布局（首页/学习页切换）、键盘快捷键、页面可见性处理
   main.tsx                React 挂载入口
   index.css               全局样式：暗色主题 CSS 变量（:root）、玻璃拟态、动画
-  components/             业务组件：Home / WordCard / SettingsModal /
+  components/             业务组件：Home / WordCard / SettingsModal / LicenseModal /
                           MasteredList / ProgressBar / WordListSelect / GradientProgress
   components/ui/          shadcn/ui 基础组件（button/card/dialog/drawer/progress）
   config/wordLists.ts     LANGUAGES（含各语言 TTS 配置）、WORD_LISTS（词表 id→tag 映射）
+  config/license.ts       云激活配置（CloudBase envId、试用词数、宽限期、购买链接）
   hooks/useTTS.ts         useTTS / useAutoPlay / unlockAudio
   hooks/useWakeLock.ts    播放期间屏幕常亮
-  store/useAppStore.ts    Zustand 全局状态（唯一事实来源）
+  store/useAppStore.ts    Zustand 全局状态（唯一事实来源，含 licenseState 与试用截断）
   utils/dataLoader.ts     分片懒加载 DataLoader 类
   utils/languageRegistry.ts 各语言 DataLoaderConfig 与工厂（getDataLoader / getTotalWords）
+  utils/license.ts        云激活：卡密激活、启动校验、离线宽限、设备 ID
   utils/wordListIndex.ts  标签→全局索引映射，加速词表筛选
   utils/storage.ts        localStorage 封装
   lib/utils.ts            cn() 等 shadcn 工具函数
   types/word.ts           Word / Settings / ProgressData / DataLoaderConfig 等类型
 public/data/              词库 JSON 分片（构建时原样拷入 dist/）
-scripts/                  离线词库生成/标注脚本（非运行时）
+scripts/                  离线词库生成/标注脚本 + license_admin.js 卡密管理（非运行时）
+cloud/                    CloudBase 云函数（license-activate / license-validate）与部署手册
 android/                  Capacitor 生成的 Android 工程
 docs/                     设计文档（ios-testing-plan.md、superpowers/plans 与 superpowers/specs）
 ```
@@ -75,6 +78,18 @@ docs/                     设计文档（ios-testing-plan.md、superpowers/plans
 
 已知怪癖：`vocab_mastered` 按**全局索引**记录且不按语言区分，在某一语言标记"已掌握"会影响其他语言相同索引的单词。改动相关逻辑时注意这一点。
 
+### 软件激活（云激活卡密制）
+
+商业化采用"试用 + 卡密激活"模式（运营细节见 `docs/闲鱼自动发货与云激活运营手册.md`，后端部署见 `cloud/README.md`）：
+
+- 状态：`licenseState: 'trial' | 'active'` 存于 store；本地授权缓存在 localStorage `vocab_license`，设备 ID 缓存在 `vocab_device_id`
+- 试用模式：store 内部 helper `applyTrialLimit()` 把每个词表的 `wordIndexesInList` 截断为前 `TRIAL_WORD_LIMIT`（200）个索引，`initialize` / `switchList` / `switchLanguage` 三处统一走它——**新增改词表索引的代码路径时也必须过这个 helper**
+- 激活：App 调 CloudBase 云函数 `license-activate`（卡密 + 设备 ID 绑定），成功后 `initialize()` 重载全量词库
+- 复核：每次启动 `initLicense()` 调 `license-validate`；卡密被撤销（退款作废）→ 清本地授权降级回试用；网络失败 → 离线宽限 `LICENSE_GRACE_DAYS`（7）天内保持激活
+- 设备 ID：原生用 `@capacitor/device` 的 ANDROID_ID，Web 用 localStorage 随机 UUID
+- 旁路：构建期 `VITE_LICENSE_DISABLED=true`（`.env.local`）全部视为已激活，仅供卖家自用/开发——**正式发售包严禁携带**
+- 客户端不直连数据库：卡密校验全在云函数内完成，数据库权限应设为最严格档
+
 ### 数据加载
 
 词库是分片 JSON，`DataLoader` 按需懒加载（内存缓存 + 在途请求去重）+ 相邻分片预加载（`preloadAdjacent`，当前分片 ±1）：
@@ -83,12 +98,13 @@ docs/                     设计文档（ios-testing-plan.md、superpowers/plans
 |------|------|------|------|
 | en | `/data/words-XXX.json` | 17 × 1000（末片 194） | 16,194 |
 | ja | `/data/ja/words-XXX.json` | 4 × 5000（末片 4929） | 19,929 |
-| ko / de | `/data/{lang}/words-001.json` | 1 | 各 5,000 |
+| ko | `/data/ko/words-XXX.json` | 4 × 5000（末片 967） | 15,967 |
+| de | `/data/de/words-XXX.json` | 3 × 5000（末片 5000） | 15,000 |
 
 - 分片文件名从 001 开始、三位数字补齐；分片内为 `{ shardIndex, totalShards, words: Word[] }`。
 - 新增语言需要三步：在 `public/data/{lang}/` 放分片 → 在 `src/utils/languageRegistry.ts` 的 `LANGUAGE_CONFIGS` 注册 → 在 `src/config/wordLists.ts` 的 `LANGUAGES` 与 `WORD_LISTS` 中添加条目。
 - 词表筛选基于单词的 `tag` 字段（多标签以空白分隔，无标签归入空串 `''`）。`wordListIndex.ts` 全量扫描建立 `Map<tag, Set<全局索引>>` 并按语言缓存。`WORD_LISTS` 中 tag 为 `*` 表示该语言全部单词。
-- 预定义词表：英语（托福/GRE/四六级/考研/雅思/高考/其他/全部）、日语（全部 + JLPT N5–N1）、韩语（全部）、德语（全部）。
+- 预定义词表：英语（托福/GRE/四六级/考研/雅思/高考/其他/全部）、日语（全部 + JLPT N5–N1）、韩语（全部 + TOPIK 1-6）、德语（全部 + A1-C1）。
 - `dataLoader.ts` 末尾导出的 `dataLoader` 单例已标记 `@deprecated`，新代码请用 `getDataLoader(language)`。
 
 ### TTS 系统（`src/hooks/useTTS.ts`）
@@ -116,6 +132,7 @@ docs/                     设计文档（ios-testing-plan.md、superpowers/plans
 ## 构建与部署
 
 - Web 构建产物输出到 `dist/`；**`dist/` 已在 `.gitignore` 中，不随仓库提交**，克隆后需先 `npm run build` 再 `cap:sync`
+- 生产构建自动 `drop: ['console', 'debugger']`（vite.config.ts，仅 `build` 命令生效），sourcemap 保持默认关闭
 - Android：`capacitor.config.ts`（appId `com.vocab.app`，webDir `dist`）；本地用 `npm run cap:sync` + Android Studio
 - debug 签名：`android/app/debug.keystore` 已提交仓库并在 `android/app/build.gradle` 的 `signingConfigs.debug` 中固定（标准 debug 口令 `android`/`androiddebugkey`），本地与 CI 打出的包签名一致可覆盖安装；**不要删除或重新生成该文件**，否则已安装用户又会被迫卸载重装
 - CI 有两个 GitHub Actions 工作流：
@@ -124,9 +141,10 @@ docs/                     设计文档（ios-testing-plan.md、superpowers/plans
 
 ## 安全注意事项
 
-- 无任何密钥/凭证管理需求：有道音频 API 为公开接口，客户端直接调用
+- 有道音频 API 为公开接口，客户端直接调用
+- 卡密校验逻辑全部在 CloudBase 云函数内（`cloud/functions/`），客户端不持有任何密钥；`scripts/license_admin.js` 需要的腾讯云凭证（`TCB_SECRET_ID` / `TCB_SECRET_KEY` / `TCB_ENV_ID`）只通过环境变量传入，**绝不提交进仓库**
 - `scripts/` 中的爬虫/翻译脚本使用公开翻译 API（`@vitalets/google-translate-api`、`bing-translate-api`）与代理（`https-proxy-agent`），不要把任何 API key 提交进仓库
-- 用户数据仅存于浏览器 localStorage，不上传任何服务器
+- 用户数据仅存于浏览器 localStorage，不上传任何服务器（激活/校验仅上传卡密与设备 ID）
 
 ## 文档与现实的偏差提醒
 

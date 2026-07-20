@@ -9,3 +9,5 @@ dist-ssr/
 android/app/build/
 android/.idea/
 android/.gradle/
+
+public/data/**/progress_*.json

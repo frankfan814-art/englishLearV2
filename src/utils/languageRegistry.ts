@@ -16,20 +16,19 @@ export const LANGUAGE_CONFIGS: Record<string, DataLoaderConfig> = {
     filePattern: 'words-{index}.json',
     lastShardSize: 4929,
   },
-  // 注意：ko/de 当前为示例词库（各 10 词），后续需用 scripts/ 生成脚本补全
   ko: {
     basePath: '/data/ko/',
     shardSize: 5000,
-    totalShards: 1,
+    totalShards: 4,
     filePattern: 'words-{index}.json',
-    lastShardSize: 10,
+    lastShardSize: 967,
   },
   de: {
     basePath: '/data/de/',
     shardSize: 5000,
-    totalShards: 1,
+    totalShards: 3,
     filePattern: 'words-{index}.json',
-    lastShardSize: 10,
+    lastShardSize: 5000,
   },
 };
 
