@@ -138,7 +138,10 @@ if (!BACKEND) {
 function extractJsonArray(text) {
   const start = text.indexOf('[');
   const end = text.lastIndexOf(']');
-  if (start < 0 || end <= start) throw new Error('输出中未找到 JSON 数组');
+  if (start < 0 || end <= start) {
+    console.error('API 返回内容不是 JSON:', text);
+    throw new Error('输出中未找到 JSON 数组');
+  }
   return JSON.parse(text.slice(start, end + 1));
 }
 
@@ -164,7 +167,9 @@ async function callBackend(prompt) {
       body: JSON.stringify({
         model: BACKEND.model,
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,
+        temperature: 0.3,
+        presence_penalty: 0.5,
+        max_tokens: 4096,
       }),
       signal: controller.signal,
     });
@@ -215,12 +220,16 @@ async function main() {
         entries = extractJsonArray(out);
         break;
       } catch (err) {
-        const wait = [5000, 15000, 45000, 90000][Math.min(attempt - 1, 3)];
+        const wait = [2000, 5000, 10000, 15000][Math.min(attempt - 1, 3)];
         console.error(`  ⚠️ 第 ${attempt}/${MAX_RETRIES} 次失败（${err.message.slice(0, 120)}），${wait / 1000}s 后重试`);
         if (attempt === MAX_RETRIES) {
-          console.error(`❌ 批次多次失败，中止。失败批次: ${batch.join(', ')}`);
-          console.error('   进度已保存，重新运行本脚本即可续跑。');
-          process.exit(1);
+          console.error(`❌ 批次多次失败，跳过该批次继续。失败批次: ${batch.join(', ')}`);
+          for (const w of batch) {
+            results.push({ _input: w, _key: 'skip:' + w, skip: true });
+          }
+          await fs.writeFile(PROGRESS_PATH, JSON.stringify(results, null, 2), 'utf-8');
+          entries = [];
+          break;
         }
         await sleep(wait);
       }
