@@ -102,8 +102,6 @@ export function useTTS() {
       }
     }
 
-    window.speechSynthesis?.cancel();
-
     if (!('speechSynthesis' in window)) return false;
 
     const utterance = new SpeechSynthesisUtterance(text);
@@ -348,7 +346,7 @@ export function cleanExampleForSpeech(example: string): string {
 }
 
 export function useAutoPlay() {
-  const { speakByLanguage, speakChinese, stop, resetCancel, currentSpeakRef } = useTTS();
+  const { speakByLanguage, speakChinese, stop, resetCancel } = useTTS();
 
   const isPlaying = useAppStore(state => state.isPlaying);
   const isLoading = useAppStore(state => state.isLoading);
@@ -383,13 +381,9 @@ export function useAutoPlay() {
       if (!isActive) return;
 
       if (!success) {
-        // Check if speech was cancelled (user navigated)
-        if (currentSpeakRef.current > 0) {
-          console.warn('[AutoPlay] Speech failed, stopping playback');
-          useAppStore.setState({ isPlaying: false });
-          return;
-        }
-        return;
+        // If speech failed, we should still wait and go to the next word instead of completely stopping
+        console.warn('[AutoPlay] Speech failed for word, continuing to next');
+        // Do not return here; let it fall through so it can read definition/example, or just wait and slide
       }
 
       // 2. 停顿 0.5 秒（极简刷词节奏：留一点回忆时间再报意思）
