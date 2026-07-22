@@ -11,3 +11,7 @@ android/.idea/
 android/.gradle/
 
 public/data/**/progress_*.json
+
+# Playwright E2E 测试产物
+test-results/
+playwright-report/

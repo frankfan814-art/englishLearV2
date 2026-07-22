@@ -2,7 +2,7 @@ import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
@@ -58,15 +58,15 @@ function DialogContent({
       >
         {children}
         {showCloseButton && (
+          // 不用 render={<Button/>}：React 18 函数组件无法接收 ref，会触发
+          // "Function components cannot be given refs" 警告，直接用 buttonVariants 样式
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            render={
-              <Button
-                variant="ghost"
-                className="absolute top-2 right-2"
-                size="icon-sm"
-              />
-            }
+            className={buttonVariants({
+              variant: "ghost",
+              size: "icon-sm",
+              className: "absolute top-2 right-2",
+            })}
           >
             <XIcon
             />
@@ -107,7 +107,7 @@ function DialogFooter({
     >
       {children}
       {showCloseButton && (
-        <DialogPrimitive.Close render={<Button variant="outline" />}>
+        <DialogPrimitive.Close className={buttonVariants({ variant: "outline" })}>
           Close
         </DialogPrimitive.Close>
       )}

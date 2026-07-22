@@ -44,8 +44,8 @@ export function Home() {
 
   return (
     <>
-      <div className="w-full h-full flex items-center justify-center p-4 animate-fade overflow-y-auto">
-        <Card className="glass card-hover w-full max-w-[400px] p-8 flex flex-col items-center justify-center rounded-3xl border-white/10">
+      <div className="w-full h-dvh flex overflow-y-auto p-4 animate-fade">
+        <Card className="glass card-hover w-full max-w-[400px] p-8 m-auto flex flex-col items-center rounded-3xl border-white/10">
 
           {/* App Icon / Logo */}
           <div className="w-20 h-20 rounded-[1.4rem] bg-gradient-to-br from-primary to-indigo-500 flex items-center justify-center shadow-xl shadow-primary/30 mb-6 animate-glow">

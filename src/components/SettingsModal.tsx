@@ -234,10 +234,9 @@ export function SettingsModal({
           >
             重置进度
           </Button>
-          <DrawerClose>
-            <div className="w-full">
-              <Button variant="ghost" className="w-full">关闭</Button>
-            </div>
+          {/* DrawerClose 自身渲染 button，内部不能再嵌套 Button（validateDOMNesting 警告） */}
+          <DrawerClose className="w-full inline-flex items-center justify-center h-10 rounded-md text-sm font-medium text-foreground hover:bg-muted/60 transition-colors">
+            关闭
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>

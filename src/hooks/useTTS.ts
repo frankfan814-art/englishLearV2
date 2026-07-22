@@ -70,7 +70,10 @@ export function useTTS() {
       const playPromise = audioInstance.play();
       if (playPromise !== undefined) {
         playPromise.catch((e) => {
-          console.error('Audio play error:', e);
+          // AbortError 是快速切词时 pause()/load() 打断 play() 的正常中断，不是真实错误，静默处理
+          if ((e as DOMException)?.name !== 'AbortError') {
+            console.error('Audio play error:', e);
+          }
           finish(false);
         });
       }

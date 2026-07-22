@@ -9,8 +9,8 @@ export function ProgressBar() {
   const wordList = currentList !== 'all' ? getWordListById(currentList) : null;
   const listName = wordList?.name || '全部单词';
 
-  // Use listTotalWords for percentage when in a specific list
-  const effectiveTotal = currentList === 'all' ? totalWords : listTotalWords;
+  // 统一使用 listTotalWords（已反映试用模式截断），避免 'all' 词表用全量词数导致进度条永不前进
+  const effectiveTotal = listTotalWords || totalWords;
   const percentage = effectiveTotal > 0 ? ((currentIndex + 1) / effectiveTotal) * 100 : 0;
 
   return (
