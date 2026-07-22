@@ -20,8 +20,12 @@ const WORDS_COUNT = 20000; // 目标获取单词数
 const BATCH_SIZE = 10;     // 每次发送给 API 的单词数量（批量处理更省钱且快）
 const SHARD_SIZE = 5000;   // 每个 JSON 文件存放多少个单词
 
-// DeepSeek API 配置
-const API_KEY = 'sk-fa3f1f88e5c0437eb26222063451bc34'; 
+// DeepSeek API 配置（密钥通过环境变量传入，不要写进代码：export DEEPSEEK_API_KEY=sk-...）
+const API_KEY = process.env.DEEPSEEK_API_KEY || '';
+if (!API_KEY) {
+  console.error('请先设置环境变量 DEEPSEEK_API_KEY');
+  process.exit(1);
+}
 const API_URL = 'https://api.deepseek.com/v1/chat/completions';
 const MODEL = 'deepseek-chat';
 

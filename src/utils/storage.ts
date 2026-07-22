@@ -35,15 +35,7 @@ export const storage = {
   },
 
   getSettings(): Settings {
-    try {
-      const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-      if (data) {
-        return JSON.parse(data);
-      }
-    } catch (e) {
-      console.error('Failed to load settings:', e);
-    }
-    return {
+    const defaults: Settings = {
       speed: 0.5,
       speechRate: 1.0,
       readDefinition: false,
@@ -51,6 +43,16 @@ export const storage = {
       accent: 'us',
       autoPlay: true,
     };
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+      if (data) {
+        // 合并存储与默认值，确保新增字段在旧数据中缺失时回退到默认值
+        return { ...defaults, ...JSON.parse(data) };
+      }
+    } catch (e) {
+      console.error('Failed to load settings:', e);
+    }
+    return defaults;
   },
 
   saveSettings(settings: Settings): void {

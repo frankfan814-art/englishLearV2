@@ -95,8 +95,19 @@ export const WORD_LISTS: WordList[] = [
   { id: 'jlpt_n1', name: 'JLPT N1', tag: 'jlpt_n1', language: 'ja' },
   // Korean
   { id: 'ko_all', name: '全部单词', tag: '*', language: 'ko' },
+  { id: 'topik_1', name: 'TOPIK 1 初级', tag: 'topik_1', language: 'ko' },
+  { id: 'topik_2', name: 'TOPIK 2 初级', tag: 'topik_2', language: 'ko' },
+  { id: 'topik_3', name: 'TOPIK 3 中级', tag: 'topik_3', language: 'ko' },
+  { id: 'topik_4', name: 'TOPIK 4 中级', tag: 'topik_4', language: 'ko' },
+  { id: 'topik_5', name: 'TOPIK 5 高级', tag: 'topik_5', language: 'ko' },
+  { id: 'topik_6', name: 'TOPIK 6 高级', tag: 'topik_6', language: 'ko' },
   // German
   { id: 'de_all', name: '全部单词', tag: '*', language: 'de' },
+  { id: 'de_a1', name: 'A1 入门', tag: 'a1', language: 'de' },
+  { id: 'de_a2', name: 'A2 基础', tag: 'a2', language: 'de' },
+  { id: 'de_b1', name: 'B1 中级', tag: 'b1', language: 'de' },
+  { id: 'de_b2', name: 'B2 中高级', tag: 'b2', language: 'de' },
+  { id: 'de_c1', name: 'C1 高级', tag: 'c1', language: 'de' },
 ];
 
 /**

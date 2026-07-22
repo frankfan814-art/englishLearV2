@@ -98,6 +98,25 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* 切词入场动画：next 从右侧滑入，prev 从左侧滑入 */
+@keyframes slide-in-left {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(-28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.anim-slide-in-left {
+  animation: slide-in-left 0.28s ease-out;
+}
+
+.anim-slide-in-right {
+  animation: slide-in-right 0.28s ease-out;
+}
+
 @keyframes pulse-subtle {
   0%, 100% { opacity: 0.4; }
   50% { opacity: 1; }

@@ -1,5 +1,5 @@
 import { useState, ReactNode } from 'react';
-import { Check } from 'lucide-react';
+import { Check, KeyRound } from 'lucide-react';
 import { Settings } from '../types/word';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +22,7 @@ import {
 import { getLanguageInfo } from '../config/wordLists';
 import { useAppStore } from '../store/useAppStore';
 import { GradientProgress } from './GradientProgress';
+import { LicenseModal } from './LicenseModal';
 
 interface Props {
   isOpen: boolean;
@@ -54,11 +55,13 @@ export function SettingsModal({
   currentRound,
 }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showLicense, setShowLicense] = useState(false);
   const speedOptions = [0.5, 1, 1.5, 2, 3];
   const percentage = ((currentIndex + 1) / totalWords) * 100;
 
   // 根据当前语言获取发音口音选项
   const currentLanguage = useAppStore(state => state.currentLanguage);
+  const licenseState = useAppStore(state => state.licenseState);
   const langInfo = getLanguageInfo(currentLanguage);
   const accentOptions = langInfo?.ttsConfig.accentOptions || [];
 
@@ -197,6 +200,23 @@ export function SettingsModal({
             </div>
           </div>
 
+          {/* 软件激活 */}
+          <div>
+            <SectionLabel>软件激活</SectionLabel>
+            <button
+              onClick={() => setShowLicense(true)}
+              className="w-full flex items-center justify-between gap-2 bg-muted/50 rounded-xl p-4 border border-white/5 hover:bg-muted/70 active:scale-[0.99] transition-all"
+            >
+              <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <KeyRound className="w-4 h-4 text-primary" />
+                {licenseState === 'active' ? '已激活完整版' : '试用版 · 点击激活'}
+              </span>
+              <span className={`text-xs font-semibold ${licenseState === 'active' ? 'text-emerald-400' : 'text-primary'}`}>
+                {licenseState === 'active' ? '已解锁' : '去激活'}
+              </span>
+            </button>
+          </div>
+
           {/* 自动保存提示 */}
           <div className="flex justify-center">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
@@ -248,6 +268,12 @@ export function SettingsModal({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* 激活弹窗（嵌套在设置之上） */}
+      <LicenseModal
+        isOpen={showLicense}
+        onClose={() => setShowLicense(false)}
+      />
     </>
   );
 }

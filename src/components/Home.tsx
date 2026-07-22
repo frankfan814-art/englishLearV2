@@ -1,25 +1,39 @@
 import { useState } from 'react';
-import { List } from 'lucide-react';
+import { List, Play, KeyRound } from 'lucide-react';
 import { useAppStore } from '../store/useAppStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { unlockAudio } from '../hooks/useTTS';
 import { WordListSelect } from './WordListSelect';
 import { GradientProgress } from './GradientProgress';
-import { LANGUAGES, LANGUAGE_BRAND } from '../config/wordLists';
+import { LicenseModal } from './LicenseModal';
+import { LANGUAGES, LANGUAGE_BRAND, getWordListById, getListsByLanguage } from '../config/wordLists';
+import { TRIAL_WORD_LIMIT } from '../config/license';
 import { getTotalWords } from '../utils/languageRegistry';
 import { cn } from '@/lib/utils';
 
 export function Home() {
-  const { currentLanguage, switchLanguage, currentRound, currentIndex, completedRounds, startLearning, switchList } = useAppStore();
+  const {
+    currentLanguage, switchLanguage, currentRound, currentIndex, completedRounds,
+    startLearning, masteredWords, currentList, listTotalWords, licenseState,
+  } = useAppStore();
   const [showListSelect, setShowListSelect] = useState(false);
+  const [showLicense, setShowLicense] = useState(false);
 
-  const totalWords = getTotalWords(currentLanguage);
-  const percentage = totalWords > 0 ? ((currentIndex + 1) / totalWords) * 100 : 0;
+  // 首页展示当前词表的进度（与进入学习页后的内容一致），而非整个语言的总进度
+  const listTotal = listTotalWords || getTotalWords(currentLanguage);
+  const percentage = listTotal > 0 ? ((currentIndex + 1) / listTotal) * 100 : 0;
   const brand = LANGUAGE_BRAND[currentLanguage] || LANGUAGE_BRAND.en;
+  const currentListName = getWordListById(currentList)?.name || '全部单词';
+  const masteredCount = Object.keys(masteredWords).length;
+  const hasProgress = currentIndex > 0 || currentRound > 1;
+  const listCount = getListsByLanguage(currentLanguage).length;
 
-  const handleQuickStart = async () => {
-    await switchList(`${currentLanguage}_all`);
+  // 全部语言的词库总量，用于底部卖点条
+  const grandTotal = LANGUAGES.reduce((sum, lang) => sum + getTotalWords(lang.code), 0);
+
+  // 主 CTA：直接继续当前词表（有进度时显示"继续学习"），不再强制跳回"全部单词"
+  const handleStart = () => {
     unlockAudio();
     startLearning();
   };
@@ -69,15 +83,16 @@ export function Home() {
             ))}
           </div>
 
-          {/* Quick Start Button */}
+          {/* Start / Continue Button */}
           <Button
             size="lg"
             className="w-full h-12 rounded-xl text-base font-bold shadow-lg shadow-primary/25 hover:scale-[1.02] active:scale-[0.98] transition-transform mb-3"
-            onClick={handleQuickStart}
+            onClick={handleStart}
           >
-            快速开始
+            <Play className="w-4 h-4 fill-current mr-1.5" />
+            {hasProgress ? '继续学习' : '开始学习'}
             <span className="text-xs font-normal opacity-75 ml-2">
-              全部单词 · {totalWords.toLocaleString()} 词
+              {currentListName} · {listTotal.toLocaleString()} 词
             </span>
           </Button>
 
@@ -91,35 +106,57 @@ export function Home() {
             <List className="w-4 h-4 mr-2" />
             按词表学习
             <span className="text-xs font-normal opacity-60 ml-2">
-              托福 / GRE / 四六级
+              共 {listCount} 个词表
             </span>
           </Button>
 
+          {/* 试用版激活入口 */}
+          {licenseState === 'trial' && (
+            <button
+              onClick={() => setShowLicense(true)}
+              className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-medium text-primary bg-primary/10 border border-primary/20 hover:bg-primary/15 active:scale-[0.98] transition-all"
+            >
+              <KeyRound className="w-3.5 h-3.5" />
+              试用版 · 每词表限前 {TRIAL_WORD_LIMIT} 词 · 点击激活完整版
+            </button>
+          )}
+
           {/* Progress Stats */}
           <div className="w-full bg-background/60 rounded-2xl p-5 mt-7 border border-white/5">
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-3 gap-2 mb-4 text-center">
               <div>
                 <p className="text-xs font-medium text-muted-foreground mb-1">当前轮次</p>
-                <p className="text-lg font-bold text-foreground">第 {currentRound} 轮</p>
+                <p className="text-lg font-bold text-foreground tabular-nums">第 {currentRound} 轮</p>
               </div>
-              <div className="text-right">
-                <p className="text-xs font-medium text-muted-foreground mb-1">已完成轮次</p>
-                <p className="text-lg font-bold text-primary">{completedRounds} 轮</p>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-1">已完成</p>
+                <p className="text-lg font-bold text-primary tabular-nums">{completedRounds} 轮</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-1">已掌握</p>
+                <p className="text-lg font-bold text-emerald-400 tabular-nums">{masteredCount}</p>
               </div>
             </div>
 
             <div className="w-full pt-4 border-t border-white/5">
               <div className="flex justify-between items-end mb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">进度</span>
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  {currentListName}
+                </span>
                 <div className="text-right">
-                  <span className="font-bold text-foreground">{currentIndex + 1}</span>
+                  <span className="font-bold text-foreground tabular-nums">{currentIndex + 1}</span>
                   <span className="text-muted-foreground mx-1">/</span>
-                  <span className="text-sm text-muted-foreground">{totalWords.toLocaleString()}</span>
+                  <span className="text-sm text-muted-foreground tabular-nums">{listTotal.toLocaleString()}</span>
                 </div>
               </div>
               <GradientProgress percentage={percentage} />
             </div>
           </div>
+
+          {/* 卖点条 */}
+          <p className="text-[11px] text-muted-foreground/70 text-center mt-6 tracking-wide">
+            {LANGUAGES.length} 国语言 · {grandTotal.toLocaleString()} 词库 · 离线畅学 · 无广告
+          </p>
         </Card>
       </div>
 
@@ -127,6 +164,12 @@ export function Home() {
       <WordListSelect
         isOpen={showListSelect}
         onClose={() => setShowListSelect(false)}
+      />
+
+      {/* License Modal */}
+      <LicenseModal
+        isOpen={showLicense}
+        onClose={() => setShowLicense(false)}
       />
     </>
   );

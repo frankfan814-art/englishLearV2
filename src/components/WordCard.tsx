@@ -68,16 +68,30 @@ export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, lan
     }
   };
 
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
+  const onTouchEnd = (e: TouchEvent) => {
+    if (touchStart === null) return;
+    // 纯点按不会触发 touchmove，此时 touchEnd 仍为 null，按位移 0 处理
+    const end = touchEnd ?? touchStart;
+    const distance = touchStart - end;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
     setSwipeDirection(null);
+    setTouchStart(null);
+    setTouchEnd(null);
 
-    if (isLeftSwipe) onNext();
-    else if (isRightSwipe) onPrev();
+    if (isLeftSwipe) {
+      onNext();
+      return;
+    }
+    if (isRightSwipe) {
+      onPrev();
+      return;
+    }
+    // 位移极小视为点按：点卡片任意位置（按钮除外）重播单词发音
+    if (Math.abs(distance) < 10 && !(e.target instanceof HTMLElement && e.target.closest('button'))) {
+      onSpeak();
+    }
   };
 
   if (isLoading) {
@@ -114,10 +128,10 @@ export function WordCard({ word, isLoading, onSpeak, onSpeakExample, accent, lan
     .map(s => s.trim())
     .filter(Boolean);
 
-  // Tag 显示逻辑：有 tag 显示 tag，否则显示语言名称
+  // Tag 显示逻辑：有 tag 显示 tag（下划线转空格，如 jlpt_n5 → JLPT N5），否则显示语言名称
   const tagDisplayMap: Record<string, string> = { ja: '日本語', ko: '한국어', de: 'DEUTSCH' };
   const tagDisplay = word.tag
-    ? word.tag.split(' ')[0].toUpperCase()
+    ? word.tag.split(' ')[0].replace(/_/g, ' ').toUpperCase()
     : (tagDisplayMap[language] || 'VOCAB');
 
   return (

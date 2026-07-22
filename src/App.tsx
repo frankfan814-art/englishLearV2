@@ -27,6 +27,7 @@ function App() {
     settings,
     isLearningMode,
     currentLanguage,
+    currentList,
     initialize,
     nextWord,
     prevWord,
@@ -35,6 +36,7 @@ function App() {
     updateSettings,
     resetProgress,
     markMastered,
+    initLicense,
   } = useAppStore();
 
   // 语言相关的 Logo 和副标题
@@ -42,12 +44,25 @@ function App() {
 
   useEffect(() => {
     initialize();
-  }, [initialize]);
+    // 启动后联网复核授权状态（被撤销的授权会降级回试用并重载词表）
+    initLicense();
+  }, [initialize, initLicense]);
 
   useAutoPlay();
 
   // Keep screen awake during playback
   useWakeLock(isPlaying);
+
+  // 切词动画方向：next 从右滑入，prev 从左滑入（初始/刷新为淡入）
+  const [slideDir, setSlideDir] = useState<'left' | 'right' | null>(null);
+  const handleNext = useCallback(() => {
+    setSlideDir('left');
+    nextWord();
+  }, [nextWord]);
+  const handlePrev = useCallback(() => {
+    setSlideDir('right');
+    prevWord();
+  }, [prevWord]);
 
   const handleSpeak = () => {
     if (currentWord) {
@@ -75,11 +90,11 @@ function App() {
     switch (e.key) {
       case 'ArrowLeft':
         e.preventDefault();
-        prevWord();
+        handlePrev();
         break;
       case 'ArrowRight':
         e.preventDefault();
-        nextWord();
+        handleNext();
         break;
       case ' ':
         e.preventDefault();
@@ -87,7 +102,7 @@ function App() {
         togglePlay();
         break;
     }
-  }, [isLearningMode, prevWord, nextWord, togglePlay]);
+  }, [isLearningMode, handlePrev, handleNext, togglePlay]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -171,16 +186,25 @@ function App() {
 
       {/* Main Content */}
       <main className="flex-1 relative z-10 flex flex-col items-center justify-center w-full max-w-[480px] mx-auto px-4">
-        <WordCard
-          word={currentWord}
-          isLoading={isLoading}
-          onSpeak={handleSpeak}
-          onSpeakExample={handleSpeakExample}
-          accent={settings.accent}
-          language={currentLanguage}
-          onNext={nextWord}
-          onPrev={prevWord}
-        />
+        {/* key 随词表/索引变化触发重挂载，按滑动方向播放入场动画 */}
+        <div
+          key={`${currentList}-${currentIndex}`}
+          className={cn(
+            'w-full h-full flex flex-col items-center justify-center',
+            slideDir === 'left' ? 'anim-slide-in-left' : slideDir === 'right' ? 'anim-slide-in-right' : 'animate-fade'
+          )}
+        >
+          <WordCard
+            word={currentWord}
+            isLoading={isLoading}
+            onSpeak={handleSpeak}
+            onSpeakExample={handleSpeakExample}
+            accent={settings.accent}
+            language={currentLanguage}
+            onNext={handleNext}
+            onPrev={handlePrev}
+          />
+        </div>
       </main>
 
       {/* Bottom Control */}

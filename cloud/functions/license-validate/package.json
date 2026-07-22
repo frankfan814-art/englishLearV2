@@ -1,0 +1,9 @@
+{
+  "name": "license-validate",
+  "version": "1.0.0",
+  "description": "启动时复核授权状态",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.0.0"
+  }
+}

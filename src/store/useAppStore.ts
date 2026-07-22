@@ -6,6 +6,8 @@ import {
 } from '../utils/storage';
 import { getDataLoader, getTotalWords } from '../utils/languageRegistry';
 import { getListsByLanguage, getLanguageInfo, getWordListById } from '../config/wordLists';
+import { TRIAL_WORD_LIMIT, LicenseState } from '../config/license';
+import { activateLicense, getStoredLicense, isLicenseBypassed, validateLicenseOnStart } from '../utils/license';
 
 interface AppState {
   currentWord: Word | null;
@@ -28,6 +30,13 @@ interface AppState {
   currentLanguage: string;
   wordIndexTotal: number;
 
+  // 软件激活（云激活卡密制）
+  licenseState: LicenseState;
+  /** 启动时联网复核授权状态（被撤销则降级回试用） */
+  initLicense: () => Promise<void>;
+  /** 用卡密激活，成功后重载全量词库 */
+  activateAndReload: (code: string) => Promise<{ ok: boolean; message: string }>;
+
   initialize: () => Promise<void>;
   loadCurrentWord: () => Promise<void>;
   nextWord: () => void;
@@ -44,7 +53,12 @@ interface AppState {
   switchLanguage: (lang: string) => Promise<void>;
 }
 
-export const useAppStore = create<AppState>((set, get) => ({
+export const useAppStore = create<AppState>((set, get) => {
+  /** 试用模式截断：未激活时每个词表只开放前 TRIAL_WORD_LIMIT 词 */
+  const applyTrialLimit = (indexes: number[]): number[] =>
+    get().licenseState === 'trial' ? indexes.slice(0, TRIAL_WORD_LIMIT) : indexes;
+
+  return {
   currentWord: null,
   isLoading: true,
   error: null,
@@ -62,6 +76,26 @@ export const useAppStore = create<AppState>((set, get) => ({
   wordIndexesInList: [],
   listTotalWords: getTotalWords(getCurrentLanguage()),
   wordIndexTotal: getTotalWords(getCurrentLanguage()),
+  // 乐观取本地授权（启动后 initLicense 会联网复核，被撤销会降级回试用）
+  licenseState: (isLicenseBypassed() || getStoredLicense()) ? 'active' : 'trial',
+
+  initLicense: async () => {
+    const state = await validateLicenseOnStart();
+    if (state !== get().licenseState) {
+      set({ licenseState: state });
+      // 授权状态变化 → 重新加载词表，应用或解除试用截断
+      await get().initialize();
+    }
+  },
+
+  activateAndReload: async (code) => {
+    const result = await activateLicense(code);
+    if (result.ok) {
+      set({ licenseState: 'active' });
+      await get().initialize();
+    }
+    return result;
+  },
 
   initialize: async () => {
     const currentLanguage = getCurrentLanguage();
@@ -97,18 +131,20 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { buildWordListIndex } = await import('../utils/wordListIndex');
     await buildWordListIndex(currentLanguage);
 
-    // Load word indexes for current list
+    // Load word indexes for current list（试用模式下截断为前 TRIAL_WORD_LIMIT 词）
     if (currentList === 'all' || currentList === `${currentLanguage}_all`) {
+      const indexes = applyTrialLimit(Array.from({ length: totalWords }, (_, i) => i));
       set({
-        wordIndexesInList: Array.from({ length: totalWords }, (_, i) => i),
-        listTotalWords: totalWords,
+        wordIndexesInList: indexes,
+        listTotalWords: indexes.length,
       });
     } else {
       const { getWordIndexesByTag } = await import('../utils/wordListIndex');
       const wordList = getWordListById(currentList);
 
       if (wordList) {
-        const indexes = await getWordIndexesByTag(wordList.tag, currentLanguage);
+        const rawIndexes = await getWordIndexesByTag(wordList.tag, currentLanguage);
+        const indexes = applyTrialLimit(rawIndexes);
         set({
           wordIndexesInList: indexes,
           listTotalWords: indexes.length,
@@ -330,6 +366,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       return;
     }
 
+    // 试用模式截断（已激活时原样返回）
+    newWordIndexesInList = applyTrialLimit(newWordIndexesInList);
+    newListTotalWords = newWordIndexesInList.length;
+
     const targetProgress = updatedListProgress[listId] || {
       currentRound: 1, currentIndex: 0, completedRounds: 0,
       lastUpdate: new Date().toISOString(),
@@ -384,11 +424,13 @@ export const useAppStore = create<AppState>((set, get) => ({
       lastUpdate: new Date().toISOString(),
     };
 
+    const langIndexes = applyTrialLimit(Array.from({ length: totalWords }, (_, i) => i));
+
     set({
       currentLanguage: lang,
       currentList: defaultListId,
-      wordIndexesInList: Array.from({ length: totalWords }, (_, i) => i),
-      listTotalWords: totalWords,
+      wordIndexesInList: langIndexes,
+      listTotalWords: langIndexes.length,
       wordIndexTotal: totalWords,
       totalWords,
       currentRound: targetProgress.currentRound,
@@ -406,4 +448,5 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     await get().loadListWord();
   },
-}));
+  };
+});

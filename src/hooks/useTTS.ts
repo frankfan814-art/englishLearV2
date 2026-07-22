@@ -16,6 +16,9 @@ const BAIDU_LAN: Record<string, BaiduLan | undefined> = {
   de: undefined,
 };
 
+// 有道词典音频支持发音的语言（实测：英语、德语单词均返回真人发音音频）
+const YOUDAO_LANGS = new Set(['en', 'de']);
+
 export function unlockAudio() {
   audioInstance.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
   audioInstance.load();
@@ -199,9 +202,10 @@ export function useTTS() {
     // 有道 dictvoice 仅适合单词/短词；句子（含空白）不走过道
     const isSentence = /\s/.test(text.trim());
 
-    // 第 1 级：英语单词走有道真人发音（质量最好）
-    if (ttsConfig.mode === 'youdao' && !isSentence) {
-      const success = await speakRealAudio(speakId, text, accent as 'us' | 'uk', rate);
+    // 第 1 级：有道真人发音（支持英语/德语单词，质量最好）
+    if (!isSentence && YOUDAO_LANGS.has(language)) {
+      const youdaoAccent = ttsConfig.mode === 'youdao' ? (accent as 'us' | 'uk') : 'uk';
+      const success = await speakRealAudio(speakId, text, youdaoAccent, rate);
       if (success && alive()) return true;
     }
 
@@ -212,7 +216,7 @@ export function useTTS() {
       if (ok && alive()) return true;
     }
 
-    // 第 3 级：系统 TTS（原生插件 / Web Speech）兜底；德语无公开音频源，直接走这一级
+    // 第 3 级：系统 TTS（原生插件 / Web Speech）兜底；德语无百度音频源，有道失败后直接走这一级
     if (!alive()) return false;
     if (ttsConfig.mode === 'youdao') {
       const targetLang = accent === 'uk' ? 'en-GB' : 'en-US';

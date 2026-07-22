@@ -1,0 +1,9 @@
+{
+  "name": "license-activate",
+  "version": "1.0.0",
+  "description": "卡密激活 + 设备绑定",
+  "main": "index.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.0.0"
+  }
+}
