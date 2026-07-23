@@ -35,38 +35,53 @@ export function useTTS() {
   const cancelledRef = useRef(false);
   const currentSpeakRef = useRef<number>(0);
 
-  // 通过 <audio> 播放网络音频 URL（有道/百度等公开语音源），5 秒超时或出错返回 false 走下一级兜底
+  // 通过 <audio> 播放网络音频 URL（有道/百度等公开语音源）
+  // 超时策略：加载阶段 5 秒超时；一旦开始播放（playing 事件），切换为 30 秒安全超时，
+  // 等待 onended 自然结束。避免长例句因“加载+播放”总时长超过 5 秒而被误判失败。
   const playAudioUrl = useCallback((speakId: number, url: string, rate: number = 1.0): Promise<boolean> => {
     return new Promise((resolve) => {
       if (cancelledRef.current || currentSpeakRef.current !== speakId) return resolve(false);
-
+  
       audioInstance.src = url;
       audioInstance.load();
       audioInstance.playbackRate = rate;
-
+  
       let timeoutId: any;
+      let finished = false;
       const onEnded = () => finish(true);
       const onError = () => finish(false);
-
+      const onPlaying = () => {
+        // 音频已开始播放，清除加载超时，换用更长的安全超时（防止 onended 永不触发的极端情况）
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => finish(false), 30_000);
+      };
+  
       const finish = (result: boolean) => {
+        if (finished) return; // 防止重复调用（如 timeout 和 onended 竞争）
+        finished = true;
         clearTimeout(timeoutId);
         if (audioInstance.onended === onEnded) audioInstance.onended = null;
         if (audioInstance.onerror === onError) audioInstance.onerror = null;
-
+        audioInstance.removeEventListener('playing', onPlaying);
+        // 失败时主动暂停，避免进入下一级兜底时上一段音频仍在播放
+        if (!result) audioInstance.pause();
+  
         if (currentSpeakRef.current !== speakId) {
           resolve(false);
         } else {
           resolve(result);
         }
       };
-
+  
       audioInstance.onended = onEnded;
-      audioInstance.onerror = onError; // 失败时走 fallback
-
+      audioInstance.onerror = onError;
+      audioInstance.addEventListener('playing', onPlaying);
+  
+      // 加载阶段超时：5 秒内未开始播放则判定失败，进入下一级兜底
       timeoutId = setTimeout(() => {
         finish(false);
-      }, 5000); // 5秒超时
-
+      }, 5000);
+  
       const playPromise = audioInstance.play();
       if (playPromise !== undefined) {
         playPromise.catch((e) => {

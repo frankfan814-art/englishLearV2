@@ -334,6 +334,69 @@ test.describe('TTS 发音', () => {
     expect(jpRequests.length).toBeGreaterThan(0);
     expect(jpRequests[0].status).toBe(200);
   });
+
+  test('自动播放完整顺序：单词→释义→例句（全量验证）', async ({ page }) => {
+    // 记录所有 TTS 请求的顺序
+    const ttsSequence: { type: 'youdao' | 'baidu'; url: string; status: number }[] = [];
+    page.on('response', (res) => {
+      const url = res.url();
+      if (url.includes('dict.youdao.com/dictvoice')) {
+        ttsSequence.push({ type: 'youdao', url, status: res.status() });
+      } else if (url.includes('fanyi.baidu.com/gettts')) {
+        ttsSequence.push({ type: 'baidu', url, status: res.status() });
+      }
+    });
+
+    // 先进入学习，然后开启释义+例句（模拟用户操作）
+    await enterLearning(page);
+    await page.waitForTimeout(500);
+
+    await page.getByLabel('设置').click();
+    await expect(page.getByText('自定义你的学习体验')).toBeVisible();
+    // 开启自动朗读释义
+    await page
+      .locator('label:has-text("自动朗读释义") + div')
+      .getByRole('button', { name: '开启' })
+      .click();
+    // 开启自动朗读例句
+    await page
+      .locator('label:has-text("自动朗读例句") + div')
+      .getByRole('button', { name: '开启' })
+      .click();
+    await closeDrawer(page);
+
+    // 等待完整播放序列（单词~2s + 500ms + 释义~2s + 300ms + 例句~3s + 间隔）
+    // 第一个单词 "n't" 无例句，第二个单词 "last" 有例句，等待足够长时间
+    await page.waitForTimeout(15000);
+
+    // 验证 1：有道请求存在（单词发音）
+    const youdaoReqs = ttsSequence.filter((r) => r.type === 'youdao');
+    expect(youdaoReqs.length).toBeGreaterThan(0);
+
+    // 验证 2：百度中文请求存在（释义朗读）
+    const baiduZhReqs = ttsSequence.filter((r) => r.type === 'baidu' && r.url.includes('lan=zh'));
+    expect(baiduZhReqs.length).toBeGreaterThan(0);
+    expect(baiduZhReqs[0].status).toBe(200);
+
+    // 验证 3：百度英文请求存在且包含句子（例句朗读）——核心验证：例句必须被读出
+    // 区分单词兆底（无空格）和例句（含空格 %20）
+    const baiduEnSentenceReqs = ttsSequence.filter(
+      (r) => r.type === 'baidu' && r.url.includes('lan=en') && r.url.includes('%20')
+    );
+    expect(baiduEnSentenceReqs.length).toBeGreaterThan(0);
+    expect(baiduEnSentenceReqs[0].status).toBe(200);
+
+    // 验证 4：顺序正确——第一个例句请求之前必须有百度中文请求（释义）
+    const firstEnSentenceIdx = ttsSequence.findIndex(
+      (r) => r.type === 'baidu' && r.url.includes('lan=en') && r.url.includes('%20')
+    );
+    const zhBeforeEn = ttsSequence.slice(0, firstEnSentenceIdx).some((r) => r.type === 'baidu' && r.url.includes('lan=zh'));
+    expect(zhBeforeEn).toBe(true);
+
+    // 验证 5：顺序正确——第一个百度中文请求（释义）之前必须有 TTS 请求（单词发音）
+    const firstZhIdx = ttsSequence.findIndex((r) => r.type === 'baidu' && r.url.includes('lan=zh'));
+    expect(firstZhIdx).toBeGreaterThan(0); // 释义不是第一个请求，前面有单词发音
+  });
 });
 
 // ============ 5. 设置面板 ============
