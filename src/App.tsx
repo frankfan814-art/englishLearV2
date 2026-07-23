@@ -11,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { MasteredList } from './components/MasteredList';
 import { LANGUAGE_BRAND } from './config/wordLists';
 import { cn } from '@/lib/utils';
+import { useBackHandler } from './hooks/useBackHandler';
+import { Toast } from './components/Toast';
 
 function App() {
   const [showSettings, setShowSettings] = useState(false);
@@ -38,6 +40,15 @@ function App() {
     markMastered,
     initLicense,
   } = useAppStore();
+
+  const { toastMessage, isToastVisible } = useBackHandler({
+    showSettings,
+    onCloseSettings: () => setShowSettings(false),
+    showMastered,
+    onCloseMastered: () => setShowMastered(false),
+    isLearningMode,
+    quitLearning,
+  });
 
   // 语言相关的 Logo 和副标题
   const brand = LANGUAGE_BRAND[currentLanguage] || LANGUAGE_BRAND.en;
@@ -124,6 +135,7 @@ function App() {
     return (
       <div className="app-container min-h-screen text-foreground flex flex-col overflow-hidden app-bg">
         <Home />
+        <Toast message={toastMessage} visible={isToastVisible} />
       </div>
     );
   }
@@ -263,6 +275,8 @@ function App() {
         isOpen={showMastered}
         onClose={() => setShowMastered(false)}
       />
+
+      <Toast message={toastMessage} visible={isToastVisible} />
     </div>
   );
 }
